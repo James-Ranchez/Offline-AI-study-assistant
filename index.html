@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyMind - Local AI Study Assistant</title>
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="styles/themes.css">
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/chat.css">
+  <link rel="stylesheet" href="styles/reviewer.css">
+</head>
+<body>
+
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <svg viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zM12 6v12M6 12h12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <span class="sidebar-title">StudyMind</span>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-view="chat-view" id="nav-chat">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Study Chat</span>
+      </button>
+      <button class="nav-item" data-view="reviewer-view" id="nav-reviewer">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Review Maker</span>
+      </button>
+      <button class="nav-item" data-view="explainer-view" id="nav-explainer">
+        <svg viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Topic Explainer</span>
+      </button>
+      <button class="nav-item" data-view="planner-view" id="nav-planner">
+        <svg viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Study Flow</span>
+      </button>
+      <button class="nav-item" data-view="settings-view" id="nav-settings">
+        <svg viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065zM15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Settings</span>
+      </button>
+    </nav>
+    
+    <div class="sidebar-footer">
+      <div class="status-indicator">
+        <span class="status-dot offline" id="connection-dot"></span>
+        <span id="connection-text">Ollama Offline</span>
+      </div>
+      <div class="theme-toggle-bar">
+        <span>Dark Mode</span>
+        <button class="theme-btn" id="theme-toggle-btn" title="Toggle Theme">
+          <svg id="theme-btn-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main View Container -->
+  <main class="main-content">
+    
+    <!-- Onboarding Panel (displays when Ollama is offline or on first startup) -->
+    <section class="onboarding-overlay" id="onboarding-view">
+      <div class="onboarding-card">
+        <div class="onboarding-welcome">
+          <div class="sidebar-logo">
+            <svg viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zM12 6v12M6 12h12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h1>Welcome to StudyMind</h1>
+          <p>Your 100% private, local AI academic companion.</p>
+        </div>
+        
+        <div class="steps-list">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="step-title">Install Ollama Engine</div>
+              <div class="step-desc">Download and install Ollama, the local AI framework, for your operating system from <a href="https://ollama.com" target="_blank" style="color: var(--color-primary); text-decoration: underline;">ollama.com</a>.</div>
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <div class="step-title">Start the Ollama Application</div>
+              <div class="step-desc">Ensure the Ollama application is running in your background (look for the llama icon in your tray).</div>
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <div class="step-title">Pull the Study Model</div>
+              <div class="step-desc">Open your terminal / command prompt and run:<br><code>ollama pull tinyllama</code></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="onboarding-actions">
+          <button class="btn-primary" id="onboarding-check-btn">Check Connection</button>
+          <button class="btn-secondary" id="onboarding-bypass-btn">Test Mock Mode (Demo)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 1: STUDY CHAT -->
+    <section class="view-container active" id="chat-view">
+      <div class="view-header">
+        <h2 class="view-title">Study Chat</h2>
+        <p class="view-description">Ask any academic question and receive simplified answers from your local AI.</p>
+      </div>
+      
+      <div class="chat-container">
+        <!-- Chat history list of past sessions -->
+        <aside class="chat-sidebar">
+          <div class="chat-sidebar-header">
+            <button class="new-chat-btn" id="new-chat-btn">
+              + New Study Chat
+            </button>
+          </div>
+          <div class="sessions-list" id="sessions-list">
+            <!-- Dynamically populated past sessions -->
+          </div>
+        </aside>
+        
+        <!-- Live Chat Workspace -->
+        <div class="chat-workspace">
+          <div class="chat-history" id="chat-history">
+            <!-- Empty state welcome -->
+            <div class="chat-welcome" id="chat-welcome-state">
+              <div class="chat-welcome-icon">
+                <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div>
+                <h2>Hello! I'm StudyMind</h2>
+                <p>Your local offline study assistant. What topic are you working on today? Select a quick prompt or type your own below.</p>
+              </div>
+              
+              <div class="chips-container">
+                <button class="quick-chip" data-prompt="Explain the water cycle simply with examples.">Rain & Clouds: Water Cycle 🌧️</button>
+                <button class="quick-chip" data-prompt="Explain what is photosynthesis and how plants make energy.">Leaf Power: Photosynthesis 🌿</button>
+                <button class="quick-chip" data-prompt="Summarize the key events and causes of World War 2.">History: Causes of WWII 🏛️</button>
+                <button class="quick-chip" data-prompt="Explain the core difference between mitosis and meiosis division.">Biology: Mitosis vs Meiosis 🧬</button>
+              </div>
+            </div>
+            
+            <!-- Message bubbles render here dynamically -->
+          </div>
+          
+          <!-- Thinking indicator -->
+          <div class="thinking-bubble" id="chat-thinking">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+          
+          <!-- Send bar -->
+          <div class="chat-input-bar">
+            <button class="clear-history-btn" id="clear-session-btn" title="Clear current chat conversation">
+              <svg viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <textarea class="chat-textarea" id="chat-input" placeholder="Type your academic question here (e.g. What is supply and demand?)..." rows="1"></textarea>
+            <button class="btn-primary send-btn" id="chat-send-btn" title="Send Question">
+              <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: REVIEW GENERATOR -->
+    <section class="view-container" id="reviewer-view">
+      <div class="view-header">
+        <h2 class="view-title">Review Maker</h2>
+        <p class="view-description">Paste your lesson notes, and generate custom quizzes, open questions, or bullet lists.</p>
+      </div>
+      
+      <div class="reviewer-container">
+        <!-- Notes Input Card -->
+        <div class="reviewer-card">
+          <div class="input-section">
+            <label for="reviewer-notes" class="notes-label">Paste Lesson Notes / Textbook Material</label>
+            <textarea class="notes-textarea" id="reviewer-notes" placeholder="Paste notes here (e.g. Mitochondria are the powerhouses of the cell. They generate ATP through cellular respiration, which consists of glycolysis, the Krebs cycle, and the electron transport chain...)"></textarea>
+          </div>
+          
+          <div class="controls-row">
+            <div class="controls-group">
+              <span class="control-label">Review Mode:</span>
+              <div class="reviewer-tabs">
+                <button class="reviewer-tab active" data-mode="mcq">MCQ Quiz</button>
+                <button class="reviewer-tab" data-mode="open">Open-Ended</button>
+                <button class="reviewer-tab" data-mode="summary">Key Summary</button>
+              </div>
+            </div>
+            
+            <div class="controls-group">
+              <label for="reviewer-count" class="control-label">Questions:</label>
+              <select id="reviewer-count">
+                <option value="5">5 Questions</option>
+                <option value="8">8 Questions</option>
+                <option value="10">10 Questions</option>
+              </select>
+              
+              <button class="btn-primary" id="reviewer-generate-btn">Generate Review</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Results Display Card (Hidden by default until generated) -->
+        <div class="reviewer-card" id="reviewer-results-card" style="display: none;">
+          <div class="results-header">
+            <div class="results-title">
+              <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--color-primary)" stroke-width="2.5" fill="none"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span id="results-title-text">Study Review Materials</span>
+            </div>
+            
+            <div class="export-actions">
+              <button class="btn-secondary export-btn" id="reviewer-copy-btn">
+                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.2" fill="none"><path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H14m0 0l3-3m-3 3l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Copy
+              </button>
+              <button class="btn-secondary export-btn" id="reviewer-save-btn">
+                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.2" fill="none"><path d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Save .txt
+              </button>
+            </div>
+          </div>
+          
+          <div class="results-section" id="reviewer-results-content">
+            <!-- Dynamic quiz elements render here -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: TOPIC EXPLAINER -->
+    <section class="view-container" id="explainer-view">
+      <div class="view-header">
+        <h2 class="view-title">Topic Explainer</h2>
+        <p class="view-description">Type in any complex academic topic, choose your target difficulty level, and get tailored private definitions.</p>
+      </div>
+      
+      <div class="reviewer-container">
+        <div class="reviewer-card">
+          <div class="input-section">
+            <label for="explainer-input" class="notes-label">What topic do you want explained?</label>
+            <input type="text" id="explainer-input" placeholder="e.g. Quantum Computing, Inflation in Economics, plate tectonics...">
+          </div>
+          
+          <div class="controls-row">
+            <div class="controls-group">
+              <span class="control-label">Difficulty Level:</span>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn-secondary active" id="diff-simple" data-level="Simple" style="border-left: 4px solid var(--color-simple);">🟢 Simple</button>
+                <button class="btn-secondary" id="diff-standard" data-level="Standard" style="border-left: 4px solid var(--color-standard);">🟡 Standard</button>
+                <button class="btn-secondary" id="diff-advanced" data-level="Advanced" style="border-left: 4px solid var(--color-advanced);">🔴 Advanced</button>
+              </div>
+            </div>
+            
+            <button class="btn-primary" id="explainer-generate-btn">Explain Concept</button>
+          </div>
+        </div>
+        
+        <!-- Result card -->
+        <div class="reviewer-card" id="explainer-results-card" style="display: none;">
+          <div class="results-header">
+            <div class="results-title">
+              <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--color-primary)" stroke-width="2.5" fill="none"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span id="explainer-results-title">Concept Explanation</span>
+            </div>
+            
+            <button class="btn-secondary export-btn" id="explainer-copy-btn">
+              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.2" fill="none"><path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H14m0 0l3-3m-3 3l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Copy Explanation
+            </button>
+          </div>
+          
+          <div class="results-section" id="explainer-results-content" style="color: var(--text-primary); line-height: 1.6; font-size: 0.96rem; white-space: pre-wrap;">
+            <!-- Output dynamically appears here -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 5: STUDY FLOW PLANNER -->
+    <section class="view-container" id="planner-view">
+      <div class="view-header">
+        <h2 class="view-title">Study Flow Planner</h2>
+        <p class="view-description">Upload your lecture notes (.txt), let the AI calculate custom study step durations, and start your active study countdown.</p>
+      </div>
+      
+      <div class="reviewer-container" style="max-width:100%; display: grid; grid-template-columns: 1fr 1.3fr; gap: 24px;">
+        
+        <!-- Controls Pane (Left) -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+          <!-- Uploader Card -->
+          <div class="reviewer-card">
+            <span class="notes-label">1. Upload Lecture Notes (.txt)</span>
+            <div class="file-upload-zone" id="planner-upload-zone" style="display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed var(--border-color); border-radius: var(--radius-md); padding: 30px 20px; cursor: pointer; text-align: center; background-color: var(--bg-input); transition: all var(--transition-fast);">
+              <svg viewBox="0 0 24 24" width="36" height="36" stroke="var(--color-primary)" stroke-width="2" fill="none" style="margin-bottom:8px;"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M12 12v9m0-9l-3 3m3-3l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span style="font-weight:700; font-size:0.9rem;">Drag & Drop File Here</span>
+              <span style="font-size:0.78rem; color:var(--text-secondary); margin-top:2px;">or click to browse your drive</span>
+              <input type="file" id="planner-file-input" accept=".txt" style="display:none;">
+            </div>
+            
+            <div id="planner-file-info" style="display:none; justify-content:space-between; align-items:center; background-color:var(--bg-input); padding:10px 14px; border-radius:var(--radius-md); border:1px solid var(--border-color); font-size:0.85rem; font-weight:700;">
+              <span id="planner-file-name" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:80%;">notes.txt</span>
+              <button id="planner-file-remove" style="background:none; border:none; color:var(--color-advanced); cursor:pointer; font-weight:700; font-size:0.8rem; padding: 2px 6px;">Remove</button>
+            </div>
+            
+            <button class="btn-primary" id="planner-generate-btn" style="width: 100%;">Generate Study Flow</button>
+          </div>
+          
+          <!-- Pomodoro Countdown Timer Card -->
+          <div class="reviewer-card" style="align-items: center; justify-content: center; padding: 26px 20px;">
+            <span class="notes-label" style="align-self: flex-start; margin-bottom: 8px;">2. Active Pomodoro Countdown</span>
+            
+            <div style="position: relative; width: 170px; height: 170px; display: flex; align-items: center; justify-content: center;">
+              <!-- Circular Countdown SVG Ring -->
+              <svg width="170" height="170" viewBox="0 0 170 170" style="transform: rotate(-90deg); position: absolute; top:0; left:0;">
+                <circle cx="85" cy="85" r="74" stroke="var(--border-color)" stroke-width="8" fill="none" />
+                <circle id="timer-progress-ring" cx="85" cy="85" r="74" stroke="var(--color-primary)" stroke-width="8" stroke-dasharray="465" stroke-dashoffset="0" fill="none" style="transition: stroke-dashoffset 1s linear; filter: drop-shadow(0 0 6px rgba(6, 182, 212, 0.3));" />
+              </svg>
+              <!-- Digital timer readouts -->
+              <div style="text-align: center; z-index: 5;">
+                <div id="timer-digits" style="font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; font-family: var(--font-sans);">25:00</div>
+                <div id="timer-task-label" style="font-size: 0.72rem; font-weight: 800; color: var(--text-secondary); max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;">Study Time</div>
+              </div>
+            </div>
+            
+            <!-- Controls panel -->
+            <div style="display: flex; gap: 10px; margin-top: 16px; width: 100%;">
+              <button class="btn-primary" id="timer-play-btn" style="flex:1;">Play</button>
+              <button class="btn-secondary" id="timer-reset-btn" style="padding: 10px 14px;">Reset</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Timeline Workspace Card (Right) -->
+        <div style="display: flex; flex-direction: column;">
+          <!-- Empty timeline state -->
+          <div class="reviewer-card" id="planner-empty-timeline" style="align-items: center; justify-content: center; height: 100%; min-height: 400px; text-align: center; color: var(--text-secondary); border-style: dashed; padding: 40px;">
+            <svg viewBox="0 0 24 24" width="48" height="48" stroke="var(--text-muted)" stroke-width="1.8" fill="none" style="margin-bottom:12px;"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span style="font-weight:700; font-size:1.05rem; color:var(--text-primary);">No Study Flow Active</span>
+            <span style="font-size:0.85rem; max-width:270px; margin-top:4px; line-height: 1.4;">Upload a lecture file (.txt) on the left to let AI automatically budget your steps and durations.</span>
+          </div>
+          
+          <!-- Timeline result cards -->
+          <div class="reviewer-card" id="planner-timeline-card" style="display: none; height: 100%;">
+            <div class="results-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 12px;">
+              <div class="results-title">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--color-primary)" stroke-width="2.5" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Dynamic Timeline Budget</span>
+              </div>
+            </div>
+            <div class="results-section" id="planner-timeline-content" style="display: flex; flex-direction: column; gap: 14px;">
+              <!-- Dynamic step rows render here -->
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </section>
+
+    <!-- VIEW 4: SETTINGS -->
+    <section class="view-container" id="settings-view">
+      <div class="view-header">
+        <h2 class="view-title">Settings</h2>
+        <p class="view-description">Configure your local AI models, lengths, and diagnostic setups.</p>
+      </div>
+      
+      <div class="reviewer-container">
+        <!-- Settings Form Card -->
+        <div class="reviewer-card">
+          
+          <!-- AI Engine / Model Selector -->
+          <div class="input-section" style="border-bottom: 1px solid var(--border-color); padding-bottom: 20px;">
+            <label for="settings-model" class="notes-label" style="display: flex; justify-content: space-between;">
+              <span>AI Ollama Model Selection</span>
+              <a href="#" id="refresh-models-btn" style="color: var(--color-primary); text-decoration: none; font-size: 0.85rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none" style="margin-top:1px;"><path d="M23 4v6h-6M1 20v-6h6M21.94 13.5A9 9 0 1121 9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Refresh Models
+              </a>
+            </label>
+            <p class="view-description" style="margin-top:-4px; margin-bottom: 8px;">Choose from your locally installed models. Ensure you have pulled them via Ollama.</p>
+            <select id="settings-model">
+              <option value="tinyllama">TinyLlama (Default - ~600MB)</option>
+              <option value="phi3">Phi-3 Mini (~2.2GB)</option>
+            </select>
+          </div>
+          
+          <!-- Answer Length selector -->
+          <div class="input-section" style="border-bottom: 1px solid var(--border-color); padding-bottom: 20px;">
+            <span class="notes-label">AI Response Detail Length</span>
+            <p class="view-description" style="margin-top:-4px; margin-bottom: 10px;">Select how detailed the responses should be (adjusts prompt limits for local CPUs).</p>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight:600;">
+                <input type="radio" name="response-length" value="300"> Short (300 tokens)
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight:600;">
+                <input type="radio" name="response-length" value="600" checked> Medium (600 tokens)
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight:600;">
+                <input type="radio" name="response-length" value="1000"> Detailed (1000 tokens)
+              </label>
+            </div>
+          </div>
+          
+          <!-- Diagnostics & Diagnostics Onboarding Guide -->
+          <div class="input-section" style="border-bottom: 1px solid var(--border-color); padding-bottom: 20px;">
+            <span class="notes-label">Ollama Diagnostic Assistant</span>
+            <div style="margin-top: 10px; padding: 16px; border-radius: var(--radius-md); background-color: var(--bg-input); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 12px;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <span style="font-weight: 700; font-size: 0.9rem;">Diagnostic Status:</span>
+                <span class="status-indicator" style="background-color: var(--bg-card);">
+                  <span class="status-dot offline" id="diag-dot"></span>
+                  <span id="diag-text">Disconnected</span>
+                </span>
+              </div>
+              
+              <div id="diag-instructions" style="font-size: 0.85rem; line-height: 1.45; color: var(--text-secondary); display: flex; flex-direction: column; gap: 8px;">
+                <!-- Dynamically updated status guide -->
+                <div>Ollama is not running. To start studying offline:</div>
+                <div style="padding-left:12px;">1. Double click the **Ollama** icon on your Desktop / Applications.</div>
+                <div style="padding-left:12px;">2. Open a command prompt and run: <code>ollama run tinyllama</code> to download.</div>
+              </div>
+              
+              <button class="btn-secondary" id="settings-ping-btn" style="align-self: flex-start; padding: 8px 16px; font-size: 0.85rem;">Check Connection</button>
+            </div>
+          </div>
+          
+          <!-- Reset app data -->
+          <div class="input-section">
+            <span class="notes-label" style="color: var(--color-advanced);">Danger Area</span>
+            <p class="view-description" style="margin-top:-4px; margin-bottom: 12px;">Resetting deletes all local study chat session logs. This action is irreversible.</p>
+            <button class="btn-danger" id="clear-all-sessions-btn" style="align-self: flex-start;">Clear All Saved Sessions</button>
+          </div>
+          
+        </div>
+      </div>
+    </section>
+    
+    <!-- Confirm Modal -->
+    <div class="modal-overlay" id="confirm-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="modal-title">Delete All Sessions?</span>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to clear all your saved study session histories? This will delete all conversations from your offline database.
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" id="confirm-cancel-btn">Cancel</button>
+          <button class="btn-danger" id="confirm-ok-btn">Confirm Delete</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Global toasts anchor -->
+    <div class="toast-container" id="toast-container"></div>
+    
+  </main>
+
+  <!-- Renderer JS Modules -->
+  <script src="renderer/app.js"></script>
+  <script src="renderer/ollama.js"></script>
+  <script src="renderer/chat.js"></script>
+  <script src="renderer/reviewer.js"></script>
+  <script src="renderer/explainer.js"></script>
+  <script src="renderer/settings.js"></script>
+  <script src="renderer/planner.js"></script>
+</body>
+</html>

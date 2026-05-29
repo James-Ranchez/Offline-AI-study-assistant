@@ -1,0 +1,48 @@
+{
+  "name": "studymind",
+  "version": "1.0.0",
+  "description": "Offline AI Study Assistant App",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "keywords": [
+    "electron",
+    "ollama",
+    "ai",
+    "study",
+    "offline"
+  ],
+  "author": "StudyMind Team",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.studymind.app",
+    "productName": "StudyMind",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "renderer/**/*",
+      "styles/**/*",
+      "assets/**/*"
+    ]
+  }
+}
