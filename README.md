@@ -89,3 +89,4 @@ npm run dist
 * **Preload API Bridge**: Interactive renderer views utilize a secured `preload.js` bridge exposing strictly white-listed IPC channels to prevent un-sandboxed shell command executions.
 * **No Telemetry**: No tracking cookies, external API calls, or analytics endpoints. Your study history stays strictly private on your computer.
 "# Offline-AI-study-assistant" 
+"# Offline-AI-study-assistant" 
