@@ -1,0 +1,401 @@
+/* Flashcard Study Tool Styles */
+
+.fc-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Set Grid Layout */
+.fc-set-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.fc-set-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.fc-set-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-md);
+}
+
+.fc-set-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fc-set-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.fc-set-meta {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.fc-set-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+.fc-set-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.fc-set-action-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.fc-set-action-btn:hover {
+  color: var(--accent);
+  background-color: var(--bg-tertiary);
+}
+
+.fc-set-action-btn.delete:hover {
+  color: var(--danger);
+  background-color: rgba(248, 113, 113, 0.08);
+}
+
+.fc-set-action-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  fill: none;
+}
+
+/* Creation panel styles */
+.fc-create-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .fc-create-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fc-create-form {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fc-preview-pane {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 480px;
+}
+
+.fc-preview-list {
+  flex-grow: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fc-preview-item {
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.fc-preview-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  overflow: hidden;
+}
+
+.fc-preview-front {
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fc-preview-back {
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Card Study Mode Overlay overlay fullscreen */
+.fc-study-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--bg-primary);
+  z-index: 1000;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.fc-study-header {
+  position: absolute;
+  top: 24px;
+  left: 32px;
+  right: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fc-study-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.fc-study-progress-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.fc-close-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fc-close-btn:hover {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+.fc-close-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  stroke-width: 2.2;
+}
+
+/* 3D Perspective Flip Card Container */
+.fc-card-viewport {
+  width: 100%;
+  max-width: 480px;
+  height: 300px;
+  perspective: 1000px;
+  cursor: pointer;
+  margin: 24px 0;
+}
+
+.fc-card-flipper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-lg);
+}
+
+.fc-card-viewport.flipped .fc-card-flipper {
+  transform: rotateY(180deg);
+}
+
+.fc-card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* Card Textures */
+.fc-card-face.front {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  /* subtle pattern/texture */
+  background-image: radial-gradient(var(--border) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+.fc-card-face.back {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  transform: rotateY(180deg);
+  border-top: 4px solid var(--accent);
+}
+
+.fc-card-hint-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  position: absolute;
+  top: 24px;
+}
+
+.fc-card-face.back .fc-card-hint-label {
+  color: var(--accent);
+}
+
+.fc-card-text {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.fc-card-click-tip {
+  font-size: 11px;
+  color: var(--text-muted);
+  position: absolute;
+  bottom: 24px;
+  font-weight: 600;
+}
+
+/* Nav Actions below Card */
+.fc-study-navigation {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.fc-nav-arrow {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: all var(--transition-fast);
+}
+
+.fc-nav-arrow:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.fc-nav-arrow svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  fill: none;
+}
+
+/* Self-Rating Row */
+.fc-rating-row {
+  display: none;
+  gap: 12px;
+  width: 100%;
+  max-width: 480px;
+  margin-top: 16px;
+  animation: fadeIn var(--transition-fast) forwards;
+}
+
+.fc-rating-row.active {
+  display: flex;
+}
+
+.fc-rate-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.fc-rate-btn.got-it {
+  background-color: var(--success);
+  color: #ffffff;
+}
+.fc-rate-btn.got-it:hover {
+  filter: brightness(1.1);
+}
+
+.fc-rate-btn.almost {
+  background-color: var(--bg-secondary);
+  color: var(--warning);
+  border: 1.5px solid var(--warning);
+}
+.fc-rate-btn.almost:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.fc-rate-btn.missed {
+  background-color: var(--danger);
+  color: #ffffff;
+}
+.fc-rate-btn.missed:hover {
+  filter: brightness(1.1);
+}

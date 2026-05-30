@@ -1,0 +1,253 @@
+/* Progress Tracker Styles */
+
+.progress-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 860px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Top Row Summary Grid */
+.progress-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+/* Activity Heatmap Grid */
+.heatmap-card {
+  padding: 24px;
+}
+
+.heatmap-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(15, 1fr); /* 30 days split into 15 cols x 2 rows, or let's do 30 columns for a 30-day strip */
+  grid-template-rows: repeat(7, 1fr); /* 7 rows for days of the week, or let's just make it a clean 30-day linear grid (5 cols x 6 rows) */
+  gap: 6px;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Alternative: 30 columns strip for the last 30 days */
+.heatmap-strip {
+  display: flex;
+  gap: 5px;
+  overflow-x: auto;
+  padding: 8px 0;
+}
+
+.heatmap-day {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.heatmap-day:hover {
+  transform: scale(1.15);
+  border-color: var(--accent);
+}
+
+/* Color Intensities */
+.heatmap-day.level-0 { background-color: var(--bg-tertiary); }
+.heatmap-day.level-1 { background-color: rgba(108, 142, 255, 0.2); }
+.heatmap-day.level-2 { background-color: rgba(108, 142, 255, 0.4); }
+.heatmap-day.level-3 { background-color: rgba(108, 142, 255, 0.7); }
+.heatmap-day.level-4 { background-color: var(--accent); }
+
+/* Heatmap label row */
+.heatmap-labels-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  padding: 0 4px;
+}
+
+/* Score chart container */
+.chart-card {
+  padding: 24px;
+}
+
+.chart-canvas-container {
+  width: 100%;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.chart-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Flashcard Mastery Stacked Bars */
+.mastery-card {
+  padding: 24px;
+}
+
+.mastery-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.mastery-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mastery-item-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.mastery-bar-container {
+  height: 14px;
+  background-color: var(--bg-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  display: flex;
+  border: 1px solid var(--border);
+}
+
+.mastery-bar-segment {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.mastery-bar-segment.mastered {
+  background-color: var(--success);
+}
+
+.mastery-bar-segment.learning {
+  background-color: var(--warning);
+}
+
+.mastery-bar-segment.new {
+  background-color: var(--text-muted);
+}
+
+.mastery-legend {
+  display: flex;
+  gap: 16px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-color {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.legend-color.mastered { background-color: var(--success); }
+.legend-color.learning { background-color: var(--warning); }
+.legend-color.new { background-color: var(--text-muted); }
+
+/* Badges Achievements Grid */
+.badges-card {
+  padding: 24px;
+}
+
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.badge-item {
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  position: relative;
+  transition: all var(--transition-fast);
+}
+
+.badge-item.locked {
+  filter: grayscale(1);
+  opacity: 0.6;
+}
+
+.badge-item:not(.locked):hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-glow);
+}
+
+.badge-icon {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.badge-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.badge-requirement {
+  font-size: 9px;
+  color: var(--text-muted);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.badge-status-tag {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 8px;
+  font-weight: 800;
+  padding: 2px 4px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.badge-item:not(.locked) .badge-status-tag {
+  background-color: var(--success);
+  color: #ffffff;
+}
+
+.badge-item.locked .badge-status-tag {
+  background-color: var(--border);
+  color: var(--text-muted);
+}

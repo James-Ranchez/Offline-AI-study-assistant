@@ -1,0 +1,190 @@
+/* Upgraded Study Timer & Pomodoro Styles */
+
+.timer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  max-width: 860px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.timer-card {
+  width: 100%;
+  max-width: 480px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  box-shadow: var(--shadow-md);
+}
+
+/* Tab Header for Modes */
+.timer-tabs {
+  display: flex;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  gap: 4px;
+  width: 100%;
+}
+
+.timer-tab {
+  flex: 1;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  background: none;
+  border: none;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+
+.timer-tab:hover {
+  color: var(--text-primary);
+}
+
+.timer-tab.active {
+  background-color: var(--bg-secondary);
+  color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Circular Timer Graphic */
+.timer-ring-wrapper {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timer-ring-wrapper svg {
+  transform: rotate(-90deg);
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.timer-ring-bg {
+  stroke: var(--border);
+}
+
+.timer-ring-progress {
+  stroke: var(--accent);
+  transition: stroke-dashoffset 0.1s linear;
+  filter: drop-shadow(0 0 4px var(--accent-soft));
+}
+
+.timer-readout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 5;
+  gap: 4px;
+}
+
+.timer-digits {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+}
+
+.timer-state-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+/* Control buttons below */
+.timer-controls {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.timer-controls button {
+  flex: 1;
+}
+
+/* Tracker Dots (Completed Sessions) */
+.timer-tracker-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.timer-tracker-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.timer-tracker-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.timer-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  transition: all var(--transition-fast);
+}
+
+.timer-dot.filled {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+}
+
+/* Custom Configuration inputs */
+.timer-custom-inputs {
+  display: none;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+  animation: fadeIn var(--transition-fast) forwards;
+}
+
+.timer-custom-inputs.active {
+  display: grid;
+}
+
+.custom-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.custom-input-group label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.custom-input-group input {
+  text-align: center;
+  font-weight: 700;
+}

@@ -23,6 +23,11 @@ function createWindow() {
 
   mainWindow.loadFile('index.html');
 
+  // Mirror console messages from renderer to terminal
+  mainWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
+    console.log(`[RENDERER CONSOLE] ${message} (${path.basename(sourceId)}:${line})`);
+  });
+
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
   });

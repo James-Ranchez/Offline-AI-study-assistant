@@ -1,55 +1,102 @@
-/* StudyMind Main Application Orchestrator */
+/* StudyMind Main Application Orchestrator & View Router */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // --- View Switcher Logic ---
+  const sidebar = document.querySelector('.sidebar');
+  const collapseBtn = document.getElementById('sidebar-collapse-btn');
   const navItems = document.querySelectorAll('.nav-item');
   const views = document.querySelectorAll('.view-container');
 
-  navItems.forEach(item => {
-    item.addEventListener('click', () => {
-      const targetView = item.getAttribute('data-view');
-      
-      // Update sidebar nav highlights
-      navItems.forEach(nav => nav.classList.remove('active'));
-      item.classList.add('active');
+  // --- Theme, Fonts, Accents, and Sidebar Startup Initialization ---
+  function applyInitialAppearance() {
+    const settings = window.StudyStorage.getSettings();
 
-      // Swap views
+    // 1. Theme
+    let themeToApply = settings.theme;
+    if (themeToApply === 'system') {
+      const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      themeToApply = darkQuery.matches ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', themeToApply);
+
+    // 2. Font Size
+    document.body.className = '';
+    document.body.classList.add(`font-${settings.fontSize || 'medium'}`);
+
+    // 3. Accent Color
+    document.documentElement.setAttribute('data-accent', settings.accentColor || 'blue-violet');
+
+    // 4. Sidebar Collapsed/Expanded state
+    if (sidebar) {
+      if (settings.sidebar === 'Always Collapsed') {
+        sidebar.classList.add('collapsed');
+      } else {
+        sidebar.classList.remove('collapsed');
+      }
+    }
+
+    // Update active model label in sidebar footer
+    const activeModelLabel = document.getElementById('sidebar-active-model-name');
+    if (activeModelLabel) {
+      activeModelLabel.textContent = settings.model || 'tinyllama';
+    }
+  }
+
+  // --- View Switcher & Navigation Routing ---
+  function initNavigation() {
+    navItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const targetView = item.getAttribute('data-view');
+        window.navigateToView(targetView);
+      });
+    });
+
+    // Make global navigate hook
+    window.navigateToView = function(viewId) {
+      // Find active button
+      navItems.forEach(nav => {
+        if (nav.getAttribute('data-view') === viewId) {
+          nav.classList.add('active');
+        } else {
+          nav.classList.remove('active');
+        }
+      });
+
+      // Show container
       views.forEach(view => {
-        if (view.id === targetView) {
+        if (view.id === viewId) {
           view.classList.add('active');
         } else {
           view.classList.remove('active');
         }
       });
-    });
-  });
 
-  // --- Theme Toggle Logic ---
-  const themeToggleBtn = document.getElementById('theme-toggle-btn');
-  const themeIcon = document.getElementById('theme-btn-icon');
-  
-  function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-    
-    // Update theme icon
-    if (theme === 'light') {
-      themeIcon.innerHTML = '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" stroke-linecap="round" stroke-linejoin="round"/>';
-    } else {
-      themeIcon.innerHTML = '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke-linecap="round" stroke-linejoin="round"/>';
-    }
+      // Specific view callback refreshers
+      if (viewId === 'dashboard-view' && window.refreshDashboard) {
+        window.refreshDashboard();
+      }
+      if (viewId === 'progress-view' && window.refreshProgressTracker) {
+        window.refreshProgressTracker();
+      }
+    };
   }
 
-  // Initial Theme load
-  const savedTheme = localStorage.getItem('theme') || 'dark';
-  applyTheme(savedTheme);
-
-  themeToggleBtn.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    applyTheme(newTheme);
-    window.showToast(`Switched to ${newTheme === 'light' ? 'Light' : 'Dark'} Mode`);
-  });
+  // --- Collapsible Sidebar Controller ---
+  if (collapseBtn && sidebar) {
+    collapseBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+      
+      // Save setting based on toggled class
+      const settings = window.StudyStorage.getSettings();
+      settings.sidebar = sidebar.classList.contains('collapsed') ? 'Always Collapsed' : 'Always Expanded';
+      window.StudyStorage.saveSettings(settings);
+      
+      // Sync settings page select if currently active
+      const settingsSidebarSelect = document.getElementById('settings-sidebar-mode');
+      if (settingsSidebarSelect) {
+        settingsSidebarSelect.value = settings.sidebar;
+      }
+    });
+  }
 
   // --- Connection Diagnostics & Onboarding Toggler ---
   const onboardingView = document.getElementById('onboarding-view');
@@ -73,18 +120,22 @@ document.addEventListener('DOMContentLoaded', () => {
       Ollama.isMockMode = false;
       
       // Update sidebar status
-      connectionDot.className = 'status-dot online';
-      connectionText.textContent = 'Ollama Connected';
+      if (connectionDot) {
+        connectionDot.className = 'status-dot online';
+        connectionDot.style.backgroundColor = ''; // Reset mock overrides
+        connectionDot.style.boxShadow = '';
+      }
+      if (connectionText) connectionText.textContent = 'Ollama Connected';
       
       // Update settings diagnostic
       if (diagDot) {
         diagDot.className = 'status-dot online';
         diagText.textContent = 'Online & Active';
-        diagInstructions.innerHTML = `<div style="color: var(--color-simple);">StudyMind has established a direct link to the local AI engine. Ready to process.</div>`;
+        diagInstructions.innerHTML = `<div style="color: var(--success);">StudyMind has established a direct link to the local AI engine. Ready to process.</div>`;
       }
       
       // Hide onboarding if visible
-      onboardingView.classList.remove('active');
+      if (onboardingView) onboardingView.classList.remove('active');
       
       // Load actual local models
       if (window.initializeSettings) {
@@ -92,8 +143,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } else {
       // Update sidebar status
-      connectionDot.className = 'status-dot offline';
-      connectionText.textContent = 'Ollama Offline';
+      if (connectionDot) {
+        connectionDot.className = 'status-dot offline';
+        connectionDot.style.backgroundColor = '';
+        connectionDot.style.boxShadow = '';
+      }
+      if (connectionText) connectionText.textContent = 'Ollama Offline';
       
       // Update settings diagnostic
       if (diagDot) {
@@ -110,49 +165,64 @@ document.addEventListener('DOMContentLoaded', () => {
       // If NOT bypassed, show onboarding overlay
       const wasBypassed = sessionStorage.getItem('mock-bypass') === 'true';
       if (!wasBypassed && !Ollama.isMockMode) {
-        onboardingView.classList.add('active');
+        if (onboardingView) onboardingView.classList.add('active');
       }
     }
   }
 
-  // Trigger diagnostic check on start
-  checkOllamaConnection();
-
   // Onboarding action listeners
-  checkBtn.addEventListener('click', async () => {
-    checkBtn.textContent = 'Checking...';
-    checkBtn.disabled = true;
-    
-    const success = await Ollama.ping();
-    if (success) {
-      await checkOllamaConnection();
-      window.showToast('Successfully connected to Ollama!');
-    } else {
-      window.showToast('Could not connect. Ensure Ollama is running.', 'error');
-    }
-    
-    checkBtn.textContent = 'Check Connection';
-    checkBtn.disabled = false;
-  });
+  if (checkBtn) {
+    checkBtn.addEventListener('click', async () => {
+      checkBtn.textContent = 'Checking...';
+      checkBtn.disabled = true;
+      
+      const success = await Ollama.ping();
+      if (success) {
+        await checkOllamaConnection();
+        window.showToast('Successfully connected to Ollama!');
+        
+        // Trigger onboarding tour if not completed
+        const isTourDone = window.StudyStorage.isTourCompleted();
+        if (!isTourDone && window.startOnboardingTour) {
+          window.startOnboardingTour();
+        }
+      } else {
+        window.showToast('Could not connect. Ensure Ollama is running.', 'error');
+      }
+      
+      checkBtn.textContent = 'Check Connection';
+      checkBtn.disabled = false;
+    });
+  }
 
-  bypassBtn.addEventListener('click', () => {
-    Ollama.isMockMode = true;
-    sessionStorage.setItem('mock-bypass', 'true');
-    onboardingView.classList.remove('active');
-    
-    // Update sidebar indicator to showcase mock mode
-    connectionDot.className = 'status-dot online';
-    connectionDot.style.backgroundColor = 'var(--color-standard)';
-    connectionDot.style.boxShadow = '0 0 10px var(--color-standard)';
-    connectionText.textContent = 'Mock Engine (Demo)';
-    
-    window.showToast('Demo Mock Mode activated!', 'success');
-    
-    // Load mock settings
-    if (window.initializeSettings) {
-      window.initializeSettings();
-    }
-  });
+  if (bypassBtn) {
+    bypassBtn.addEventListener('click', () => {
+      Ollama.isMockMode = true;
+      sessionStorage.setItem('mock-bypass', 'true');
+      if (onboardingView) onboardingView.classList.remove('active');
+      
+      // Update sidebar indicator to showcase mock mode
+      if (connectionDot) {
+        connectionDot.className = 'status-dot';
+        connectionDot.style.backgroundColor = 'var(--warning)';
+        connectionDot.style.boxShadow = '0 0 10px var(--warning)';
+      }
+      if (connectionText) connectionText.textContent = 'Mock Engine (Demo)';
+      
+      window.showToast('Demo Mock Mode activated!', 'success');
+      
+      // Trigger onboarding tour
+      const isTourDone = window.StudyStorage.isTourCompleted();
+      if (!isTourDone && window.startOnboardingTour) {
+        window.startOnboardingTour();
+      }
+
+      // Load mock settings
+      if (window.initializeSettings) {
+        window.initializeSettings();
+      }
+    });
+  }
 
   // Settings Diagnostic Check Button
   if (pingBtn) {
@@ -170,28 +240,6 @@ document.addEventListener('DOMContentLoaded', () => {
       pingBtn.textContent = 'Check Connection';
     });
   }
-
-  // --- Global Toast Notification Utility ---
-  window.showToast = function(message, type = 'success') {
-    const container = document.getElementById('toast-container');
-    if (!container) return;
-
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    
-    const icon = type === 'success' 
-      ? '<svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14M22 4L12 14.01l-3-3" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-      : '<svg viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    
-    toast.innerHTML = `${icon}<span>${message}</span>`;
-    container.appendChild(toast);
-
-    // Fade out and remove after 3 seconds
-    setTimeout(() => {
-      toast.style.animation = 'toastIn 0.3s ease reverse forwards';
-      setTimeout(() => toast.remove(), 300);
-    }, 3000);
-  };
 
   // --- Global Confirmation Modal Utility ---
   const confirmModal = document.getElementById('confirm-modal');
@@ -223,4 +271,9 @@ document.addEventListener('DOMContentLoaded', () => {
       currentOnOk = null;
     });
   }
+
+  // Run Startup Checks
+  applyInitialAppearance();
+  initNavigation();
+  checkOllamaConnection();
 });

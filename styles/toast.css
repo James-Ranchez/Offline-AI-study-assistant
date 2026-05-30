@@ -1,0 +1,84 @@
+/* Toast Notification System Styling */
+
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-primary);
+  pointer-events: auto;
+  min-width: 250px;
+  max-width: 380px;
+  animation: toastIn var(--transition-normal) cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  position: relative;
+  overflow: hidden;
+}
+
+.toast::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: var(--accent);
+}
+
+.toast svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.2;
+  fill: none;
+  flex-shrink: 0;
+}
+
+/* Toast Color Schemes */
+.toast-success::before {
+  background-color: var(--success);
+}
+.toast-success svg {
+  stroke: var(--success);
+}
+
+.toast-error::before {
+  background-color: var(--danger);
+}
+.toast-error svg {
+  stroke: var(--danger);
+}
+
+.toast-warning::before {
+  background-color: var(--warning);
+}
+.toast-warning svg {
+  stroke: var(--warning);
+}
+
+.toast-info::before {
+  background-color: var(--accent);
+}
+.toast-info svg {
+  stroke: var(--accent);
+}
+
+/* On-dismiss class added by javascript */
+.toast.dismissing {
+  animation: toastOut var(--transition-normal) forwards !important;
+}

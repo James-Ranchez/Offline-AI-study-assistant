@@ -1,0 +1,231 @@
+/* Confirmation Modal & Onboarding Tooltips Styles */
+
+/* Modal Backdrop Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn var(--transition-fast) forwards;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+/* Modal Dialog Card */
+.modal {
+  width: 100%;
+  max-width: 460px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: modalIn var(--transition-normal) cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  color: var(--text-primary);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-header svg {
+  width: 24px;
+  height: 24px;
+  stroke: var(--danger);
+  stroke-width: 2.2;
+}
+
+.modal-title {
+  font-size: var(--font-size-heading);
+  font-weight: 700;
+}
+
+.modal-body {
+  color: var(--text-secondary);
+  font-size: var(--font-size-body);
+  line-height: 1.6;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+/* Onboarding Tooltip Tour Elements */
+.tour-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9990;
+  pointer-events: none;
+  display: none;
+}
+
+.tour-overlay.active {
+  display: block;
+}
+
+.tour-highlight {
+  position: absolute;
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+  transition: all 0.3s ease;
+  pointer-events: auto;
+  border: 2px solid var(--accent);
+  z-index: 9991;
+}
+
+.tour-tooltip {
+  position: absolute;
+  width: 320px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 9995;
+  pointer-events: auto;
+  animation: modalIn var(--transition-normal) forwards;
+  color: var(--text-primary);
+}
+
+.tour-tooltip::after {
+  content: "";
+  position: absolute;
+  border-width: 8px;
+  border-style: solid;
+}
+
+/* Tooltip Arrow Placements */
+.tour-tooltip.arrow-left::after {
+  border-color: transparent var(--border) transparent transparent;
+  left: -17px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.tour-tooltip.arrow-left::before {
+  content: "";
+  position: absolute;
+  border-width: 8px;
+  border-style: solid;
+  border-color: transparent var(--bg-secondary) transparent transparent;
+  left: -16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+
+.tour-tooltip.arrow-right::after {
+  border-color: transparent transparent transparent var(--border);
+  right: -17px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.tour-tooltip.arrow-right::before {
+  content: "";
+  position: absolute;
+  border-width: 8px;
+  border-style: solid;
+  border-color: transparent transparent transparent var(--bg-secondary);
+  right: -16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+
+.tour-tooltip.arrow-top::after {
+  border-color: transparent transparent var(--border) transparent;
+  top: -17px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.tour-tooltip.arrow-top::before {
+  content: "";
+  position: absolute;
+  border-width: 8px;
+  border-style: solid;
+  border-color: transparent transparent var(--bg-secondary) transparent;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.tour-tooltip.arrow-bottom::after {
+  border-color: var(--border) transparent transparent transparent;
+  bottom: -17px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.tour-tooltip.arrow-bottom::before {
+  content: "";
+  position: absolute;
+  border-width: 8px;
+  border-style: solid;
+  border-color: var(--bg-secondary) transparent transparent transparent;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.tour-tooltip-title {
+  font-weight: 700;
+  font-size: var(--font-size-subheading);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tour-tooltip-body {
+  font-size: var(--font-size-body);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.tour-tooltip-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.tour-step-indicator {
+  font-size: var(--font-size-small);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.tour-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.tour-btn {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}

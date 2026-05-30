@@ -2,7 +2,9 @@
 
 :root {
   /* Common Variables */
-  --font-sans: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", "Fira Code", monospace;
+  
   --transition-fast: 0.15s ease;
   --transition-normal: 0.25s ease;
   --transition-slow: 0.4s ease;
@@ -16,63 +18,136 @@
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-glow: 0 0 20px rgba(6, 182, 212, 0.15);
+  --shadow-glow: 0 0 20px var(--accent-soft);
 
-  /* Primary Accent: Electric Teal */
-  --color-primary: hsl(187, 85%, 45%);
-  --color-primary-hover: hsl(187, 90%, 38%);
-  --color-primary-rgb: 6, 182, 212;
+  /* Font Scale Adjustments (default is medium) */
+  --font-size-display: 28px;
+  --font-size-heading: 20px;
+  --font-size-subheading: 16px;
+  --font-size-body: 14px;
+  --font-size-small: 12px;
+  --font-size-mono: 13px;
   
-  /* Difficulty colors */
-  --color-simple: hsl(142, 71%, 45%); /* Green */
-  --color-standard: hsl(48, 96%, 53%); /* Amber */
-  --color-advanced: hsl(346, 84%, 61%); /* Red */
+  /* Font size multipliers (will be scaled on body based on settings) */
+  --font-scale: 1;
 }
 
-/* Dark Mode Variables (Default) */
+/* Dark Theme (Default) */
 [data-theme="dark"] {
-  --bg-app: hsl(222, 47%, 9%); /* Deep Navy-Slate */
-  --bg-sidebar: hsl(223, 47%, 6%); /* Slightly darker for contrast */
-  --bg-card: hsl(223, 47%, 14%); /* Lighter slate cards */
-  --bg-card-hover: hsl(223, 47%, 18%);
-  --bg-input: hsl(223, 47%, 11%);
+  --bg-primary: #0f1117;        /* Deep dark background */
+  --bg-secondary: #1a1d27;      /* Cards, panels */
+  --bg-tertiary: #232736;       /* Hover states, inputs */
+  --border: #2e3347;            /* Borders */
+  --text-primary: #f0f2f8;      /* Main text */
+  --text-secondary: #8b92b0;    /* Muted/label text */
+  --text-muted: #4a5068;        /* Placeholder text */
+  --accent: #6c8eff;            /* Primary blue-violet accent */
+  --accent-hover: #8aa3ff;      /* Accent hover */
+  --accent-soft: rgba(108, 142, 255, 0.1);     /* Accent background (soft) */
+  --success: #4ade80;           /* Green for correct/complete */
+  --warning: #facc15;           /* Yellow for warning */
+  --danger: #f87171;            /* Red for wrong/error */
+  --gradient: linear-gradient(135deg, #6c8eff, #a78bfa); /* Accent gradient */
   
-  --border-color: hsl(223, 27%, 20%);
-  --border-color-hover: hsl(223, 27%, 28%);
-  
-  --text-primary: hsl(210, 40%, 98%);
-  --text-secondary: hsl(215, 20%, 65%);
-  --text-muted: hsl(215, 16%, 45%);
-  --text-inverse: hsl(222, 47%, 9%);
-  
-  --shadow-app: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
-  --scroll-thumb: hsl(223, 20%, 25%);
-  --scroll-track: hsl(222, 47%, 6%);
-  
-  --glass-bg: rgba(15, 23, 42, 0.7);
+  --scroll-thumb: #232736;
+  --scroll-track: #0f1117;
+  --glass-bg: rgba(15, 17, 23, 0.7);
   --glass-border: rgba(255, 255, 255, 0.05);
 }
 
-/* Light Mode Variables */
+/* Light Theme */
 [data-theme="light"] {
-  --bg-app: hsl(210, 40%, 96%); /* Soft Light Grayish-Blue */
-  --bg-sidebar: hsl(210, 40%, 93%); /* Darker light gray for sidebar */
-  --bg-card: hsl(0, 0%, 100%); /* Pure white cards */
-  --bg-card-hover: hsl(210, 40%, 99%);
-  --bg-input: hsl(210, 40%, 98%);
+  --bg-primary: #f8f9fc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #eef0f7;
+  --border: #dde1f0;
+  --text-primary: #1a1d27;
+  --text-secondary: #5c6282;
+  --text-muted: #a0a8c0;
+  --accent: #4f6ef7;
+  --accent-hover: #3b5ce6;
+  --accent-soft: rgba(79, 110, 247, 0.08);
+  --success: #16a34a;           /* Green for correct/complete */
+  --warning: #eab308;           /* Yellow for warning */
+  --danger: #dc2626;            /* Red for wrong/error */
+  --gradient: linear-gradient(135deg, #4f6ef7, #8b5cf6); /* Accent gradient */
   
-  --border-color: hsl(214, 32%, 91%);
-  --border-color-hover: hsl(214, 32%, 84%);
-  
-  --text-primary: hsl(222, 47%, 11%);
-  --text-secondary: hsl(215, 16%, 47%);
-  --text-muted: hsl(215, 16%, 65%);
-  --text-inverse: hsl(210, 40%, 98%);
-  
-  --shadow-app: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
-  --scroll-thumb: hsl(214, 20%, 80%);
-  --scroll-track: hsl(210, 40%, 95%);
-  
+  --scroll-thumb: #dde1f0;
+  --scroll-track: #f8f9fc;
   --glass-bg: rgba(255, 255, 255, 0.85);
   --glass-border: rgba(0, 0, 0, 0.05);
+}
+
+/* Font scale selectors classes */
+body.font-small {
+  --font-scale: 0.85;
+  --font-size-display: 24px;
+  --font-size-heading: 18px;
+  --font-size-subheading: 14px;
+  --font-size-body: 12px;
+  --font-size-small: 10px;
+  --font-size-mono: 11px;
+}
+body.font-medium {
+  --font-scale: 1;
+  --font-size-display: 28px;
+  --font-size-heading: 20px;
+  --font-size-subheading: 16px;
+  --font-size-body: 14px;
+  --font-size-small: 12px;
+  --font-size-mono: 13px;
+}
+body.font-large {
+  --font-scale: 1.15;
+  --font-size-display: 32px;
+  --font-size-heading: 24px;
+  --font-size-subheading: 18px;
+  --font-size-body: 16px;
+  --font-size-small: 14px;
+  --font-size-mono: 15px;
+}
+
+/* Live Preset Accent Colors (Dynamically applied by changing documentElement attributes or classes) */
+[data-accent="blue-violet"] {
+  --accent: #6c8eff;
+  --accent-hover: #8aa3ff;
+  --accent-soft: rgba(108, 142, 255, 0.1);
+  --gradient: linear-gradient(135deg, #6c8eff, #a78bfa);
+}
+[data-theme="light"][data-accent="blue-violet"] {
+  --accent: #4f6ef7;
+  --accent-hover: #3b5ce6;
+  --accent-soft: rgba(79, 110, 247, 0.08);
+  --gradient: linear-gradient(135deg, #4f6ef7, #8b5cf6);
+}
+
+[data-accent="teal"] {
+  --accent: #0d9488;
+  --accent-hover: #14b8a6;
+  --accent-soft: rgba(13, 148, 136, 0.1);
+  --gradient: linear-gradient(135deg, #0d9488, #2dd4bf);
+}
+[data-accent="amber"] {
+  --accent: #d97706;
+  --accent-hover: #f59e0b;
+  --accent-soft: rgba(217, 119, 6, 0.1);
+  --gradient: linear-gradient(135deg, #d97706, #fbbf24);
+}
+[data-accent="rose"] {
+  --accent: #db2777;
+  --accent-hover: #f43f5e;
+  --accent-soft: rgba(219, 39, 119, 0.1);
+  --gradient: linear-gradient(135deg, #db2777, #fda4af);
+}
+[data-accent="emerald"] {
+  --accent: #059669;
+  --accent-hover: #10b981;
+  --accent-soft: rgba(5, 150, 105, 0.1);
+  --gradient: linear-gradient(135deg, #059669, #34d399);
+}
+[data-accent="orange"] {
+  --accent: #ea580c;
+  --accent-hover: #f97316;
+  --accent-soft: rgba(234, 88, 12, 0.1);
+  --gradient: linear-gradient(135deg, #ea580c, #fb923c);
 }

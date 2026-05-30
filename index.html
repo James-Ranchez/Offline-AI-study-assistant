@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="dark" data-accent="blue-violet">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,10 +8,18 @@
   <!-- CSS Stylesheets -->
   <link rel="stylesheet" href="styles/themes.css">
   <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/animations.css">
+  <link rel="stylesheet" href="styles/modal.css">
+  <link rel="stylesheet" href="styles/toast.css">
+  <link rel="stylesheet" href="styles/dashboard.css">
   <link rel="stylesheet" href="styles/chat.css">
   <link rel="stylesheet" href="styles/reviewer.css">
+  <link rel="stylesheet" href="styles/flashcards.css">
+  <link rel="stylesheet" href="styles/notes.css">
+  <link rel="stylesheet" href="styles/timer.css">
+  <link rel="stylesheet" href="styles/progress.css">
 </head>
-<body>
+<body class="font-medium">
 
   <!-- Sidebar Navigation -->
   <aside class="sidebar">
@@ -21,9 +29,22 @@
       </div>
       <span class="sidebar-title">StudyMind</span>
     </div>
+
+    <!-- Sidebar Search Bar (Ctrl+K) -->
+    <div class="sidebar-search-container">
+      <div class="sidebar-search-wrapper" id="sidebar-search-trigger" style="cursor:pointer;">
+        <svg class="sidebar-search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span class="sidebar-search-input" style="color:var(--text-muted); font-size:12px; display:inline-flex; align-items:center;">Search study...</span>
+        <span class="sidebar-search-shortcut">Ctrl+K</span>
+      </div>
+    </div>
     
     <nav class="sidebar-nav">
-      <button class="nav-item active" data-view="chat-view" id="nav-chat">
+      <button class="nav-item active" data-view="dashboard-view" id="nav-dashboard">
+        <svg viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Dashboard</span>
+      </button>
+      <button class="nav-item" data-view="chat-view" id="nav-chat">
         <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>Study Chat</span>
       </button>
@@ -35,10 +56,25 @@
         <svg viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>Topic Explainer</span>
       </button>
-      <button class="nav-item" data-view="planner-view" id="nav-planner">
-        <svg viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span>Study Flow</span>
+      <button class="nav-item" data-view="flashcards-view" id="nav-flashcards">
+        <svg viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Flashcards</span>
       </button>
+      <button class="nav-item" data-view="notes-view" id="nav-notes">
+        <svg viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>My Notes</span>
+      </button>
+      <button class="nav-item" data-view="timer-view" id="nav-timer">
+        <svg viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Study Timer</span>
+      </button>
+      <button class="nav-item" data-view="progress-view" id="nav-progress">
+        <svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Progress</span>
+      </button>
+      
+      <div class="sidebar-divider"></div>
+      
       <button class="nav-item" data-view="settings-view" id="nav-settings">
         <svg viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065zM15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>Settings</span>
@@ -48,21 +84,24 @@
     <div class="sidebar-footer">
       <div class="status-indicator">
         <span class="status-dot offline" id="connection-dot"></span>
-        <span id="connection-text">Ollama Offline</span>
+        <span class="status-text" id="connection-text">Ollama Offline</span>
       </div>
-      <div class="theme-toggle-bar">
-        <span>Dark Mode</span>
-        <button class="theme-btn" id="theme-toggle-btn" title="Toggle Theme">
-          <svg id="theme-btn-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
+      <div class="sidebar-model-info">
+        <span>Active Model:</span>
+        <span class="sidebar-model-name" id="sidebar-active-model-name">tinyllama</span>
       </div>
+      
+      <!-- Collapsible trigger -->
+      <button class="sidebar-collapse-btn" id="sidebar-collapse-btn" title="Toggle Sidebar">
+        <svg viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
     </div>
   </aside>
 
   <!-- Main View Container -->
   <main class="main-content">
     
-    <!-- Onboarding Panel (displays when Ollama is offline or on first startup) -->
+    <!-- Onboarding Setup (Ollama connection overlay) -->
     <section class="onboarding-overlay" id="onboarding-view">
       <div class="onboarding-card">
         <div class="onboarding-welcome">
@@ -70,7 +109,7 @@
             <svg viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zM12 6v12M6 12h12" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
           <h1>Welcome to StudyMind</h1>
-          <p>Your 100% private, local AI academic companion.</p>
+          <p>Your 100% private, offline AI academic helper.</p>
         </div>
         
         <div class="steps-list">
@@ -78,15 +117,15 @@
             <div class="step-num">1</div>
             <div class="step-content">
               <div class="step-title">Install Ollama Engine</div>
-              <div class="step-desc">Download and install Ollama, the local AI framework, for your operating system from <a href="https://ollama.com" target="_blank" style="color: var(--color-primary); text-decoration: underline;">ollama.com</a>.</div>
+              <div class="step-desc">Download and install Ollama, the local AI framework, for your OS from <a href="https://ollama.com" target="_blank">ollama.com</a>.</div>
             </div>
           </div>
           
           <div class="step-card">
             <div class="step-num">2</div>
             <div class="step-content">
-              <div class="step-title">Start the Ollama Application</div>
-              <div class="step-desc">Ensure the Ollama application is running in your background (look for the llama icon in your tray).</div>
+              <div class="step-title">Run the Ollama Application</div>
+              <div class="step-desc">Launch Ollama in your background (look for the tray icon).</div>
             </div>
           </div>
           
@@ -94,7 +133,7 @@
             <div class="step-num">3</div>
             <div class="step-content">
               <div class="step-title">Pull the Study Model</div>
-              <div class="step-desc">Open your terminal / command prompt and run:<br><code>ollama pull tinyllama</code></div>
+              <div class="step-desc">Open your terminal and download tinyllama: <code>ollama pull tinyllama</code></div>
             </div>
           </div>
         </div>
@@ -106,352 +145,979 @@
       </div>
     </section>
 
-    <!-- VIEW 1: STUDY CHAT -->
-    <section class="view-container active" id="chat-view">
+    <!-- VIEW 1: DASHBOARD -->
+    <section class="view-container active" id="dashboard-view">
       <div class="view-header">
-        <h2 class="view-title">Study Chat</h2>
-        <p class="view-description">Ask any academic question and receive simplified answers from your local AI.</p>
+        <div class="view-header-left">
+          <h2 class="view-title" id="dashboard-greeting">Good morning, StudyMind is ready!</h2>
+          <p class="view-description">Your personalized study headquarters.</p>
+        </div>
+        <div class="greeting-status">
+          <span class="status-dot offline" id="dashboard-model-dot"></span>
+          <span id="dashboard-model-text">Ollama Status: Offline</span>
+        </div>
+      </div>
+
+      <div class="dashboard-container">
+        <div class="dashboard-grid">
+          <!-- Left: Study Stats -->
+          <div class="card stats-card">
+            <span class="stats-title">Today's Study Stats</span>
+            <div class="stats-tiles">
+              <div class="stat-tile">
+                <div class="stat-icon">
+                  <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="stat-details">
+                  <span class="stat-value" id="stat-sessions-value">0</span>
+                  <span class="stat-label">Sessions Logged</span>
+                </div>
+              </div>
+
+              <div class="stat-tile">
+                <div class="stat-icon">
+                  <svg viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="stat-details">
+                  <span class="stat-value" id="stat-streak-value">🔥 0</span>
+                  <span class="stat-label">Current Streak</span>
+                </div>
+              </div>
+
+              <div class="stat-tile">
+                <div class="stat-icon">
+                  <svg viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="stat-details">
+                  <span class="stat-value" id="stat-time-value">0s</span>
+                  <span class="stat-label">Study Duration</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Quick Actions -->
+          <div class="card actions-card">
+            <span class="stats-title">Quick Actions</span>
+            <div class="actions-grid">
+              <div class="action-btn" id="action-chat">
+                <div class="action-btn-icon">
+                  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="action-btn-info">
+                  <span class="action-btn-title">Start Chat</span>
+                  <span class="action-btn-desc">Ask AI concepts</span>
+                </div>
+              </div>
+
+              <div class="action-btn" id="action-review">
+                <div class="action-btn-icon">
+                  <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="action-btn-info">
+                  <span class="action-btn-title">Generate Review</span>
+                  <span class="action-btn-desc">Create custom quizzes</span>
+                </div>
+              </div>
+
+              <div class="action-btn" id="action-flashcards">
+                <div class="action-btn-icon">
+                  <svg viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="action-btn-info">
+                  <span class="action-btn-title">New Flashcard Set</span>
+                  <span class="action-btn-desc">Practice active recall</span>
+                </div>
+              </div>
+
+              <div class="action-btn" id="action-timer">
+                <div class="action-btn-icon">
+                  <svg viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="action-btn-info">
+                  <span class="action-btn-title">Study Timer</span>
+                  <span class="action-btn-desc">Focus Pomodoros</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Sessions -->
+        <div class="card recent-card">
+          <div class="recent-header">
+            <span class="stats-title">Recent Study Sessions</span>
+            <a href="#" class="recent-view-all" onclick="window.navigateToView('progress-view'); return false;">View Progress Graph</a>
+          </div>
+          <div class="recent-list" id="recent-list-container">
+            <!-- Populated via Javascript -->
+          </div>
+        </div>
+
+        <!-- Tip of the Day -->
+        <div class="tip-card">
+          <span class="tip-bulb">💡</span>
+          <div class="tip-content">
+            <span class="tip-label">Study Tip of the Day</span>
+            <span class="tip-text" id="tip-text-content">Reviewing notes within 24 hours of writing them will reinforce memory.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: STUDY CHAT -->
+    <section class="view-container" id="chat-view">
+      <div class="view-header">
+        <div class="view-header-left">
+          <h2 class="view-title">Study Chat</h2>
+          <p class="view-description">Ask any academic question and receive simplified answers from your local AI.</p>
+        </div>
       </div>
       
       <div class="chat-container">
-        <!-- Chat history list of past sessions -->
-        <aside class="chat-sidebar">
-          <div class="chat-sidebar-header">
-            <button class="new-chat-btn" id="new-chat-btn">
-              + New Study Chat
+        <!-- History Sidebar Drawer -->
+        <aside class="chat-drawer" id="chat-drawer">
+          <div class="chat-drawer-header">
+            <span class="chat-drawer-title">Saved Chats</span>
+            <button class="chat-drawer-close" id="chat-drawer-close" title="Close Drawer">
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.2" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
           <div class="sessions-list" id="sessions-list">
-            <!-- Dynamically populated past sessions -->
+            <!-- Dynamically populated saved chats -->
           </div>
         </aside>
-        
-        <!-- Live Chat Workspace -->
+
+        <!-- Main chat workspace -->
         <div class="chat-workspace">
+          <!-- Chat Header toolbar -->
+          <div class="chat-workspace-header">
+            <div class="chat-header-info">
+              <span class="chat-header-title">Active study thread</span>
+              <span class="chat-header-meta" id="chat-active-model-meta">Model: tinyllama</span>
+            </div>
+            <div class="chat-header-actions">
+              <button class="btn-secondary" id="chat-history-drawer-toggle" style="padding:6px 12px; font-size:12px;" title="Open History Logs">
+                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.2" fill="none" style="margin-right:4px;"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                History
+              </button>
+              <button class="btn-secondary" id="chat-save-btn" style="padding:6px 12px; font-size:12px;">Save</button>
+              <button class="btn-secondary" id="chat-new-btn" style="padding:6px 12px; font-size:12px;">New Chat</button>
+            </div>
+          </div>
+
+          <!-- Message Bubbles Container -->
           <div class="chat-history" id="chat-history">
-            <!-- Empty state welcome -->
+            <!-- Empty state suggestions chips -->
             <div class="chat-welcome" id="chat-welcome-state">
               <div class="chat-welcome-icon">
                 <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </div>
               <div>
                 <h2>Hello! I'm StudyMind</h2>
-                <p>Your local offline study assistant. What topic are you working on today? Select a quick prompt or type your own below.</p>
+                <p>Select a subject to expand suggestions or type your query below.</p>
               </div>
               
-              <div class="chips-container">
-                <button class="quick-chip" data-prompt="Explain the water cycle simply with examples.">Rain & Clouds: Water Cycle 🌧️</button>
-                <button class="quick-chip" data-prompt="Explain what is photosynthesis and how plants make energy.">Leaf Power: Photosynthesis 🌿</button>
-                <button class="quick-chip" data-prompt="Summarize the key events and causes of World War 2.">History: Causes of WWII 🏛️</button>
-                <button class="quick-chip" data-prompt="Explain the core difference between mitosis and meiosis division.">Biology: Mitosis vs Meiosis 🧬</button>
+              <div class="chat-suggestions-container">
+                <div class="subjects-row" id="subjects-row">
+                  <div class="subject-chip" data-subject="Science">Science 🌧️</div>
+                  <div class="subject-chip" data-subject="Math">Math 📐</div>
+                  <div class="subject-chip" data-subject="History">History 🏛️</div>
+                  <div class="subject-chip" data-subject="English">English 📖</div>
+                  <div class="subject-chip" data-subject="Filipino">Filipino 🇵🇭</div>
+                  <div class="subject-chip" data-subject="Values">Values 🕊️</div>
+                </div>
+                <div class="sub-prompts-container" id="sub-prompts-container">
+                  <!-- Expanded prompts load here -->
+                </div>
               </div>
             </div>
-            
-            <!-- Message bubbles render here dynamically -->
           </div>
-          
-          <!-- Thinking indicator -->
+
+          <!-- Thinking dots -->
           <div class="thinking-bubble" id="chat-thinking">
             <span class="dot"></span>
             <span class="dot"></span>
             <span class="dot"></span>
           </div>
-          
-          <!-- Send bar -->
-          <div class="chat-input-bar">
-            <button class="clear-history-btn" id="clear-session-btn" title="Clear current chat conversation">
-              <svg viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-            <textarea class="chat-textarea" id="chat-input" placeholder="Type your academic question here (e.g. What is supply and demand?)..." rows="1"></textarea>
-            <button class="btn-primary send-btn" id="chat-send-btn" title="Send Question">
-              <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
+
+          <!-- Input bar wrapper -->
+          <div class="chat-input-wrapper">
+            <div class="chat-input-bar-container">
+              <div class="chat-input-row">
+                <textarea class="chat-textarea" id="chat-input" placeholder="Ask your academic question here (e.g. explain supply and demand)..." rows="1"></textarea>
+                <div class="chat-input-buttons">
+                  <button class="chat-input-icon-btn" id="chat-clear-btn" title="Clear thread">
+                    <svg viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                  <button class="chat-input-send-btn" id="chat-send-btn" title="Send message">
+                    <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="chat-actions-row">
+                <span class="chat-char-counter" id="chat-char-counter" style="display:none;">0 characters</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- VIEW 2: REVIEW GENERATOR -->
+    <!-- VIEW 3: REVIEW GENERATOR -->
     <section class="view-container" id="reviewer-view">
       <div class="view-header">
-        <h2 class="view-title">Review Maker</h2>
-        <p class="view-description">Paste your lesson notes, and generate custom quizzes, open questions, or bullet lists.</p>
+        <div class="view-header-left">
+          <h2 class="view-title">Review Maker</h2>
+          <p class="view-description">Redesign your lesson sheets into interactive quizzes or bullet lists.</p>
+        </div>
       </div>
-      
+
       <div class="reviewer-container">
-        <!-- Notes Input Card -->
-        <div class="reviewer-card">
-          <div class="input-section">
-            <label for="reviewer-notes" class="notes-label">Paste Lesson Notes / Textbook Material</label>
-            <textarea class="notes-textarea" id="reviewer-notes" placeholder="Paste notes here (e.g. Mitochondria are the powerhouses of the cell. They generate ATP through cellular respiration, which consists of glycolysis, the Krebs cycle, and the electron transport chain...)"></textarea>
+        <!-- Progress Steps -->
+        <div class="wizard-progress-header">
+          <div class="wizard-steps">
+            <div class="wizard-step-node active" id="step-node-1">
+              <span class="wizard-step-num">1</span>
+              <span>Input</span>
+            </div>
+            <div class="wizard-line" id="step-line-1"></div>
+            <div class="wizard-step-node" id="step-node-2">
+              <span class="wizard-step-num">2</span>
+              <span>Configure</span>
+            </div>
+            <div class="wizard-line" id="step-line-2"></div>
+            <div class="wizard-step-node" id="step-node-3">
+              <span class="wizard-step-num">3</span>
+              <span>Results</span>
+            </div>
           </div>
-          
-          <div class="controls-row">
-            <div class="controls-group">
+        </div>
+
+        <!-- STEP 1: INPUT NOTES -->
+        <div class="wizard-step-panel active" id="step-panel-1">
+          <div class="input-card">
+            <div class="input-header">
+              <span class="notes-label">Paste Lesson Notes / Textbook Pages</span>
+              <span class="word-count" id="reviewer-word-count">0 words</span>
+            </div>
+            <textarea class="notes-textarea" id="reviewer-notes" placeholder="Paste notes here (e.g. Mitochondria are the powerhouses of the cell. They generate ATP through cellular respiration...)"></textarea>
+            
+            <div class="config-group" style="margin-top:10px;">
+              <span class="control-label">Subject Category:</span>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <span class="subject-pill active" data-subject="Science">Science</span>
+                <span class="subject-pill" data-subject="Math">Math</span>
+                <span class="subject-pill" data-subject="History">History</span>
+                <span class="subject-pill" data-subject="English">English</span>
+                <span class="subject-pill" data-subject="Filipino">Filipino</span>
+                <span class="subject-pill" data-subject="Other">Other</span>
+              </div>
+            </div>
+
+            <div class="config-group" style="margin-top:10px;">
               <span class="control-label">Review Mode:</span>
-              <div class="reviewer-tabs">
-                <button class="reviewer-tab active" data-mode="mcq">MCQ Quiz</button>
-                <button class="reviewer-tab" data-mode="open">Open-Ended</button>
-                <button class="reviewer-tab" data-mode="summary">Key Summary</button>
+              <div class="config-pill-options">
+                <span class="config-pill active" data-mode="mcq">MCQ Quiz</span>
+                <span class="config-pill" data-mode="open">Open-Ended Cards</span>
+                <span class="config-pill" data-mode="summary">Summary Outlines</span>
+                <span class="config-pill" data-mode="mixed">Mixed Review (MCQ + Key Points)</span>
               </div>
             </div>
-            
-            <div class="controls-group">
-              <label for="reviewer-count" class="control-label">Questions:</label>
-              <select id="reviewer-count">
-                <option value="5">5 Questions</option>
-                <option value="8">8 Questions</option>
-                <option value="10">10 Questions</option>
-              </select>
-              
-              <button class="btn-primary" id="reviewer-generate-btn">Generate Review</button>
+
+            <button class="btn-primary" id="reviewer-step1-next" style="margin-top:12px; align-self: flex-end;">Next: Configure Options</button>
+          </div>
+        </div>
+
+        <!-- STEP 2: CONFIGURE -->
+        <div class="wizard-step-panel" id="step-panel-2">
+          <div class="config-card">
+            <div class="config-group">
+              <div class="config-label-row">
+                <label for="reviewer-count" class="control-label">Number of Items:</label>
+                <span class="config-value-display" id="reviewer-count-val">5</span>
+              </div>
+              <input type="range" class="slider-input" id="reviewer-count" min="3" max="15" value="5">
+            </div>
+
+            <div class="config-group">
+              <span class="control-label">Difficulty Settings:</span>
+              <div class="config-pill-options">
+                <span class="config-pill" data-diff="Easy">Easy</span>
+                <span class="config-pill active" data-diff="Medium">Medium</span>
+                <span class="config-pill" data-diff="Hard">Hard</span>
+              </div>
+            </div>
+
+            <div class="config-group">
+              <span class="control-label">Language:</span>
+              <div class="config-pill-options">
+                <span class="config-pill active" data-lang="English">English</span>
+                <span class="config-pill" data-lang="Filipino">Filipino</span>
+                <span class="config-pill" data-lang="Taglish">Taglish</span>
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; margin-top:12px;">
+              <button class="btn-secondary" id="reviewer-step2-back">Back</button>
+              <button class="btn-primary" id="reviewer-generate-btn" style="padding-left:32px; padding-right:32px;">Generate Review</button>
             </div>
           </div>
         </div>
-        
-        <!-- Results Display Card (Hidden by default until generated) -->
-        <div class="reviewer-card" id="reviewer-results-card" style="display: none;">
-          <div class="results-header">
-            <div class="results-title">
-              <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--color-primary)" stroke-width="2.5" fill="none"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span id="results-title-text">Study Review Materials</span>
+
+        <!-- STEP 3: RESULTS -->
+        <div class="wizard-step-panel" id="step-panel-3">
+          <div class="results-card" id="reviewer-results-card">
+            <div class="results-header-row">
+              <span class="results-title" id="results-title-text">Study Review Materials</span>
+              <div class="export-actions">
+                <button class="btn-secondary export-btn" id="reviewer-copy-btn">Copy</button>
+                <button class="btn-secondary export-btn" id="reviewer-save-btn">Save .txt</button>
+              </div>
             </div>
             
-            <div class="export-actions">
-              <button class="btn-secondary export-btn" id="reviewer-copy-btn">
-                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.2" fill="none"><path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H14m0 0l3-3m-3 3l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Copy
-              </button>
-              <button class="btn-secondary export-btn" id="reviewer-save-btn">
-                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.2" fill="none"><path d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Save .txt
-              </button>
+            <div class="results-section" id="reviewer-results-content">
+              <!-- Result elements will render here -->
             </div>
-          </div>
-          
-          <div class="results-section" id="reviewer-results-content">
-            <!-- Dynamic quiz elements render here -->
+
+            <button class="btn-secondary" id="reviewer-restart-btn" style="align-self: flex-start; margin-top: 12px;">Create New Review</button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- VIEW 3: TOPIC EXPLAINER -->
-    <section class="view-container" id="explainer-view">
+    <!-- VIEW 4: FLASHCARDS -->
+    <section class="view-container" id="flashcards-view">
       <div class="view-header">
-        <h2 class="view-title">Topic Explainer</h2>
-        <p class="view-description">Type in any complex academic topic, choose your target difficulty level, and get tailored private definitions.</p>
-      </div>
-      
-      <div class="reviewer-container">
-        <div class="reviewer-card">
-          <div class="input-section">
-            <label for="explainer-input" class="notes-label">What topic do you want explained?</label>
-            <input type="text" id="explainer-input" placeholder="e.g. Quantum Computing, Inflation in Economics, plate tectonics...">
-          </div>
-          
-          <div class="controls-row">
-            <div class="controls-group">
-              <span class="control-label">Difficulty Level:</span>
-              <div style="display: flex; gap: 8px;">
-                <button class="btn-secondary active" id="diff-simple" data-level="Simple" style="border-left: 4px solid var(--color-simple);">🟢 Simple</button>
-                <button class="btn-secondary" id="diff-standard" data-level="Standard" style="border-left: 4px solid var(--color-standard);">🟡 Standard</button>
-                <button class="btn-secondary" id="diff-advanced" data-level="Advanced" style="border-left: 4px solid var(--color-advanced);">🔴 Advanced</button>
-              </div>
-            </div>
-            
-            <button class="btn-primary" id="explainer-generate-btn">Explain Concept</button>
-          </div>
+        <div class="view-header-left">
+          <h2 class="view-title">Flashcards</h2>
+          <p class="view-description">Review decks or auto-generate card pairs from lesson content.</p>
         </div>
-        
-        <!-- Result card -->
-        <div class="reviewer-card" id="explainer-results-card" style="display: none;">
-          <div class="results-header">
-            <div class="results-title">
-              <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--color-primary)" stroke-width="2.5" fill="none"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span id="explainer-results-title">Concept Explanation</span>
-            </div>
-            
-            <button class="btn-secondary export-btn" id="explainer-copy-btn">
-              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.2" fill="none"><path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H14m0 0l3-3m-3 3l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              Copy Explanation
-            </button>
-          </div>
-          
-          <div class="results-section" id="explainer-results-content" style="color: var(--text-primary); line-height: 1.6; font-size: 0.96rem; white-space: pre-wrap;">
-            <!-- Output dynamically appears here -->
-          </div>
-        </div>
+        <button class="btn-primary" id="new-set-btn">+ Create New Set</button>
       </div>
-    </section>
 
-    <!-- VIEW 5: STUDY FLOW PLANNER -->
-    <section class="view-container" id="planner-view">
-      <div class="view-header">
-        <h2 class="view-title">Study Flow Planner</h2>
-        <p class="view-description">Upload your lecture notes (.txt), let the AI calculate custom study step durations, and start your active study countdown.</p>
-      </div>
-      
-      <div class="reviewer-container" style="max-width:100%; display: grid; grid-template-columns: 1fr 1.3fr; gap: 24px;">
-        
-        <!-- Controls Pane (Left) -->
-        <div style="display: flex; flex-direction: column; gap: 20px;">
-          <!-- Uploader Card -->
-          <div class="reviewer-card">
-            <span class="notes-label">1. Upload Lecture Notes (.txt)</span>
-            <div class="file-upload-zone" id="planner-upload-zone" style="display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed var(--border-color); border-radius: var(--radius-md); padding: 30px 20px; cursor: pointer; text-align: center; background-color: var(--bg-input); transition: all var(--transition-fast);">
-              <svg viewBox="0 0 24 24" width="36" height="36" stroke="var(--color-primary)" stroke-width="2" fill="none" style="margin-bottom:8px;"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M12 12v9m0-9l-3 3m3-3l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span style="font-weight:700; font-size:0.9rem;">Drag & Drop File Here</span>
-              <span style="font-size:0.78rem; color:var(--text-secondary); margin-top:2px;">or click to browse your drive</span>
-              <input type="file" id="planner-file-input" accept=".txt" style="display:none;">
-            </div>
-            
-            <div id="planner-file-info" style="display:none; justify-content:space-between; align-items:center; background-color:var(--bg-input); padding:10px 14px; border-radius:var(--radius-md); border:1px solid var(--border-color); font-size:0.85rem; font-weight:700;">
-              <span id="planner-file-name" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:80%;">notes.txt</span>
-              <button id="planner-file-remove" style="background:none; border:none; color:var(--color-advanced); cursor:pointer; font-weight:700; font-size:0.8rem; padding: 2px 6px;">Remove</button>
-            </div>
-            
-            <button class="btn-primary" id="planner-generate-btn" style="width: 100%;">Generate Study Flow</button>
-          </div>
-          
-          <!-- Pomodoro Countdown Timer Card -->
-          <div class="reviewer-card" style="align-items: center; justify-content: center; padding: 26px 20px;">
-            <span class="notes-label" style="align-self: flex-start; margin-bottom: 8px;">2. Active Pomodoro Countdown</span>
-            
-            <div style="position: relative; width: 170px; height: 170px; display: flex; align-items: center; justify-content: center;">
-              <!-- Circular Countdown SVG Ring -->
-              <svg width="170" height="170" viewBox="0 0 170 170" style="transform: rotate(-90deg); position: absolute; top:0; left:0;">
-                <circle cx="85" cy="85" r="74" stroke="var(--border-color)" stroke-width="8" fill="none" />
-                <circle id="timer-progress-ring" cx="85" cy="85" r="74" stroke="var(--color-primary)" stroke-width="8" stroke-dasharray="465" stroke-dashoffset="0" fill="none" style="transition: stroke-dashoffset 1s linear; filter: drop-shadow(0 0 6px rgba(6, 182, 212, 0.3));" />
-              </svg>
-              <!-- Digital timer readouts -->
-              <div style="text-align: center; z-index: 5;">
-                <div id="timer-digits" style="font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; font-family: var(--font-sans);">25:00</div>
-                <div id="timer-task-label" style="font-size: 0.72rem; font-weight: 800; color: var(--text-secondary); max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;">Study Time</div>
-              </div>
-            </div>
-            
-            <!-- Controls panel -->
-            <div style="display: flex; gap: 10px; margin-top: 16px; width: 100%;">
-              <button class="btn-primary" id="timer-play-btn" style="flex:1;">Play</button>
-              <button class="btn-secondary" id="timer-reset-btn" style="padding: 10px 14px;">Reset</button>
-            </div>
-          </div>
+      <!-- Main Deck view -->
+      <div class="fc-dashboard" id="fc-main-view">
+        <div class="empty-state" id="fc-empty-state" style="display:none;">
+          <svg class="empty-state-icon" viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="empty-state-title">No Flashcards Created</span>
+          <span class="empty-state-desc">Create manual decks or let the AI extract vocab keys from notes.</span>
         </div>
         
-        <!-- Timeline Workspace Card (Right) -->
-        <div style="display: flex; flex-direction: column;">
-          <!-- Empty timeline state -->
-          <div class="reviewer-card" id="planner-empty-timeline" style="align-items: center; justify-content: center; height: 100%; min-height: 400px; text-align: center; color: var(--text-secondary); border-style: dashed; padding: 40px;">
-            <svg viewBox="0 0 24 24" width="48" height="48" stroke="var(--text-muted)" stroke-width="1.8" fill="none" style="margin-bottom:12px;"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span style="font-weight:700; font-size:1.05rem; color:var(--text-primary);">No Study Flow Active</span>
-            <span style="font-size:0.85rem; max-width:270px; margin-top:4px; line-height: 1.4;">Upload a lecture file (.txt) on the left to let AI automatically budget your steps and durations.</span>
-          </div>
-          
-          <!-- Timeline result cards -->
-          <div class="reviewer-card" id="planner-timeline-card" style="display: none; height: 100%;">
-            <div class="results-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 12px;">
-              <div class="results-title">
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--color-primary)" stroke-width="2.5" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span>Dynamic Timeline Budget</span>
-              </div>
-            </div>
-            <div class="results-section" id="planner-timeline-content" style="display: flex; flex-direction: column; gap: 14px;">
-              <!-- Dynamic step rows render here -->
-            </div>
-          </div>
+        <div class="fc-set-grid" id="fc-set-grid">
+          <!-- Populated dynamically -->
         </div>
-        
       </div>
-    </section>
 
-    <!-- VIEW 4: SETTINGS -->
-    <section class="view-container" id="settings-view">
-      <div class="view-header">
-        <h2 class="view-title">Settings</h2>
-        <p class="view-description">Configure your local AI models, lengths, and diagnostic setups.</p>
-      </div>
-      
-      <div class="reviewer-container">
-        <!-- Settings Form Card -->
-        <div class="reviewer-card">
-          
-          <!-- AI Engine / Model Selector -->
-          <div class="input-section" style="border-bottom: 1px solid var(--border-color); padding-bottom: 20px;">
-            <label for="settings-model" class="notes-label" style="display: flex; justify-content: space-between;">
-              <span>AI Ollama Model Selection</span>
-              <a href="#" id="refresh-models-btn" style="color: var(--color-primary); text-decoration: none; font-size: 0.85rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
-                <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none" style="margin-top:1px;"><path d="M23 4v6h-6M1 20v-6h6M21.94 13.5A9 9 0 1121 9" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Refresh Models
-              </a>
-            </label>
-            <p class="view-description" style="margin-top:-4px; margin-bottom: 8px;">Choose from your locally installed models. Ensure you have pulled them via Ollama.</p>
-            <select id="settings-model">
-              <option value="tinyllama">TinyLlama (Default - ~600MB)</option>
-              <option value="phi3">Phi-3 Mini (~2.2GB)</option>
+      <!-- Creation View -->
+      <div class="fc-create-container" id="fc-create-view" style="display:none;">
+        <div style="grid-column: span 2; display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+          <span style="font-weight:700; font-size:16px;">Set Details</span>
+          <button class="btn-secondary" id="fc-back-to-main" style="padding: 6px 12px; font-size:12px;">Back to Decks</button>
+        </div>
+
+        <div class="fc-create-form">
+          <div class="config-group">
+            <label for="fc-set-name">Set Name / Lesson Chapter:</label>
+            <input type="text" id="fc-set-name" placeholder="e.g. Chapter 3 Biology: Cell Organelles">
+          </div>
+
+          <div class="config-group">
+            <label for="fc-set-subject">Subject Type:</label>
+            <select id="fc-set-subject">
+              <option value="Science">Science</option>
+              <option value="Math">Math</option>
+              <option value="History">History</option>
+              <option value="English">English</option>
+              <option value="Filipino">Filipino</option>
+              <option value="Other">Other</option>
             </select>
           </div>
-          
-          <!-- Answer Length selector -->
-          <div class="input-section" style="border-bottom: 1px solid var(--border-color); padding-bottom: 20px;">
-            <span class="notes-label">AI Response Detail Length</span>
-            <p class="view-description" style="margin-top:-4px; margin-bottom: 10px;">Select how detailed the responses should be (adjusts prompt limits for local CPUs).</p>
-            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight:600;">
-                <input type="radio" name="response-length" value="300"> Short (300 tokens)
-              </label>
-              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight:600;">
-                <input type="radio" name="response-length" value="600" checked> Medium (600 tokens)
-              </label>
-              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight:600;">
-                <input type="radio" name="response-length" value="1000"> Detailed (1000 tokens)
-              </label>
+
+          <!-- Creation Mode Tabs -->
+          <div class="reviewer-tabs" style="margin-top: 10px;">
+            <button class="reviewer-tab active" id="fc-tab-manual">Manual Input</button>
+            <button class="reviewer-tab" id="fc-tab-ai">AI Notes Extractor</button>
+          </div>
+
+          <!-- Manual creation template -->
+          <div class="fc-form-manual" id="fc-form-manual" style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
+            <div class="config-group">
+              <label for="fc-card-front">Front Side (Term / Question):</label>
+              <textarea id="fc-card-front" placeholder="e.g. What organelle is known as the powerhouse of the cell?" rows="2"></textarea>
+            </div>
+            <div class="config-group">
+              <label for="fc-card-back">Back Side (Definition / Answer):</label>
+              <textarea id="fc-card-back" placeholder="e.g. Mitochondria" rows="2"></textarea>
+            </div>
+            <button class="btn-secondary" id="fc-add-card-btn" style="align-self: flex-start;">Add Card</button>
+          </div>
+
+          <!-- AI extractor template -->
+          <div class="fc-form-ai" id="fc-form-ai" style="display:none; flex-direction:column; gap:12px; margin-top:8px;">
+            <div class="config-group">
+              <label for="fc-ai-notes">Paste Study Notes:</label>
+              <textarea id="fc-ai-notes" placeholder="Paste notes here to generate flashcard pairs..." rows="4"></textarea>
+            </div>
+            <div class="config-group">
+              <label for="fc-ai-count">Cards Limit:</label>
+              <select id="fc-ai-count">
+                <option value="5">5 Cards</option>
+                <option value="8">8 Cards</option>
+                <option value="10">10 Cards</option>
+              </select>
+            </div>
+            <button class="btn-secondary" id="fc-ai-generate-btn" style="align-self: flex-start;">Generate Flashcards</button>
+          </div>
+        </div>
+
+        <div class="fc-preview-pane">
+          <span class="control-label">Deck Cards Preview</span>
+          <div class="fc-preview-list" id="fc-preview-list">
+            <!-- Added cards list -->
+          </div>
+          <button class="btn-primary" id="fc-save-set-btn" style="width: 100%; margin-top: 10px;">Save Flashcard Set</button>
+        </div>
+      </div>
+
+      <!-- STUDY MODE VIEW OVERLAY -->
+      <div class="fc-study-overlay" id="fc-study-overlay">
+        <div class="fc-study-header">
+          <span class="fc-study-title" id="fc-study-title">Studying Deck</span>
+          <span class="fc-study-progress-text" id="fc-study-progress-text">Card 1 of 10</span>
+          <button class="fc-close-btn" id="fc-close-study-btn" title="Close Study Board">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        <!-- 3D Card viewport -->
+        <div class="fc-card-viewport" id="fc-active-card-element">
+          <div class="fc-card-flipper">
+            <!-- Front face -->
+            <div class="fc-card-face front">
+              <span class="fc-card-hint-label">Question / Term</span>
+              <div class="fc-card-text" id="fc-card-front-text">Front Card content</div>
+              <span class="fc-card-click-tip">Click or Space to flip</span>
+            </div>
+            
+            <!-- Back face -->
+            <div class="fc-card-face back">
+              <span class="fc-card-hint-label">Answer / Definition</span>
+              <div class="fc-card-text" id="fc-card-back-text">Back Card content</div>
+              <span class="fc-card-click-tip">Click or Space to flip back</span>
             </div>
           </div>
-          
-          <!-- Diagnostics & Diagnostics Onboarding Guide -->
-          <div class="input-section" style="border-bottom: 1px solid var(--border-color); padding-bottom: 20px;">
-            <span class="notes-label">Ollama Diagnostic Assistant</span>
-            <div style="margin-top: 10px; padding: 16px; border-radius: var(--radius-md); background-color: var(--bg-input); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 12px;">
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <span style="font-weight: 700; font-size: 0.9rem;">Diagnostic Status:</span>
-                <span class="status-indicator" style="background-color: var(--bg-card);">
-                  <span class="status-dot offline" id="diag-dot"></span>
-                  <span id="diag-text">Disconnected</span>
-                </span>
-              </div>
-              
-              <div id="diag-instructions" style="font-size: 0.85rem; line-height: 1.45; color: var(--text-secondary); display: flex; flex-direction: column; gap: 8px;">
-                <!-- Dynamically updated status guide -->
-                <div>Ollama is not running. To start studying offline:</div>
-                <div style="padding-left:12px;">1. Double click the **Ollama** icon on your Desktop / Applications.</div>
-                <div style="padding-left:12px;">2. Open a command prompt and run: <code>ollama run tinyllama</code> to download.</div>
-              </div>
-              
-              <button class="btn-secondary" id="settings-ping-btn" style="align-self: flex-start; padding: 8px 16px; font-size: 0.85rem;">Check Connection</button>
-            </div>
-          </div>
-          
-          <!-- Reset app data -->
-          <div class="input-section">
-            <span class="notes-label" style="color: var(--color-advanced);">Danger Area</span>
-            <p class="view-description" style="margin-top:-4px; margin-bottom: 12px;">Resetting deletes all local study chat session logs. This action is irreversible.</p>
-            <button class="btn-danger" id="clear-all-sessions-btn" style="align-self: flex-start;">Clear All Saved Sessions</button>
-          </div>
-          
+        </div>
+
+        <!-- Navigation Arrows -->
+        <div class="fc-study-navigation">
+          <button class="fc-nav-arrow" id="fc-prev-btn" title="Previous Card">
+            <svg viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="fc-nav-arrow" id="fc-next-btn" title="Next Card">
+            <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+
+        <!-- Self-Rating Buttons -->
+        <div class="fc-rating-row" id="fc-rating-row">
+          <button class="fc-rate-btn missed" id="fc-rate-missed">Missed ✗</button>
+          <button class="fc-rate-btn almost" id="fc-rate-almost">Almost</button>
+          <button class="fc-rate-btn got-it" id="fc-rate-got-it">Got It ✓</button>
         </div>
       </div>
     </section>
-    
-    <!-- Confirm Modal -->
+
+    <!-- VIEW 5: MY NOTES -->
+    <section class="view-container" id="notes-view">
+      <div class="view-header">
+        <div class="view-header-left">
+          <h2 class="view-title">My Notes</h2>
+          <p class="view-description">A simple editor with built-in AI assist tools.</p>
+        </div>
+      </div>
+
+      <div class="notes-container">
+        <!-- Left: Index Sidebar -->
+        <aside class="notes-sidebar">
+          <div class="notes-sidebar-header">
+            <button class="notes-new-btn" id="notes-new-btn">+ New Note</button>
+            <div class="notes-search-wrapper">
+              <svg class="notes-search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" class="notes-search-input" id="notes-search-input" placeholder="Search notes...">
+            </div>
+          </div>
+          <div class="notes-list" id="notes-list">
+            <!-- Populated via Javascript -->
+          </div>
+        </aside>
+
+        <!-- Right: Editor workspace -->
+        <div class="note-editor">
+          <!-- AI Assist Toolbar -->
+          <div class="note-ai-toolbar">
+            <span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-right:4px;">AI Assist:</span>
+            <button class="note-ai-btn" id="note-ai-summarize">Summarize</button>
+            <button class="note-ai-btn" id="note-ai-explain">Explain Simply</button>
+            <button class="note-ai-btn" id="note-ai-review">Generate Review</button>
+            <button class="note-ai-btn" id="note-ai-terms">Find Key Terms</button>
+            <button class="note-ai-btn" id="note-ai-improve">Improve Writing</button>
+          </div>
+
+          <!-- Note Header -->
+          <div class="note-editor-header">
+            <input type="text" class="note-title-input" id="notes-title-input" placeholder="Untitled Note">
+            <div class="note-header-actions">
+              <button class="btn-secondary" id="note-action-copy" style="padding:6px 12px; font-size:12px;">Copy All</button>
+              <button class="btn-secondary" id="note-action-export" style="padding:6px 12px; font-size:12px;">Export .txt</button>
+              <button class="btn-secondary btn-danger" id="note-action-delete" style="padding:6px 12px; font-size:12px; background-color:transparent; border-color:var(--danger); color:var(--danger);">Delete</button>
+            </div>
+          </div>
+
+          <!-- Note Content Area -->
+          <div class="note-editor-workspace">
+            <textarea class="note-content-textarea" id="notes-content-textarea" placeholder="Start writing or pasting study topics here..."></textarea>
+          </div>
+
+          <!-- Editor Footer -->
+          <div class="note-editor-footer">
+            <div style="display:flex; gap:12px; align-items:center;">
+              <span id="notes-word-count">0 words</span>
+              <select id="notes-subject" style="padding:4px 8px; font-size:11px; font-weight:700;">
+                <option value="Science">Science</option>
+                <option value="Math">Math</option>
+                <option value="History">History</option>
+                <option value="English">English</option>
+                <option value="Filipino">Filipino</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            
+            <div class="note-save-status" id="notes-save-status" style="display:none;">
+              <!-- Saved indicator -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes slide-out AI outcomes Drawer -->
+        <aside class="notes-ai-drawer" id="notes-ai-drawer">
+          <div class="notes-ai-drawer-header">
+            <span class="notes-ai-drawer-title">AI Outcomes</span>
+            <button class="notes-ai-drawer-close" id="notes-ai-drawer-close">
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.2" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="notes-ai-drawer-content" id="notes-ai-drawer-content">
+            <!-- Streaming AI returns -->
+          </div>
+          <div class="notes-ai-drawer-footer">
+            <button class="btn-secondary" id="notes-ai-copy-btn">Copy</button>
+            <button class="btn-primary" id="notes-ai-save-btn">Save as Note</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- VIEW 6: STUDY TIMER -->
+    <section class="view-container" id="timer-view">
+      <div class="view-header">
+        <div class="view-header-left">
+          <h2 class="view-title">Study Timer</h2>
+          <p class="view-description">Pomodoro clocks designed to optimize study focus.</p>
+        </div>
+      </div>
+
+      <div class="timer-container">
+        <div class="timer-card">
+          <!-- Modes Navigation -->
+          <div class="timer-tabs">
+            <button class="timer-tab active" id="timer-tab-pomodoro">Pomodoro</button>
+            <button class="timer-tab" id="timer-tab-custom">Custom Mode</button>
+            <button class="timer-tab" id="timer-tab-countdown">Countdown</button>
+          </div>
+
+          <!-- Custom Settings Inputs -->
+          <div class="timer-custom-inputs" id="timer-custom-inputs">
+            <div class="custom-input-group">
+              <label for="timer-custom-focus">Focus (min):</label>
+              <input type="number" id="timer-custom-focus" min="1" max="180" value="25">
+            </div>
+            <div class="custom-input-group">
+              <label for="timer-custom-break">Break (min):</label>
+              <input type="number" id="timer-custom-break" min="1" max="60" value="5">
+            </div>
+          </div>
+
+          <!-- Progress Ring Timer -->
+          <div class="timer-ring-wrapper">
+            <svg width="220" height="220" viewBox="0 0 220 220">
+              <circle class="timer-ring-bg" cx="110" cy="110" r="92" stroke-width="8" fill="none" />
+              <circle class="timer-ring-progress" id="timer-progress-ring" cx="110" cy="110" r="92" stroke-width="8" stroke-dasharray="578" stroke-dashoffset="0" fill="none" style="transition: stroke-dashoffset 1s linear;" />
+            </svg>
+            <div class="timer-readout">
+              <span class="timer-digits" id="timer-digits">25:00</span>
+              <span class="timer-state-label" id="timer-state-label">Focus Session</span>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div class="timer-controls">
+            <button class="btn-primary" id="timer-play-btn">Start</button>
+            <button class="btn-secondary" id="timer-reset-btn">Reset</button>
+          </div>
+
+          <!-- Completed Tracker -->
+          <div class="timer-tracker-container">
+            <span class="timer-tracker-label">Completed Today</span>
+            <div class="timer-tracker-dots" id="timer-tracker-dots">
+              <!-- dots filled ●●●○ -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 7: PROGRESS TRACKER -->
+    <section class="view-container" id="progress-view">
+      <div class="view-header">
+        <div class="view-header-left">
+          <h2 class="view-title">Progress & Stats</h2>
+          <p class="view-description">Log study durations and track quiz achievements.</p>
+        </div>
+      </div>
+
+      <div class="progress-container">
+        <!-- Top Row Cards -->
+        <div class="progress-summary-grid">
+          <div class="card" style="align-items:center; text-align:center; padding:16px;">
+            <span style="font-size:24px;" id="prog-streak-val">🔥 0 Days</span>
+            <span style="font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Study Streak</span>
+          </div>
+          
+          <div class="card" style="align-items:center; text-align:center; padding:16px;">
+            <span style="font-size:24px;" id="prog-time-val">0 mins</span>
+            <span style="font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Time (This Week)</span>
+          </div>
+
+          <div class="card" style="align-items:center; text-align:center; padding:16px;">
+            <span style="font-size:24px;" id="prog-reviews-val">0 Completed</span>
+            <span style="font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Reviews (This Week)</span>
+          </div>
+
+          <div class="card" style="align-items:center; text-align:center; padding:16px;">
+            <span style="font-size:24px;" id="prog-flashcards-val">0 Sessions</span>
+            <span style="font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Flashcards (This Week)</span>
+          </div>
+        </div>
+
+        <!-- Activity Heatmap -->
+        <div class="card heatmap-card">
+          <span class="stats-title">Last 30 Days Activity Heatmap</span>
+          <div class="heatmap-wrapper">
+            <div class="heatmap-strip" id="heatmap-container">
+              <!-- Populated via script -->
+            </div>
+            <div class="heatmap-labels-row">
+              <span>30 days ago</span>
+              <span>Today</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MCQ Scores Chart -->
+        <div class="card chart-card">
+          <span class="stats-title">MCQ Scores (Last 10 review sessions)</span>
+          <div class="chart-canvas-container">
+            <svg class="chart-svg" id="score-chart-svg" viewBox="0 0 500 180">
+              <!-- Rendered dynamically -->
+            </svg>
+          </div>
+        </div>
+
+        <!-- Flashcard Mastery Bars -->
+        <div class="card mastery-card">
+          <span class="stats-title">Flashcard mastery rates</span>
+          <div class="mastery-list" id="mastery-list-container">
+            <!-- Mastery bars list -->
+          </div>
+          <div class="mastery-legend">
+            <div class="legend-item"><span class="legend-color mastered"></span><span>Mastered (>50% correct)</span></div>
+            <div class="legend-item"><span class="legend-color learning"></span><span>Learning</span></div>
+            <div class="legend-item"><span class="legend-color new"></span><span>New</span></div>
+          </div>
+        </div>
+
+        <!-- Achievements Badges -->
+        <div class="card badges-card">
+          <span class="stats-title">Study Badges & Achievements</span>
+          <div class="badges-grid" id="badges-grid-container">
+            <!-- Badges populated -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 8: TOPIC EXPLAINER -->
+    <section class="view-container" id="explainer-view">
+      <div class="view-header">
+        <div class="view-header-left">
+          <h2 class="view-title">Topic Explainer</h2>
+          <p class="view-description">Type in any complex academic topic, choose your target difficulty level, and get tailored private definitions.</p>
+        </div>
+      </div>
+      
+      <div class="reviewer-container" style="max-width:100%; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px;">
+        <!-- Left: Input & Outputs -->
+        <div style="display:flex; flex-direction:column; gap:20px;">
+          <div class="card" style="padding:24px;">
+            <div class="config-group">
+              <label for="explainer-input" class="notes-label">What topic do you want explained?</label>
+              <input type="text" id="explainer-input" placeholder="e.g. Plate Tectonics, Quantum Computing, Inflation in Economics...">
+            </div>
+
+            <!-- Second Compare Input (hidden by default) -->
+            <div class="config-group" id="explainer-compare-wrapper" style="display:none; animation:fadeIn var(--transition-fast) forwards;">
+              <label for="explainer-compare-input" class="notes-label">Compare with:</label>
+              <input type="text" id="explainer-compare-input" placeholder="e.g. Continental Drift, Classic Computing...">
+            </div>
+
+            <div class="config-group" style="margin-top:8px;">
+              <span class="control-label">Difficulty Level:</span>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn-secondary active" id="diff-simple" data-level="Simple" style="border-left: 4px solid var(--success);">🟢 Simple</button>
+                <button class="btn-secondary" id="diff-standard" data-level="Standard" style="border-left: 4px solid var(--warning);">🟡 Standard</button>
+                <button class="btn-secondary" id="diff-advanced" data-level="Advanced" style="border-left: 4px solid var(--danger);">🔴 Advanced</button>
+              </div>
+            </div>
+
+            <div class="config-group" style="margin-top:8px;">
+              <label for="explainer-format" class="control-label">Output Format:</label>
+              <select id="explainer-format">
+                <option value="explain">📝 Explanation (default)</option>
+                <option value="steps">📋 Step-by-step breakdown</option>
+                <option value="compare">⚖️ Compare with another topic</option>
+                <option value="misconceptions">❓ Common misconceptions</option>
+                <option value="examples">🌍 Real-world examples</option>
+              </select>
+            </div>
+
+            <button class="btn-primary" id="explainer-generate-btn" style="width: 100%; margin-top: 8px;">Explain Concept</button>
+          </div>
+
+          <!-- Explanation Results reading card -->
+          <div class="card" id="explainer-results-card" style="display: none;">
+            <div class="results-header-row">
+              <span class="results-title" id="explainer-results-title">Concept Explanation</span>
+              <div class="export-actions">
+                <button class="btn-secondary export-btn" id="explainer-copy-btn">Copy</button>
+                <button class="btn-secondary export-btn" id="explainer-save-note-btn">Save to Notes</button>
+              </div>
+            </div>
+            
+            <div class="results-section" id="explainer-results-content" style="color: var(--text-primary); line-height: 1.65; font-size: 13.5px; white-space: pre-wrap;">
+              <!-- Output dynamically streams here -->
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:12px; border-top:1px solid var(--border); padding-top:16px;">
+              <button class="btn-secondary" id="explainer-go-deeper-btn" style="flex:1;">Go Deeper</button>
+              <button class="btn-secondary" id="explainer-simplify-btn" style="flex:1;">Simplify More</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Follow-up Questions sidebar -->
+        <div class="card" id="explainer-related-questions-sidebar" style="display:none; height:fit-content; padding:24px;">
+          <span class="stats-title" style="margin-bottom:10px; display:block;">Related Questions to Explore</span>
+          <ul id="explainer-related-questions-list" style="display:flex; flex-direction:column; gap:10px; list-style:none; padding:0;">
+            <!-- related questions -->
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 9: SETTINGS -->
+    <section class="view-container" id="settings-view">
+      <div class="view-header">
+        <div class="view-header-left">
+          <h2 class="view-title">Settings</h2>
+          <p class="view-description">Configure your local AI configurations and theme preferences.</p>
+        </div>
+      </div>
+
+      <div class="reviewer-container">
+        <div class="card" style="gap:24px;">
+          <!-- AI Engine Section -->
+          <div class="input-section" style="border-bottom: 1px solid var(--border); padding-bottom: 24px;">
+            <span class="notes-label" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+              <span>AI Ollama Model Selection</span>
+              <a href="#" id="refresh-models-btn" style="color: var(--accent); text-decoration: none; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                Refresh Lists
+              </a>
+            </span>
+            <select id="settings-model" style="width: 100%;">
+              <!-- Populated via tags -->
+            </select>
+
+            <div style="margin-top:16px; display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+              <div class="config-group">
+                <label for="settings-length" class="control-label">Response Length limit:</label>
+                <select id="settings-length">
+                  <option value="300">Short (300 tokens)</option>
+                  <option value="600" selected>Medium (600 tokens)</option>
+                  <option value="1000">Detailed (1000 tokens)</option>
+                  <option value="2048">Unlimited (2048 tokens)</option>
+                </select>
+              </div>
+
+              <div class="config-group">
+                <div class="config-label-row">
+                  <label for="settings-temp" class="control-label">Creativity (Temp):</label>
+                  <span class="config-value-display" id="settings-temp-val">0.7</span>
+                </div>
+                <input type="range" class="slider-input" id="settings-temp" min="0.1" max="1.0" step="0.1" value="0.7">
+              </div>
+            </div>
+
+            <div style="margin-top:16px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+              <button class="btn-secondary" id="settings-test-conn" style="padding:6px 12px; font-size:12px;">Test Connection</button>
+              <span id="settings-test-result" style="font-size:11px; font-weight:600;"></span>
+            </div>
+          </div>
+
+          <!-- Appearance Settings -->
+          <div class="input-section" style="border-bottom: 1px solid var(--border); padding-bottom: 24px;">
+            <span class="notes-label" style="margin-bottom: 12px; display:block;">Appearance & Layout</span>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:16px;">
+              <div class="config-group">
+                <label for="settings-theme" class="control-label">Color Theme:</label>
+                <select id="settings-theme">
+                  <option value="dark">Dark Theme</option>
+                  <option value="light">Light Theme</option>
+                  <option value="system">Follow OS System</option>
+                </select>
+              </div>
+
+              <div class="config-group">
+                <label for="settings-font-size" class="control-label">Scale Font Size:</label>
+                <select id="settings-font-size">
+                  <option value="small">Small</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="large">Large</option>
+                </select>
+              </div>
+
+              <div class="config-group">
+                <label for="settings-sidebar-mode" class="control-label">Sidebar View:</label>
+                <select id="settings-sidebar-mode">
+                  <option value="Always Expanded">Always Expanded</option>
+                  <option value="Always Collapsed">Always Collapsed</option>
+                  <option value="Auto">Auto (Responsive)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="config-group" style="margin-top:16px;">
+              <span class="control-label">Accent Theme Color:</span>
+              <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;">
+                <button class="accent-picker-color" data-accent="blue-violet" style="width:24px; height:24px; border-radius:50%; background-color:#6c8eff; border:2px solid transparent; cursor:pointer;" title="Blue Violet"></button>
+                <button class="accent-picker-color" data-accent="teal" style="width:24px; height:24px; border-radius:50%; background-color:#0d9488; border:2px solid transparent; cursor:pointer;" title="Teal"></button>
+                <button class="accent-picker-color" data-accent="amber" style="width:24px; height:24px; border-radius:50%; background-color:#d97706; border:2px solid transparent; cursor:pointer;" title="Amber"></button>
+                <button class="accent-picker-color" data-accent="rose" style="width:24px; height:24px; border-radius:50%; background-color:#db2777; border:2px solid transparent; cursor:pointer;" title="Rose"></button>
+                <button class="accent-picker-color" data-accent="emerald" style="width:24px; height:24px; border-radius:50%; background-color:#059669; border:2px solid transparent; cursor:pointer;" title="Emerald"></button>
+                <button class="accent-picker-color" data-accent="orange" style="width:24px; height:24px; border-radius:50%; background-color:#ea580c; border:2px solid transparent; cursor:pointer;" title="Orange"></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Study Preferences -->
+          <div class="input-section" style="border-bottom: 1px solid var(--border); padding-bottom: 24px;">
+            <span class="notes-label" style="margin-bottom: 12px; display:block;">Study Preferences</span>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+              <div class="config-group">
+                <label for="settings-subject" class="control-label">Default Study Subject:</label>
+                <select id="settings-subject">
+                  <option value="Science">Science</option>
+                  <option value="Math">Math</option>
+                  <option value="History">History</option>
+                  <option value="English">English</option>
+                  <option value="Filipino">Filipino</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div class="config-group">
+                <label for="settings-review-q-count" class="control-label">Default Review Questions:</label>
+                <input type="number" id="settings-review-q-count" min="3" max="15" value="5">
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:16px; margin-top:16px;">
+              <div class="config-group">
+                <label for="settings-pomo-focus" class="control-label">Pomodoro Work (min):</label>
+                <input type="number" id="settings-pomo-focus" min="1" max="120" value="25">
+              </div>
+              <div class="config-group">
+                <label for="settings-pomo-short" class="control-label">Short Break (min):</label>
+                <input type="number" id="settings-pomo-short" min="1" max="60" value="5">
+              </div>
+              <div class="config-group">
+                <label for="settings-pomo-long" class="control-label">Long Break (min):</label>
+                <input type="number" id="settings-pomo-long" min="1" max="60" value="15">
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+              <span class="control-label">Enable desktop focus notifications:</span>
+              <input type="checkbox" id="settings-notifications" style="width:16px; height:16px; cursor:pointer;" checked>
+            </div>
+          </div>
+
+          <!-- Data Backups & Reset settings -->
+          <div class="input-section" style="border-bottom: 1px solid var(--border); padding-bottom: 24px;">
+            <span class="notes-label" style="margin-bottom: 12px; display:block;">Data Backup & Recovery</span>
+            
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+              <button class="btn-secondary" id="settings-export-btn">Export Data Backup (JSON)</button>
+              <button class="btn-secondary" id="settings-import-btn">Import Data Backup (JSON)</button>
+              <input type="file" id="settings-import-file" accept=".json" style="display:none;">
+            </div>
+
+            <span class="notes-label" style="color: var(--danger); margin-top: 20px; display:block;">Danger Area</span>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:8px;">
+              <button class="btn-secondary btn-danger" id="wipe-chats-btn" style="background-color:transparent; border-color:var(--danger); color:var(--danger);">Clear Chat History</button>
+              <button class="btn-secondary btn-danger" id="wipe-notes-btn" style="background-color:transparent; border-color:var(--danger); color:var(--danger);">Clear All Notes</button>
+              <button class="btn-secondary btn-danger" id="wipe-sets-btn" style="background-color:transparent; border-color:var(--danger); color:var(--danger);">Clear Flashcards</button>
+              <button class="btn-secondary btn-danger" id="wipe-progress-btn" style="background-color:transparent; border-color:var(--danger); color:var(--danger);">Reset Progress History</button>
+            </div>
+          </div>
+
+          <!-- About Section -->
+          <div class="input-section">
+            <span class="notes-label" style="margin-bottom: 6px; display:block;">About StudyMind</span>
+            <div style="font-size:12px; color:var(--text-secondary); line-height:1.6; display:flex; flex-direction:column; gap:4px;">
+              <span>App Version: 1.0.0 (Upgrade Redesign Build)</span>
+              <span>Framework: Electron.js, Local offline Ollama endpoint</span>
+              <div style="display:flex; gap:10px; margin-top:8px;">
+                <button class="btn-secondary" id="settings-shortcuts-btn" style="padding:6px 12px; font-size:12px;">View Keyboard Shortcuts</button>
+                <button class="btn-secondary" id="settings-check-ollama" style="padding:6px 12px; font-size:12px;">Check for Ollama</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONFIRMATION MODAL OVERLAY -->
     <div class="modal-overlay" id="confirm-modal">
       <div class="modal">
         <div class="modal-header">
           <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span class="modal-title">Delete All Sessions?</span>
+          <span class="modal-title">Confirm Action?</span>
         </div>
         <div class="modal-body">
-          Are you sure you want to clear all your saved study session histories? This will delete all conversations from your offline database.
+          Are you sure you want to perform this destructive action? This will overwrite or delete local data files.
         </div>
         <div class="modal-footer">
           <button class="btn-secondary" id="confirm-cancel-btn">Cancel</button>
@@ -459,19 +1125,81 @@
         </div>
       </div>
     </div>
+
+    <!-- GLOBAL SEARCH MODAL OVERLAY -->
+    <div class="search-overlay" id="search-overlay">
+      <div class="search-modal">
+        <div class="search-modal-header">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" class="search-modal-input" id="search-modal-input" placeholder="Search chats, notes, flashcards...">
+          <button class="search-modal-close" id="search-modal-close" title="Close Search">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="search-results-list" id="search-results-list">
+          <!-- Dynamically generated matches -->
+        </div>
+      </div>
+    </div>
+
+    <!-- KEYBOARD SHORTCUTS HELP MODAL -->
+    <div class="modal-overlay" id="shortcuts-modal">
+      <div class="modal" style="max-width:540px;">
+        <div class="modal-header">
+          <span class="modal-title" style="color:var(--accent);">⌨️ Keyboard Shortcuts Reference</span>
+        </div>
+        <div class="modal-body" style="font-size:12px; line-height: 1.6; max-height:300px; overflow-y:auto;">
+          <table style="width:100%; border-collapse: collapse; text-align:left;">
+            <thead>
+              <tr style="border-bottom:1.5px solid var(--border); color:var(--text-primary); font-weight:700;">
+                <th style="padding:6px 12px 6px 0;">Shortcut</th>
+                <th style="padding:6px 12px;">Triggered Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + 1</td><td style="padding:6px 12px;">Go to Dashboard Home</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + 2</td><td style="padding:6px 12px;">Go to Study Chat</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + 3</td><td style="padding:6px 12px;">Go to Review Maker</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + 4</td><td style="padding:6px 12px;">Go to Flashcards Decks</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + 5</td><td style="padding:6px 12px;">Go to My Notes Notebook</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + 6</td><td style="padding:6px 12px;">Go to Focus Study Timer</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + N</td><td style="padding:6px 12px;">Create New Item (Context-aware note/chat/set)</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + S</td><td style="padding:6px 12px;">Save Current Session/Note</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + ,</td><td style="padding:6px 12px;">Open Settings Dialog</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + K</td><td style="padding:6px 12px;">Focus Search bar modal</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Escape</td><td style="padding:6px 12px;">Close modal popup / active drawer sheets</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Space</td><td style="padding:6px 12px;">Flip flashcard back & front (in study play overlay)</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Left / Right Arrows</td><td style="padding:6px 12px;">Navigate back/next flashcards in decks study</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-primary" id="shortcuts-close-btn">Close</button>
+        </div>
+      </div>
+    </div>
     
-    <!-- Global toasts anchor -->
+    <!-- Toast notifications anchors -->
     <div class="toast-container" id="toast-container"></div>
     
   </main>
 
   <!-- Renderer JS Modules -->
-  <script src="renderer/app.js"></script>
+  <script src="renderer/storage.js"></script>
+  <script src="renderer/toast.js"></script>
   <script src="renderer/ollama.js"></script>
+  <script src="renderer/app.js"></script>
+  <script src="renderer/dashboard.js"></script>
   <script src="renderer/chat.js"></script>
   <script src="renderer/reviewer.js"></script>
+  <script src="renderer/flashcards.js"></script>
+  <script src="renderer/notes.js"></script>
+  <script src="renderer/timer.js"></script>
+  <script src="renderer/progress.js"></script>
   <script src="renderer/explainer.js"></script>
   <script src="renderer/settings.js"></script>
-  <script src="renderer/planner.js"></script>
+  <script src="renderer/search.js"></script>
+  <script src="renderer/shortcuts.js"></script>
+  <script src="renderer/tour.js"></script>
 </body>
 </html>

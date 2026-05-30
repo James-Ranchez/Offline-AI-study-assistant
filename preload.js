@@ -1,6 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-contextBridge.revealInMainWorld('api', {
+contextBridge.exposeInMainWorld('api', {
   // Session Database APIs
   getSessions: () => ipcRenderer.invoke('get-sessions'),
   saveSession: (session) => ipcRenderer.invoke('save-session', session),
