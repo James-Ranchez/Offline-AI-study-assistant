@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // AI Assist Toolbar
   const aiSummarizeBtn = document.getElementById('note-ai-summarize');
   const aiExplainBtn = document.getElementById('note-ai-explain');
-  const aiReviewBtn = document.getElementById('note-ai-review');
+  const aiQuizBtn = document.getElementById('note-ai-quiz');
   const aiTermsBtn = document.getElementById('note-ai-terms');
   const aiImproveBtn = document.getElementById('note-ai-improve');
 
@@ -197,6 +197,15 @@ document.addEventListener('DOMContentLoaded', () => {
   contentTextarea.addEventListener('input', () => { 
     hasChanges = true; 
     updateWordCount();
+    
+    // Auto subject detection
+    if (window.detectSubject) {
+      const text = contentTextarea.value.trim();
+      const detected = window.detectSubject(text);
+      if (detected) {
+        subjectSelect.value = detected;
+      }
+    }
   });
   subjectSelect.addEventListener('change', () => { hasChanges = true; });
 
@@ -284,8 +293,8 @@ document.addEventListener('DOMContentLoaded', () => {
     runNoteAiAction('Writing Improvement', 'Improve the clarity, grammar, and layout of this note while keeping it student-friendly:');
   });
 
-  // Mixed redirection to Reviewer Maker
-  aiReviewBtn.addEventListener('click', () => {
+  // Redirection to Quiz Maker
+  aiQuizBtn.addEventListener('click', () => {
     const content = contentTextarea.value.trim();
     if (!content) {
       window.showToast('Please type notes content first.', 'warning');
@@ -294,13 +303,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     saveCurrentNoteImmediately();
     
-    if (window.prefillReviewNotes) {
-      window.prefillReviewNotes(content, subjectSelect.value);
+    if (window.prefillQuizNotes) {
+      window.prefillQuizNotes(content, subjectSelect.value);
     }
     
     if (window.navigateToView) {
-      window.navigateToView('reviewer-view');
-      window.showToast('Note loaded into Review Maker!');
+      window.navigateToView('quizmaker-view');
+      window.showToast('Note loaded into Quiz Maker!');
     }
   });
 

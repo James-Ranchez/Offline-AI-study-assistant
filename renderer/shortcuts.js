@@ -9,7 +9,7 @@ document.addEventListener('keydown', (e) => {
       const views = {
         '1': 'dashboard-view',
         '2': 'chat-view',
-        '3': 'reviewer-view',
+        '3': 'quizmaker-view',
         '4': 'flashcards-view',
         '5': 'notes-view',
         '6': 'timer-view'

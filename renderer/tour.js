@@ -16,12 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
       placement: 'right'
     },
     {
-      targetId: 'nav-reviewer',
-      title: '📋 Review Maker Wizard',
-      body: 'Paste textbook pages or study notes to generate interactive quizzes, key points summary cards, or accordion Q&As.',
-      placement: 'right'
-    },
-    {
       targetId: 'nav-flashcards',
       title: '🃏 Flashcard Decks',
       body: 'Practice active recall. Design decks manually or let the AI build flashcard pairs directly from your notes.',

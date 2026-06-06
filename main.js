@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const pdfParse = require('pdf-parse');
 
 let mainWindow;
 
@@ -14,7 +15,8 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: false // needed to access app path and preloads fully in some Electron environments
+      sandbox: false, // needed to access app path and preloads fully in some Electron environments
+      webSecurity: false
     },
     show: false,
     autoHideMenuBar: true, // Keep it clean and focused
@@ -111,6 +113,33 @@ ipcMain.handle('save-to-file', async (event, { defaultName, content }) => {
     return { success: true, filePath };
   } catch (err) {
     console.error('Failed to save file:', err);
+    return { success: false, message: err.message };
+  }
+});
+
+// IPC Handler for Reading PDF files
+ipcMain.handle('read-pdf-file', async () => {
+  const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+    title: 'Select PDF Study Notes',
+    filters: [{ name: 'PDF Files', extensions: ['pdf'] }],
+    properties: ['openFile']
+  });
+
+  if (canceled || filePaths.length === 0) {
+    return { success: false, message: 'No file selected' };
+  }
+
+  const filePath = filePaths[0];
+  try {
+    const dataBuffer = fs.readFileSync(filePath);
+    const data = await pdfParse(dataBuffer);
+    return {
+      success: true,
+      text: data.text,
+      fileName: path.basename(filePath, '.pdf')
+    };
+  } catch (err) {
+    console.error('Failed to parse PDF:', err);
     return { success: false, message: err.message };
   }
 });

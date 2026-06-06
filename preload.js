@@ -8,5 +8,8 @@ contextBridge.exposeInMainWorld('api', {
   clearAllSessions: () => ipcRenderer.invoke('clear-all-sessions'),
   
   // Save Review Materials to Local Filesystem
-  saveToFile: (defaultName, content) => ipcRenderer.invoke('save-to-file', { defaultName, content })
+  saveToFile: (defaultName, content) => ipcRenderer.invoke('save-to-file', { defaultName, content }),
+  
+  // Read PDF File
+  readPdfFile: () => ipcRenderer.invoke('read-pdf-file')
 });

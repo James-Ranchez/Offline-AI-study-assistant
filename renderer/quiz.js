@@ -1,38 +1,41 @@
-/* StudyMind Upgraded Review Maker Wizard Logic */
+/* StudyMind Interactive Quiz Maker Logic */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Navigation Nodes
-  const stepNodes = document.querySelectorAll('.wizard-step-node');
-  const stepLines = document.querySelectorAll('.wizard-line');
-  const stepPanels = document.querySelectorAll('.wizard-step-panel');
+  const quizView = document.getElementById('quizmaker-view');
+  if (!quizView) return;
+
+  // Wizard elements
+  const stepNodes = quizView.querySelectorAll('.wizard-step-node');
+  const stepLines = quizView.querySelectorAll('.wizard-line');
+  const stepPanels = quizView.querySelectorAll('.wizard-step-panel');
 
   // Step 1: Input elements
-  const notesTextarea = document.getElementById('reviewer-notes');
-  const wordCountDisplay = document.getElementById('reviewer-word-count');
-  const subjectPills = document.querySelectorAll('.subject-pill');
-  const modePills = document.querySelectorAll('.config-pill[data-mode]');
-  const nextToStep2Btn = document.getElementById('reviewer-step1-next');
+  const notesTextarea = document.getElementById('quizmaker-notes');
+  const wordCountDisplay = document.getElementById('quizmaker-word-count');
+  const subjectPills = quizView.querySelectorAll('.quiz-subject-pill');
+  const modePills = quizView.querySelectorAll('.quiz-mode-pill');
+  const nextToStep2Btn = document.getElementById('quizmaker-step1-next');
 
   // Step 2: Configure elements
-  const countSlider = document.getElementById('reviewer-count');
-  const countDisplay = document.getElementById('reviewer-count-val');
-  const diffPills = document.querySelectorAll('.config-pill[data-diff]');
-  const langPills = document.querySelectorAll('.config-pill[data-lang]');
-  const backToStep1Btn = document.getElementById('reviewer-step2-back');
-  const generateBtn = document.getElementById('reviewer-generate-btn');
+  const countSlider = document.getElementById('quizmaker-count');
+  const countDisplay = document.getElementById('quizmaker-count-val');
+  const diffPills = quizView.querySelectorAll('.quiz-diff-pill');
+  const langPills = quizView.querySelectorAll('.quiz-lang-pill');
+  const backToStep1Btn = document.getElementById('quizmaker-step2-back');
+  const generateBtn = document.getElementById('quizmaker-generate-btn');
 
   // Step 3: Results Elements
-  const resultsCard = document.getElementById('reviewer-results-card');
-  const resultsTitleText = document.getElementById('results-title-text');
-  const resultsContent = document.getElementById('reviewer-results-content');
-  const copyBtn = document.getElementById('reviewer-copy-btn');
-  const saveBtn = document.getElementById('reviewer-save-btn');
-  const restartBtn = document.getElementById('reviewer-restart-btn');
+  const resultsCard = document.getElementById('quizmaker-results-card');
+  const resultsTitleText = document.getElementById('quizmaker-results-title-text');
+  const resultsContent = document.getElementById('quizmaker-results-content');
+  const copyBtn = document.getElementById('quizmaker-copy-btn');
+  const saveBtn = document.getElementById('quizmaker-save-btn');
+  const restartBtn = document.getElementById('quizmaker-restart-btn');
 
   // State Management
   let currentStep = 1;
   let selectedSubject = 'Science';
-  let selectedMode = 'mcq'; // mcq | open | summary | mixed
+  let selectedMode = 'mcq'; // mcq | open
   let selectedDifficulty = 'Medium'; // Easy | Medium | Hard
   let selectedLanguage = 'English'; // English | Filipino | Taglish
   
@@ -45,11 +48,11 @@ document.addEventListener('DOMContentLoaded', () => {
   let selfRatedLearningCount = 0;
   let isGenerating = false;
 
-  // --- 1. Step Navigation Mechanics ---
+  // --- Step Navigation ---
   function goToStep(step) {
     currentStep = step;
     
-    // Update step node classes
+    // Update step nodes
     stepNodes.forEach((node, idx) => {
       node.className = 'wizard-step-node';
       if (idx + 1 === step) {
@@ -77,15 +80,24 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- Step 1: Input Handlers ---
-  
-  // Track notes textarea word count
   notesTextarea.addEventListener('input', () => {
     const text = notesTextarea.value.trim();
     const words = text ? text.split(/\s+/).length : 0;
     wordCountDisplay.textContent = `${words} words`;
+
+    // Auto subject detection
+    if (window.detectSubject) {
+      const detected = window.detectSubject(text);
+      if (detected) {
+        subjectPills.forEach(p => {
+          if (p.getAttribute('data-subject') === detected && !p.classList.contains('active')) {
+            p.click();
+          }
+        });
+      }
+    }
   });
 
-  // Subject Tag Pill Selector
   subjectPills.forEach(pill => {
     pill.addEventListener('click', () => {
       subjectPills.forEach(p => p.classList.remove('active'));
@@ -94,7 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Mode Selector Tabs
   modePills.forEach(pill => {
     pill.addEventListener('click', () => {
       modePills.forEach(p => p.classList.remove('active'));
@@ -103,7 +114,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Next Step 1 Button
   nextToStep2Btn.addEventListener('click', () => {
     const notes = notesTextarea.value.trim();
     if (!notes) {
@@ -114,13 +124,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // --- Step 2: Configure Handlers ---
-
-  // Questions count slider indicator
   countSlider.addEventListener('input', () => {
     countDisplay.textContent = countSlider.value;
   });
 
-  // Difficulty Selector pills
   diffPills.forEach(pill => {
     pill.addEventListener('click', () => {
       diffPills.forEach(p => p.classList.remove('active'));
@@ -129,7 +136,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Language Selector pills
   langPills.forEach(pill => {
     pill.addEventListener('click', () => {
       langPills.forEach(p => p.classList.remove('active'));
@@ -138,25 +144,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Back button in Step 2
   backToStep1Btn.addEventListener('click', () => {
     goToStep(1);
   });
 
-  // --- Step 3: Run Generation and Display Results ---
+  // --- Step 3: Run Generation and Play ---
   generateBtn.addEventListener('click', async () => {
     if (isGenerating) return;
 
     const notes = notesTextarea.value.trim();
     
-    // Set UI Loading state
+    // Auto subject detection fallback immediately before generation
+    if (window.detectSubject) {
+      const detected = window.detectSubject(notes);
+      if (detected) {
+        selectedSubject = detected;
+        subjectPills.forEach(p => {
+          if (p.getAttribute('data-subject') === detected) {
+            subjectPills.forEach(sp => sp.classList.remove('active'));
+            p.classList.add('active');
+          }
+        });
+      }
+    }
+
     isGenerating = true;
-    generateBtn.textContent = 'Generating review...';
+    generateBtn.textContent = 'Generating...';
     generateBtn.disabled = true;
     goToStep(3);
 
-    // Reset results structures
-    resultsTitleText.textContent = `Generating review for ${selectedSubject}`;
+    resultsTitleText.textContent = `Generating quiz for ${selectedSubject}`;
     resultsContent.innerHTML = `
       <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px; gap: 16px; width: 100%;">
         <div class="dot-loader" style="display: flex; gap: 6px;">
@@ -164,68 +181,55 @@ document.addEventListener('DOMContentLoaded', () => {
           <span class="dot" style="animation: bounce 1.2s infinite ease-in-out; animation-delay: 0.2s;"></span>
           <span class="dot" style="animation: bounce 1.2s infinite ease-in-out; animation-delay: 0.4s;"></span>
         </div>
-        <span style="font-weight: 700; font-size: 13px; color: var(--text-secondary);">StudyMind is reading your notes and creating material...</span>
+        <span style="font-weight: 700; font-size: 13px; color: var(--text-secondary);">StudyMind is identifying terms & definitions to build a quiz...</span>
       </div>
     `;
 
-    // Construct detailed prompt based on mode, count, difficulty, and language
     const numQ = countSlider.value;
     let diffPrompt = '';
     if (selectedDifficulty === 'Easy') diffPrompt = 'Use simple, straightforward questions.';
     if (selectedDifficulty === 'Medium') diffPrompt = 'Include some application and reasoning questions.';
     if (selectedDifficulty === 'Hard') diffPrompt = 'Prioritize analysis, comparison, and critical thinking questions.';
 
-    let langPrompt = `Output should be written in ${selectedLanguage}.`;
-    if (selectedLanguage === 'Taglish') langPrompt = 'Output should be written in conversational Taglish (a blend of English and Filipino).';
-
     let prompt = '';
     
     if (selectedMode === 'mcq') {
-      prompt = `Based on the following notes, generate exactly ${numQ} multiple choice questions. ${diffPrompt} ${langPrompt}
+      prompt = `Create exactly ${numQ} multiple choice questions (MCQ) in English based on the notes below.
+If the notes are long or contain many concepts, select only the most relevant ${numQ} terms/definitions to write questions for. Do not try to include every single word or concept; prioritize the main ideas.
+${diffPrompt}
+
+CRITICAL RULES FOR ACCURACY AND DISTRACTORS:
+- Ensure all questions and correct answers are 100% accurate to the uploaded notes.
+- Do NOT swap closely related abbreviations (e.g. do not swap CPU, GPU, and NPU) if it makes the correct answer incorrect or confusing.
+- DO NOT generate options by changing just a single letter of the correct term to make a distractor (for example, do not change "CPU" to "NPU", "GPU", "MPU", "BPU" or similar to create incorrect choices).
+- Do not invent fake terms. Use actual distinct concepts as distractors.
+
 Format each question exactly as:
 Question [Number]: [Question text]
 A) [Choice A]
 B) [Choice B]
 C) [Choice C]
 D) [Choice D]
-Answer: [Correct Letter, e.g. A]
+Answer: [Correct Letter]
 
-Do not write any extra introduction or conclusion text. Only output the questions, choices, and answers in that exact structure.
+Do not write any extra introduction, explanation, or conclusion text. Only output the questions in the exact structure above.
 
 Notes:
 ${notes}`;
-    } 
-    else if (selectedMode === 'open') {
-      prompt = `Based on these notes, generate exactly ${numQ} open-ended review questions with concise answers. ${diffPrompt} ${langPrompt}
+    } else {
+      prompt = `Create exactly ${numQ} open-ended review questions with concise answers in English based on the notes below.
+If the notes are long or contain many concepts, select only the most relevant ${numQ} terms/definitions to write questions for. Do not try to include every single word or concept; prioritize the main ideas.
+${diffPrompt}
+
+CRITICAL RULES FOR ACCURACY:
+- Ensure all questions and answers are 100% accurate to the uploaded notes.
+- Do not swap closely related abbreviations or terms.
+
 Format each question exactly as:
 Q: [Question text]
 A: [Model answer text]
 
-Do not write any extra introduction or conclusion text.
-
-Notes:
-${notes}`;
-    } 
-    else if (selectedMode === 'summary') {
-      prompt = `Based on these notes, summarize the contents into exactly ${numQ} key points in bullet form. Make them concise, student-friendly, and start each line with the '•' character. ${langPrompt}
-Do not write any extra introduction or conclusion text.
-
-Notes:
-${notes}`;
-    }
-    else if (selectedMode === 'mixed') {
-      const halfCount = Math.max(3, Math.round(numQ / 2));
-      prompt = `Based on these notes, compile a Mixed Review Sheet containing exactly ${halfCount} Multiple Choice Questions and ${halfCount} Key Outline Bullet Points. ${diffPrompt} ${langPrompt}
-Format the MCQs exactly as:
-Question [Number]: [Question text]
-A) [Choice A]
-B) [Choice B]
-C) [Choice C]
-D) [Choice D]
-Answer: [Correct Letter, e.g. A]
-
-Format the Bullet Points exactly as lines starting with the '•' character.
-Do not write any extra introduction or conclusion text.
+Do not write any extra introduction, explanation, or conclusion text. Only output the questions and answers in the exact structure above.
 
 Notes:
 ${notes}`;
@@ -233,39 +237,135 @@ ${notes}`;
 
     rawGeneratedText = '';
 
-    // Invoke stream
     Ollama.generate(
       prompt,
-      // Chunk listener
       (chunk) => {
         rawGeneratedText += chunk;
       },
-      // Completion listener
       () => {
         isGenerating = false;
-        generateBtn.textContent = 'Generate Review';
+        generateBtn.textContent = 'Generate Quiz';
         generateBtn.disabled = false;
         
-        // Parse and render results
         renderResults();
-        window.showToast('✓ Review materials generated!');
+        window.showToast('✓ Quiz generated!');
       },
-      // Error listener
       (err) => {
         isGenerating = false;
-        generateBtn.textContent = 'Generate Review';
+        generateBtn.textContent = 'Generate Quiz';
         generateBtn.disabled = false;
         goToStep(2);
         
         const errMsg = Ollama.isMockMode
-          ? 'Demo Mock reviews generation failed.'
+          ? 'Demo Mock quiz generation failed.'
           : 'Could not communicate with Ollama. Make sure the service is active.';
         window.showToast(errMsg, 'error');
       }
     );
   });
 
-  // Parse raw text and render the proper mode view
+  // Helper to parse notes directly into term-definition pairs using en-dash, em-dash, or standard hyphen
+  function parseNotesToPairs(notesText) {
+    const pairs = [];
+    if (!notesText) return pairs;
+
+    const lines = notesText.split('\n');
+    lines.forEach(line => {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#') || trimmed.length < 5) return;
+
+      let left = '';
+      let right = '';
+
+      // Match en-dash, em-dash, or hyphen with spaces first to prevent splitting on inner-word hyphens (e.g. "on-device")
+      const primaryMatch = trimmed.match(/^(.*?)\s*(?:[\u2012\u2013\u2014—–]|\s+-\s+)\s*(.*)$/);
+      if (primaryMatch) {
+        left = primaryMatch[1].replace(/^[-*•\d\.\s]+/, '').trim();
+        right = primaryMatch[2].trim();
+      } else {
+        // Fallback: search for first standard hyphen
+        const dashIndex = trimmed.indexOf('-');
+        if (dashIndex > 0 && dashIndex < trimmed.length - 1) {
+          left = trimmed.substring(0, dashIndex).replace(/^[-*•\d\.\s]+/, '').trim();
+          right = trimmed.substring(dashIndex + 1).trim();
+        }
+      }
+
+      if (left.length > 0 && right.length > 0) {
+        pairs.push({ term: left, def: right });
+      }
+    });
+    return pairs;
+  }
+
+  // Locally generate MCQ quiz if AI fails or is offline
+  function generateLocalMCQFromNotes(notesText) {
+    const pairs = parseNotesToPairs(notesText);
+    if (pairs.length === 0) return [];
+
+    const mcqs = [];
+    // Shuffle pairs to get random assortment
+    const shuffledPairs = [...pairs].sort(() => Math.random() - 0.5);
+    const count = Math.min(parseInt(countSlider.value, 10), shuffledPairs.length);
+
+    for (let i = 0; i < count; i++) {
+      const current = shuffledPairs[i];
+      const questionText = `Which term matches this description: "${current.def}"?`;
+      const correctAnswer = current.term;
+
+      // Extract other terms for distractors
+      const otherTerms = pairs.filter(p => p.term !== current.term).map(p => p.term);
+      otherTerms.sort(() => Math.random() - 0.5);
+
+      const choices = [correctAnswer];
+      for (let j = 0; j < Math.min(3, otherTerms.length); j++) {
+        choices.push(otherTerms[j]);
+      }
+
+      while (choices.length < 4) {
+        choices.push(`Alternative concept ${choices.length + 1}`);
+      }
+
+      // Shuffle choices
+      choices.sort(() => Math.random() - 0.5);
+
+      const letters = ['A', 'B', 'C', 'D'];
+      const correctIdx = choices.indexOf(correctAnswer);
+
+      mcqs.push({
+        question: questionText,
+        options: {
+          A: choices[0],
+          B: choices[1],
+          C: choices[2],
+          D: choices[3]
+        },
+        correctAnswer: letters[correctIdx]
+      });
+    }
+    return mcqs;
+  }
+
+  // Locally generate Open-Ended quiz if AI fails or is offline
+  function generateLocalOpenFromNotes(notesText) {
+    const pairs = parseNotesToPairs(notesText);
+    if (pairs.length === 0) return [];
+
+    const qaPairs = [];
+    const shuffledPairs = [...pairs].sort(() => Math.random() - 0.5);
+    const count = Math.min(parseInt(countSlider.value, 10), shuffledPairs.length);
+
+    for (let i = 0; i < count; i++) {
+      const current = shuffledPairs[i];
+      qaPairs.push({
+        question: `Explain the concept or definition: "${current.def}"`,
+        answer: current.term
+      });
+    }
+    return qaPairs;
+  }
+
+  // Render Quiz Modes
   function renderResults() {
     resultsContent.innerHTML = '';
     parsedQuestions = [];
@@ -278,70 +378,67 @@ ${notes}`;
     if (selectedMode === 'mcq') {
       resultsTitleText.textContent = `Multiple Choice Quiz: ${selectedSubject}`;
       parsedQuestions = parseMCQText(rawGeneratedText);
+      
+      // Fallback: if AI output failed to parse, try parsing notes directly
+      if (parsedQuestions.length === 0) {
+        const notes = notesTextarea.value.trim();
+        parsedQuestions = generateLocalMCQFromNotes(notes);
+        if (parsedQuestions.length > 0) {
+          window.showToast('✓ Generated quiz directly from notes!', 'success');
+        }
+      }
+
       if (parsedQuestions.length === 0) {
         renderRawTextFallback();
         return;
       }
       renderMCQQuestion(0);
-    } 
-    else if (selectedMode === 'open') {
-      resultsTitleText.textContent = `Open-Ended Cards: ${selectedSubject}`;
+    } else {
+      resultsTitleText.textContent = `Open-Ended Quiz: ${selectedSubject}`;
       parsedQuestions = parseOpenQuestionsText(rawGeneratedText);
+      
+      // Fallback: if AI output failed to parse, try parsing notes directly
+      if (parsedQuestions.length === 0) {
+        const notes = notesTextarea.value.trim();
+        parsedQuestions = generateLocalOpenFromNotes(notes);
+        if (parsedQuestions.length > 0) {
+          window.showToast('✓ Generated review questions directly from notes!', 'success');
+        }
+      }
+
       if (parsedQuestions.length === 0) {
         renderRawTextFallback();
         return;
       }
       renderOpenQuestion(0);
-    } 
-    else if (selectedMode === 'summary') {
-      resultsTitleText.textContent = `Bullet Summary: ${selectedSubject}`;
-      const bullets = parseSummaryBulletsText(rawGeneratedText);
-      if (bullets.length === 0) {
-        renderRawTextFallback();
-        return;
-      }
-      renderSummaryOutline(bullets);
-    }
-    else if (selectedMode === 'mixed') {
-      resultsTitleText.textContent = `Mixed Review Sheet: ${selectedSubject}`;
-      
-      // Mixed mode contains both MCQs and summary bullets
-      const mcqs = parseMCQText(rawGeneratedText);
-      const bullets = parseSummaryBulletsText(rawGeneratedText);
-      
-      if (mcqs.length === 0 && bullets.length === 0) {
-        renderRawTextFallback();
-        return;
-      }
-      renderMixedReview(mcqs, bullets);
     }
   }
 
   function renderRawTextFallback() {
     resultsContent.innerHTML = `
-      <div style="font-size:13px; color: var(--text-secondary); margin-bottom: 12px;">Failed to parse structured format. Showing raw output:</div>
+      <div style="font-size:13px; color: var(--text-secondary); margin-bottom: 12px;">Failed to parse quiz format. Raw response:</div>
       <pre style="white-space: pre-wrap; font-family: var(--font-mono); color: var(--text-primary); line-height: 1.6; background-color: var(--bg-tertiary); padding: 16px; border-radius: var(--radius-md); border:1px solid var(--border);">${escapeHTML(rawGeneratedText)}</pre>
     `;
   }
 
-  // --- Parsers ---
-
   // MCQ Parser
   function parseMCQText(text) {
     const mcqs = [];
-    const blocks = text.split(/(?=Question\s*\d+\s*:|\b\d+\.\s+Question:|\b\d+\.\s+)/i);
+    // Split by Question markers at the start of a line
+    const blocks = text.split(/(?:^|\n)(?=Question\s*\d+\s*:|\d+[\.\s]+Question:|\d+[\.\s]+A\))/i);
 
     blocks.forEach(block => {
       if (!block.trim()) return;
 
-      const qMatch = block.match(/(?:Question\s*\d*\s*:|\b\d+\.\s+Question:|\b\d+\.\s+)?(.*?)(?=\b[A-D]\b[\)\.\:\-]\s*|$)/si);
+      // Extract Question part (up to the first option A) starting on a new line)
+      const qMatch = block.match(/(?:Question\s*\d*\s*:|\d+[\.\s]+Question:|\d+[\.\s]+)?(.*?)(?=(?:^|\n)\s*A\b[\)\.\:\-]\s*|$)/si);
       if (!qMatch) return;
       const question = qMatch[1].replace(/^\d+[\.\s]*/, '').trim();
 
-      const aMatch = block.match(/\bA\b[\)\.\:\-]\s*(.*?)(?=\bB\b[\)\.\:\-]\s*|$)/si);
-      const bMatch = block.match(/\bB\b[\)\.\:\-]\s*(.*?)(?=\bC\b[\)\.\:\-]\s*|$)/si);
-      const cMatch = block.match(/\bC\b[\)\.\:\-]\s*(.*?)(?=\bD\b[\)\.\:\-]\s*|$)/si);
-      const dMatch = block.match(/\bD\b[\)\.\:\-]\s*(.*?)(?=\bAnswer\b|\bCorrect\b|$)/si);
+      const aMatch = block.match(/(?:^|\n)\s*A\b[\)\.\:\-]\s*(.*?)(?=(?:^|\n)\s*B\b[\)\.\:\-]\s*|$)/si);
+      const bMatch = block.match(/(?:^|\n)\s*B\b[\)\.\:\-]\s*(.*?)(?=(?:^|\n)\s*C\b[\)\.\:\-]\s*|$)/si);
+      const cMatch = block.match(/(?:^|\n)\s*C\b[\)\.\:\-]\s*(.*?)(?=(?:^|\n)\s*D\b[\)\.\:\-]\s*|$)/si);
+      const dMatch = block.match(/(?:^|\n)\s*D\b[\)\.\:\-]\s*(.*?)(?=(?:^|\n)\s*(?:Answer|Correct)[\s*\:\-]*|$)/si);
 
       if (!aMatch || !bMatch || !cMatch || !dMatch) return;
 
@@ -363,7 +460,7 @@ ${notes}`;
     return mcqs;
   }
 
-  // Open Ended Parser
+  // Open-Ended Parser
   function parseOpenQuestionsText(text) {
     const qaPairs = [];
     const lines = text.split('\n');
@@ -389,36 +486,7 @@ ${notes}`;
     return qaPairs;
   }
 
-  // Summary bullets parser
-  function parseSummaryBulletsText(text) {
-    const bullets = [];
-    const lines = text.split('\n');
-
-    lines.forEach(line => {
-      const trimmed = line.trim();
-      if (!trimmed) return;
-
-      if (trimmed.startsWith('•') || trimmed.startsWith('-') || trimmed.startsWith('*') || /^\d+[\.\)]/.test(trimmed)) {
-        const clean = trimmed.replace(/^[\•\-\*\d+\.\)\s]*/, '').trim();
-        if (clean) bullets.push(clean);
-      }
-    });
-
-    // Fallback split by paragraph
-    if (bullets.length === 0) {
-      lines.forEach(line => {
-        if (line.trim().length > 15 && !line.includes('Question') && !line.includes('Answer:')) {
-          bullets.push(line.trim());
-        }
-      });
-    }
-
-    return bullets;
-  }
-
-  // --- Renderers ---
-
-  // A. MCQ Question Card Builder
+  // Render Single MCQ
   function renderMCQQuestion(index) {
     if (index >= parsedQuestions.length) {
       renderQuizResultsScreen();
@@ -452,7 +520,6 @@ ${notes}`;
       </div>
     `;
 
-    // Add click listeners to choices
     const choiceCards = resultsContent.querySelectorAll('.choice-card');
     choiceCards.forEach(card => {
       card.addEventListener('click', () => {
@@ -461,7 +528,6 @@ ${notes}`;
         const letter = card.getAttribute('data-letter');
         const isCorrect = letter === mcq.correctAnswer;
         
-        // Lock selections
         choiceCards.forEach(c => {
           c.classList.add('locked');
           if (c.getAttribute('data-letter') === mcq.correctAnswer) {
@@ -483,7 +549,6 @@ ${notes}`;
           window.showToast(`✗ Wrong! Correct answer was ${mcq.correctAnswer}`, 'error');
         }
 
-        // Wait 1.5 seconds then load next question
         setTimeout(() => {
           renderMCQQuestion(index + 1);
         }, 1500);
@@ -491,8 +556,8 @@ ${notes}`;
     });
   }
 
-  // Quiz end screen
-  function renderQuizResultsScreen(showOnlyWrong = false) {
+  // MCQ End Results
+  function renderQuizResultsScreen() {
     const totalQ = parsedQuestions.length;
     const pct = Math.round((userScore / totalQ) * 100);
     
@@ -515,9 +580,9 @@ ${notes}`;
 
     // Save score in local Storage
     window.StudyStorage.saveReviewSession({
-      id: 'review-' + Date.now(),
+      id: 'quiz-' + Date.now(),
       subject: selectedSubject,
-      mode: selectedMode,
+      mode: 'Quiz Maker (' + selectedMode.toUpperCase() + ')',
       difficulty: selectedDifficulty,
       questions: totalQ,
       score: pct
@@ -528,64 +593,63 @@ ${notes}`;
         <div class="grade-badge">${badge}</div>
         <div class="results-score-text">${userScore} / ${totalQ}</div>
         <div class="results-grade-text">${pct}% — ${gradeMsg}</div>
-        <div class="results-meta-desc">You completed the review session for ${selectedSubject} at ${selectedDifficulty} level.</div>
+        <div class="results-meta-desc">You completed the quiz session for ${selectedSubject} at ${selectedDifficulty} level.</div>
         
         <div class="results-actions-row">
-          <button class="btn-primary" id="results-try-again-btn">Try Again</button>
-          ${wrongAnswersLog.length > 0 ? `<button class="btn-secondary" id="results-wrong-btn">Review Wrong Answers (${wrongAnswersLog.length})</button>` : ''}
-          <button class="btn-secondary" id="results-export-btn">Export Results</button>
+          <button class="btn-primary" id="quizmaker-try-again-btn">Try Again</button>
+          ${wrongAnswersLog.length > 0 ? `<button class="btn-secondary" id="quizmaker-wrong-btn">Review Wrong Answers (${wrongAnswersLog.length})</button>` : ''}
+          <button class="btn-secondary" id="quizmaker-export-btn">Export Results</button>
         </div>
       </div>
     `;
 
-    document.getElementById('results-try-again-btn').addEventListener('click', () => {
-      // reshuffles and restarts
+    document.getElementById('quizmaker-try-again-btn').addEventListener('click', () => {
       parsedQuestions.sort(() => Math.random() - 0.5);
       userScore = 0;
       wrongAnswersLog = [];
       renderMCQQuestion(0);
     });
 
-    const wrongBtn = document.getElementById('results-wrong-btn');
+    const wrongBtn = document.getElementById('quizmaker-wrong-btn');
     if (wrongBtn) {
       wrongBtn.addEventListener('click', () => {
         renderWrongAnswersLogView();
       });
     }
 
-    document.getElementById('results-export-btn').addEventListener('click', () => {
+    document.getElementById('quizmaker-export-btn').addEventListener('click', () => {
       exportScoreCard();
     });
   }
 
-  // Wrong Answers Viewer
+  // Wrong Answers log reviewer
   function renderWrongAnswersLogView() {
     resultsContent.innerHTML = `
       <div style="display:flex; flex-direction:column; gap:16px;">
         <div style="font-weight:700; font-size:16px; color:var(--danger);">Review Wrong Answers</div>
         <div class="mcq-quiz-area">
           ${wrongAnswersLog.map((w, idx) => `
-            <div class="mcq-card" style="border-left: 4px solid var(--danger);">
-              <div class="mcq-question">${idx + 1}. ${escapeHTML(w.question)}</div>
-              <div class="mcq-options">
-                <div class="mcq-option locked ${w.userAnswer === 'A' ? 'selected-wrong' : ''} ${w.correctAnswer === 'A' ? 'correct' : ''}"><span class="option-letter">A</span>${escapeHTML(w.options.A)}</div>
-                <div class="mcq-option locked ${w.userAnswer === 'B' ? 'selected-wrong' : ''} ${w.correctAnswer === 'B' ? 'correct' : ''}"><span class="option-letter">B</span>${escapeHTML(w.options.B)}</div>
-                <div class="mcq-option locked ${w.userAnswer === 'C' ? 'selected-wrong' : ''} ${w.correctAnswer === 'C' ? 'correct' : ''}"><span class="option-letter">C</span>${escapeHTML(w.options.C)}</div>
-                <div class="mcq-option locked ${w.userAnswer === 'D' ? 'selected-wrong' : ''} ${w.correctAnswer === 'D' ? 'correct' : ''}"><span class="option-letter">D</span>${escapeHTML(w.options.D)}</div>
+            <div class="mcq-card" style="border-left: 4px solid var(--danger); margin-bottom:12px; padding:16px; background:var(--bg-secondary); border-radius:var(--radius-md);">
+              <div class="mcq-question" style="font-weight:700; margin-bottom:8px;">${idx + 1}. ${escapeHTML(w.question)}</div>
+              <div class="mcq-options" style="display:flex; flex-direction:column; gap:6px;">
+                <div class="choice-card locked ${w.userAnswer === 'A' ? 'wrong' : ''} ${w.correctAnswer === 'A' ? 'correct' : ''}"><span class="choice-letter">A</span>${escapeHTML(w.options.A)}</div>
+                <div class="choice-card locked ${w.userAnswer === 'B' ? 'wrong' : ''} ${w.correctAnswer === 'B' ? 'correct' : ''}"><span class="choice-letter">B</span>${escapeHTML(w.options.B)}</div>
+                <div class="choice-card locked ${w.userAnswer === 'C' ? 'wrong' : ''} ${w.correctAnswer === 'C' ? 'correct' : ''}"><span class="choice-letter">C</span>${escapeHTML(w.options.C)}</div>
+                <div class="choice-card locked ${w.userAnswer === 'D' ? 'wrong' : ''} ${w.correctAnswer === 'D' ? 'correct' : ''}"><span class="choice-letter">D</span>${escapeHTML(w.options.D)}</div>
               </div>
             </div>
           `).join('')}
         </div>
-        <button class="btn-primary" id="back-to-results-btn" style="align-self:flex-start;">Back to Results</button>
+        <button class="btn-primary" id="quizmaker-back-to-results-btn" style="align-self:flex-start;">Back to Results</button>
       </div>
     `;
 
-    document.getElementById('back-to-results-btn').addEventListener('click', () => {
+    document.getElementById('quizmaker-back-to-results-btn').addEventListener('click', () => {
       renderQuizResultsScreen();
     });
   }
 
-  // B. Open-Ended Question Card Builder
+  // Render Open Ended Q&A Card
   function renderOpenQuestion(index) {
     if (index >= parsedQuestions.length) {
       renderOpenEndedFinishedScreen();
@@ -598,27 +662,27 @@ ${notes}`;
     resultsContent.innerHTML = `
       <div class="open-question-card">
         <div style="font-size: 12px; font-weight:700; color: var(--text-secondary); margin-bottom: 8px;">Question ${index + 1} of ${parsedQuestions.length}</div>
-        <div class="card" style="padding: 24px; min-height: 140px; justify-content: center; font-weight: 700; font-size:16px;">
+        <div class="card" style="padding: 24px; min-height: 140px; justify-content: center; font-weight: 700; font-size:16px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-md); display:flex; align-items:center;">
           ${escapeHTML(pair.question)}
         </div>
         
-        <button class="btn-secondary" id="reveal-answer-btn" style="align-self: center;">Reveal Answer</button>
+        <button class="btn-secondary" id="quizmaker-reveal-answer-btn" style="align-self: center; margin-top:12px;">Reveal Answer</button>
         
-        <div class="open-answer-reveal-box" id="open-answer-reveal-box">
+        <div class="open-answer-reveal-box" id="quizmaker-open-answer-reveal-box" style="margin-top:12px;">
           <div style="font-weight: 700; color: var(--accent); margin-bottom: 8px;">Suggested Answer:</div>
           <div>${escapeHTML(pair.answer)}</div>
         </div>
 
-        <div class="self-rate-actions" id="self-rate-actions" style="display: none; margin-top: 12px;">
-          <button class="btn-primary" id="rate-known-btn" style="background-color: var(--success);">Got It ✓</button>
-          <button class="btn-secondary" id="rate-learning-btn" style="border-color: var(--warning); color: var(--warning);">Still Learning</button>
+        <div class="self-rate-actions" id="quizmaker-self-rate-actions" style="display: none; margin-top: 12px;">
+          <button class="btn-primary" id="quizmaker-rate-known-btn" style="background-color: var(--success);">Got It ✓</button>
+          <button class="btn-secondary" id="quizmaker-rate-learning-btn" style="border-color: var(--warning); color: var(--warning);">Still Learning</button>
         </div>
       </div>
     `;
 
-    const revealBtn = document.getElementById('reveal-answer-btn');
-    const answerBox = document.getElementById('open-answer-reveal-box');
-    const actionsBox = document.getElementById('self-rate-actions');
+    const revealBtn = document.getElementById('quizmaker-reveal-answer-btn');
+    const answerBox = document.getElementById('quizmaker-open-answer-reveal-box');
+    const actionsBox = document.getElementById('quizmaker-self-rate-actions');
 
     revealBtn.addEventListener('click', () => {
       answerBox.classList.add('active');
@@ -626,17 +690,18 @@ ${notes}`;
       revealBtn.style.display = 'none';
     });
 
-    document.getElementById('rate-known-btn').addEventListener('click', () => {
+    document.getElementById('quizmaker-rate-known-btn').addEventListener('click', () => {
       selfRatedKnownCount++;
       renderOpenQuestion(index + 1);
     });
 
-    document.getElementById('rate-learning-btn').addEventListener('click', () => {
+    document.getElementById('quizmaker-rate-learning-btn').addEventListener('click', () => {
       selfRatedLearningCount++;
       renderOpenQuestion(index + 1);
     });
   }
 
+  // Open-Ended Completed Screen
   function renderOpenEndedFinishedScreen() {
     resultsContent.innerHTML = `
       <div class="quiz-results-view">
@@ -655,11 +720,22 @@ ${notes}`;
           </div>
         </div>
 
-        <button class="btn-primary" id="results-try-again-btn">Try Again</button>
+        <button class="btn-primary" id="quizmaker-results-try-again-btn">Try Again</button>
       </div>
     `;
 
-    document.getElementById('results-try-again-btn').addEventListener('click', () => {
+    // Log progress
+    const pct = parsedQuestions.length > 0 ? Math.round((selfRatedKnownCount / parsedQuestions.length) * 100) : 0;
+    window.StudyStorage.saveReviewSession({
+      id: 'quiz-open-' + Date.now(),
+      subject: selectedSubject,
+      mode: 'Quiz Maker (Open-Ended)',
+      difficulty: selectedDifficulty,
+      questions: parsedQuestions.length,
+      score: pct
+    });
+
+    document.getElementById('quizmaker-results-try-again-btn').addEventListener('click', () => {
       parsedQuestions.sort(() => Math.random() - 0.5);
       selfRatedKnownCount = 0;
       selfRatedLearningCount = 0;
@@ -667,129 +743,12 @@ ${notes}`;
     });
   }
 
-  // C. Summary Outline Builder
-  function renderSummaryOutline(bullets) {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'summary-outline-card';
-
-    bullets.forEach(bullet => {
-      const card = document.createElement('div');
-      card.className = 'summary-outline-bullet';
-      card.innerHTML = `
-        <span style="color:var(--accent); font-size:16px; margin-right:4px;">•</span>
-        <span style="flex-grow:1;">${escapeHTML(bullet)}</span>
-        <div class="bullet-copy-icon" title="Copy Bullet">
-          <svg viewBox="0 0 24 24"><path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H14m0 0l3-3m-3 3l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-      `;
-
-      card.querySelector('.bullet-copy-icon').addEventListener('click', (e) => {
-        e.stopPropagation();
-        navigator.clipboard.writeText(bullet).then(() => {
-          window.showToast('Copied point to clipboard!');
-        });
-      });
-
-      wrapper.appendChild(card);
-    });
-
-    resultsContent.appendChild(wrapper);
-  }
-
-  // D. Mixed Review Sheet Builder
-  function renderMixedReview(mcqs, bullets) {
-    const wrap = document.createElement('div');
-    wrap.style.display = 'flex';
-    wrap.style.flexDirection = 'column';
-    wrap.style.gap = '20px';
-
-    if (mcqs.length > 0) {
-      const mcqTitle = document.createElement('div');
-      mcqTitle.style.fontWeight = '700';
-      mcqTitle.style.fontSize = '15px';
-      mcqTitle.style.color = 'var(--accent)';
-      mcqTitle.textContent = 'Part 1: Multiple Choice Questions';
-      wrap.appendChild(mcqTitle);
-
-      const quizArea = document.createElement('div');
-      quizArea.className = 'mcq-quiz-area';
-      
-      mcqs.forEach((mcq, qIdx) => {
-        const card = document.createElement('div');
-        card.className = 'mcq-card';
-        card.innerHTML = `
-          <div class="mcq-question">${qIdx + 1}. ${escapeHTML(mcq.question)}</div>
-          <div class="mcq-options">
-            <button class="mcq-option" data-letter="A"><span class="option-letter">A</span>${escapeHTML(mcq.options.A)}</button>
-            <button class="mcq-option" data-letter="B"><span class="option-letter">B</span>${escapeHTML(mcq.options.B)}</button>
-            <button class="mcq-option" data-letter="C"><span class="option-letter">C</span>${escapeHTML(mcq.options.C)}</button>
-            <button class="mcq-option" data-letter="D"><span class="option-letter">D</span>${escapeHTML(mcq.options.D)}</button>
-          </div>
-        `;
-
-        const optionButtons = card.querySelectorAll('.mcq-option');
-        optionButtons.forEach(btn => {
-          btn.addEventListener('click', () => {
-            if (btn.classList.contains('locked')) return;
-            const chosen = btn.getAttribute('data-letter');
-            const correct = chosen === mcq.correctAnswer;
-            
-            optionButtons.forEach(b => {
-              b.classList.add('locked');
-              if (b.getAttribute('data-letter') === mcq.correctAnswer) {
-                b.classList.add('correct');
-              } else if (b.getAttribute('data-letter') === chosen && !correct) {
-                b.classList.add('selected-wrong');
-              }
-            });
-
-            if (correct) {
-              window.showToast(`Q${qIdx+1}: Correct!`);
-            } else {
-              window.showToast(`Q${qIdx+1}: Wrong! Answer is ${mcq.correctAnswer}`, 'error');
-            }
-          });
-        });
-        
-        quizArea.appendChild(card);
-      });
-      wrap.appendChild(quizArea);
-    }
-
-    if (bullets.length > 0) {
-      const bulletTitle = document.createElement('div');
-      bulletTitle.style.fontWeight = '700';
-      bulletTitle.style.fontSize = '15px';
-      bulletTitle.style.color = 'var(--accent)';
-      bulletTitle.style.marginTop = '16px';
-      bulletTitle.textContent = 'Part 2: Key Bullet Summary';
-      wrap.appendChild(bulletTitle);
-
-      const bulletsWrapper = document.createElement('div');
-      bulletsWrapper.className = 'summary-outline-card';
-
-      bullets.forEach(bullet => {
-        const card = document.createElement('div');
-        card.className = 'summary-outline-bullet';
-        card.innerHTML = `
-          <span style="color:var(--accent); font-size:16px; margin-right:4px;">•</span>
-          <span style="flex-grow:1;">${escapeHTML(bullet)}</span>
-        `;
-        bulletsWrapper.appendChild(card);
-      });
-      wrap.appendChild(bulletsWrapper);
-    }
-
-    resultsContent.appendChild(wrap);
-  }
-
-  // --- Exports Functions ---
-  
+  // Export Scorecard
   function exportScoreCard() {
     if (!rawGeneratedText || !window.api) return;
     
     const time = new Date().toLocaleString();
-    const scoreCard = `StudyMind Quiz Results Card
+    const scoreCard = `StudyMind Practice Quiz Scorecard
 Subject: ${selectedSubject}
 Difficulty: ${selectedDifficulty}
 Date Completed: ${time}
@@ -809,7 +768,7 @@ ${i + 1}. Question: ${w.question}
 `).join('\n')}
 `;
 
-    const defaultName = `StudyMind-ScoreCard-${Date.now()}.txt`;
+    const defaultName = `StudyMind-QuizScore-${Date.now()}.txt`;
     window.api.saveToFile(defaultName, scoreCard).then(result => {
       if (result.success) {
         window.showToast('Scorecard saved successfully!');
@@ -823,7 +782,7 @@ ${i + 1}. Question: ${w.question}
   copyBtn.addEventListener('click', () => {
     if (!rawGeneratedText) return;
     navigator.clipboard.writeText(rawGeneratedText).then(() => {
-      window.showToast('Copied raw review materials to clipboard!');
+      window.showToast('Copied quiz layout to clipboard!');
     }).catch(() => {
       window.showToast('Copy failed.', 'error');
     });
@@ -832,11 +791,11 @@ ${i + 1}. Question: ${w.question}
   // Save raw generated material to disk
   saveBtn.addEventListener('click', async () => {
     if (!rawGeneratedText || !window.api) return;
-    const defaultName = `StudyMind-Review-${Date.now()}.txt`;
+    const defaultName = `StudyMind-Quiz-${Date.now()}.txt`;
     const result = await window.api.saveToFile(defaultName, rawGeneratedText);
     
     if (result.success) {
-      window.showToast('Review saved successfully!');
+      window.showToast('Quiz saved successfully!');
     } else if (result.message !== 'Save cancelled') {
       window.showToast(`Failed: ${result.message}`, 'error');
     }
@@ -860,13 +819,12 @@ ${i + 1}. Question: ${w.question}
       .replace(/'/g, '&#039;');
   }
 
-  // Pre-fill reviewer content from global trigger if navigated from Notes AI
-  window.prefillReviewNotes = function(notes, subjectName) {
+  // Prefill notes trigger for Quiz Maker
+  window.prefillQuizNotes = function(notes, subjectName) {
     notesTextarea.value = notes;
     const words = notes ? notes.split(/\s+/).length : 0;
     wordCountDisplay.textContent = `${words} words`;
     
-    // Select subject tag matching
     subjectPills.forEach(p => {
       if (p.getAttribute('data-subject') === subjectName) {
         p.click();

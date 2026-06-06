@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Quick Action Buttons
   const actionChat = document.getElementById('action-chat');
-  const actionReview = document.getElementById('action-review');
   const actionFlashcards = document.getElementById('action-flashcards');
   const actionTimer = document.getElementById('action-timer');
 
@@ -34,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     "Create flashcards for difficult terms and test yourself daily using active recall.",
     "Break large topics down into smaller, manageable chunks.",
     "Use analogies to relate new concepts to things you already understand.",
-    "Quiz yourself before a test using the Review Maker MCQ mode.",
+    "Quiz yourself before a test using the Quiz Maker.",
     "Switch between different subjects during a study session to keep your brain active.",
     "Study in a quiet environment that mimics exam conditions.",
     "Review your notes within 24 hours of writing them to reinforce memory.",
@@ -248,9 +247,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (window.navigateToView) window.navigateToView('chat-view');
     });
   }
-  if (actionReview) {
-    actionReview.addEventListener('click', () => {
-      if (window.navigateToView) window.navigateToView('reviewer-view');
+  const actionQuiz = document.getElementById('action-quiz');
+  if (actionQuiz) {
+    actionQuiz.addEventListener('click', () => {
+      if (window.navigateToView) window.navigateToView('quizmaker-view');
     });
   }
   if (actionFlashcards) {

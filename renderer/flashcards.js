@@ -26,12 +26,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // AI Inputs
   const aiNotesInput = document.getElementById('fc-ai-notes');
-  const aiCountSelect = document.getElementById('fc-ai-count');
+  const aiCountSlider = document.getElementById('fc-ai-count');
+  const aiCountValDisplay = document.getElementById('fc-ai-count-val');
   const aiGenerateBtn = document.getElementById('fc-ai-generate-btn');
 
   // Preview List
   const previewList = document.getElementById('fc-preview-list');
   const saveSetBtn = document.getElementById('fc-save-set-btn');
+  const previewStudyBtn = document.getElementById('fc-preview-study-btn');
 
   // Study Overlay elements
   const studyOverlay = document.getElementById('fc-study-overlay');
@@ -230,25 +232,45 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // --- AI Flashcards Generator ---
+  aiNotesInput.addEventListener('input', () => {
+    const text = aiNotesInput.value.trim();
+    if (window.detectSubject) {
+      const detected = window.detectSubject(text);
+      if (detected) {
+        setSubjectSelect.value = detected;
+      }
+    }
+  });
+
   aiGenerateBtn.addEventListener('click', () => {
     if (isAiGenerating) return;
 
     const notes = aiNotesInput.value.trim();
-    const num = aiCountSelect.value;
+    const num = aiCountSlider.value;
 
     if (!notes) {
       window.showToast('Please paste some study notes for the AI first.', 'warning');
       return;
     }
 
+    // Auto subject detection fallback immediately before generation
+    if (window.detectSubject) {
+      const detected = window.detectSubject(notes);
+      if (detected) {
+        setSubjectSelect.value = detected;
+      }
+    }
+
     isAiGenerating = true;
     aiGenerateBtn.textContent = 'Generating cards...';
     aiGenerateBtn.disabled = true;
 
-    const prompt = `Generate exactly ${num} flashcard pairs from these notes. Return each card strictly formatted as:
-FRONT: [term or question] | BACK: [definition or answer]
+    const prompt = `Based on the following notes, identify the key academic terms and their definitions. Generate exactly ${num} flashcards. Differentiate the term and its definition clearly.
+Format each flashcard exactly like this, with the definition/question on the FRONT and the corresponding key term/answer on the BACK:
+FRONT: [definition]
+BACK: [term/answer]
 
-Do not write any extra introduction or conclusion text. Only return the cards.
+Do not write any extra introduction or conclusion text. Only return the cards in this format.
 
 Notes:
 ${notes}`;
@@ -276,29 +298,112 @@ ${notes}`;
         isAiGenerating = false;
         aiGenerateBtn.textContent = 'Generate Cards';
         aiGenerateBtn.disabled = false;
-        window.showToast('Could not reach Ollama connection.', 'error');
+        
+        // Fallback: parse direct notes using the dash rule
+        const text = aiNotesInput.value.trim();
+        const prevLength = tempCards.length;
+        parseAiFlashcards(text);
+        
+        if (tempCards.length > prevLength) {
+          aiNotesInput.value = '';
+          window.showToast('✓ Extracted cards directly from notes using dashes!', 'success');
+        } else {
+          window.showToast('Could not reach Ollama connection.', 'error');
+        }
       }
     );
   });
 
-  // Parse lines matching: FRONT: [term] | BACK: [def]
+  // Helper to clean brackets, quotes, and whitespace from parsed strings
+  function cleanValue(val) {
+    if (!val) return '';
+    let cleaned = val.trim();
+    // Strip leading/trailing brackets [ ]
+    cleaned = cleaned.replace(/^\[|\]$/g, '').trim();
+    // Strip leading/trailing quotes
+    cleaned = cleaned.replace(/^['"]|['"]$/g, '').trim();
+    return cleaned;
+  }
+
+  // Parse lines matching FRONT: [term] | BACK: [def] (inline) or multi-line FRONT: [term] and BACK: [def]
   function parseAiFlashcards(text) {
     const lines = text.split('\n');
+    let currentFront = '';
+    const initialLength = tempCards.length;
+
     lines.forEach(line => {
       const trimmed = line.trim();
       if (!trimmed) return;
 
-      const match = trimmed.match(/^FRONT\s*:\s*(.*?)\s*\|\s*BACK\s*:\s*(.*)/i);
-      if (match) {
+      // Try matching FRONT: ... | BACK: ... inline first, with relaxed prefix matching (ignoring list bullets/numbers)
+      const inlineMatch = trimmed.match(/(?:^|[^a-zA-Z])FRONT\b[^:|]*[:|]\s*(.*?)\s*\|\s*BACK\b[^:]*:\s*(.*)/i);
+      if (inlineMatch) {
         tempCards.push({
           id: 'card-' + Date.now() + '-' + Math.floor(Math.random() * 10000),
-          front: match[1].trim(),
-          back: match[2].trim(),
+          front: cleanValue(inlineMatch[1]),
+          back: cleanValue(inlineMatch[2]),
           gotIt: 0,
           missed: 0
         });
+        return;
+      }
+
+      // Try matching separate line FRONT: ... and BACK: ...
+      const frontMatch = trimmed.match(/(?:^|[^a-zA-Z])FRONT\b[^:]*:\s*(.*)/i);
+      const backMatch = trimmed.match(/(?:^|[^a-zA-Z])BACK\b[^:]*:\s*(.*)/i);
+
+      if (frontMatch) {
+        currentFront = frontMatch[1].trim();
+      } else if (backMatch && currentFront) {
+        tempCards.push({
+          id: 'card-' + Date.now() + '-' + Math.floor(Math.random() * 10000),
+          front: cleanValue(currentFront),
+          back: cleanValue(backMatch[1]),
+          gotIt: 0,
+          missed: 0
+        });
+        currentFront = ''; // Reset
       }
     });
+
+    // Fallback: If FRONT/BACK formatting wasn't matched, parse lines containing a dash
+    // where the left side is the answer (BACK) and the right side is the question (FRONT).
+    if (tempCards.length === initialLength) {
+      lines.forEach(line => {
+        const trimmed = line.trim();
+        if (!trimmed) return;
+
+        // Skip heading lines or lines too short to contain a valid definition pair
+        if (trimmed.startsWith('#') || trimmed.length < 5) return;
+
+        let left = '';
+        let right = '';
+
+        // Match en-dash, em-dash, or hyphen with spaces first to prevent splitting on inner-word hyphens (e.g. "on-device")
+        const primaryMatch = trimmed.match(/^(.*?)\s*(?:[\u2012\u2013\u2014—–]|\s+-\s+)\s*(.*)$/);
+        if (primaryMatch) {
+          left = primaryMatch[1].replace(/^[-*•\d\.\s]+/, '').trim();
+          right = primaryMatch[2].trim();
+        } else {
+          // Fallback: split on the first standard hyphen if no spaced dash exists
+          const dashIndex = trimmed.indexOf('-');
+          if (dashIndex > 0 && dashIndex < trimmed.length - 1) {
+            left = trimmed.substring(0, dashIndex).replace(/^[-*•\d\.\s]+/, '').trim();
+            right = trimmed.substring(dashIndex + 1).trim();
+          }
+        }
+
+        if (left.length > 0 && right.length > 0) {
+          tempCards.push({
+            id: 'card-' + Date.now() + '-' + Math.floor(Math.random() * 10000),
+            front: cleanValue(right), // Right side is the question/FRONT
+            back: cleanValue(left),   // Left side is the answer/BACK
+            gotIt: 0,
+            missed: 0
+          });
+        }
+      });
+    }
 
     renderPreviewList();
   }
@@ -310,10 +415,12 @@ ${notes}`;
     if (tempCards.length === 0) {
       previewList.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 12px; padding: 20px;">No cards added yet. Add manually or generate with AI.</div>`;
       saveSetBtn.disabled = true;
+      if (previewStudyBtn) previewStudyBtn.disabled = true;
       return;
     }
 
     saveSetBtn.disabled = false;
+    if (previewStudyBtn) previewStudyBtn.disabled = false;
 
     tempCards.forEach((card, idx) => {
       const item = document.createElement('div');
@@ -351,10 +458,19 @@ ${notes}`;
     });
   }
 
-  // Save the full flashcard set
   saveSetBtn.addEventListener('click', () => {
     const name = setNameInput.value.trim();
-    const subject = setSubjectSelect.value;
+    let subject = setSubjectSelect.value;
+
+    // Auto subject detection fallback based on card content if no subject was set
+    if (window.detectSubject && (!subject || subject === 'Other')) {
+      const sampleText = tempCards.map(c => c.front + ' ' + c.back).join(' ');
+      const detected = window.detectSubject(sampleText);
+      if (detected) {
+        subject = detected;
+        setSubjectSelect.value = detected;
+      }
+    }
 
     if (!name) {
       window.showToast('Please type a name for this flashcard set.', 'warning');
@@ -377,6 +493,36 @@ ${notes}`;
     window.StudyStorage.saveFlashcardSet(newSet);
     window.showToast('✓ Flashcard set saved successfully!');
     showMainView();
+  });
+
+  // Preview / Study active temp deck
+  if (previewStudyBtn) {
+    previewStudyBtn.addEventListener('click', () => {
+      if (tempCards.length === 0) return;
+      const tempSet = {
+        id: 'fc-preview-temp',
+        name: setNameInput.value.trim() || 'Temporary Preview Set',
+        subject: setSubjectSelect.value,
+        cards: tempCards
+      };
+      startStudySession(tempSet);
+    });
+  }
+
+  // Study session keyboard navigation shortcuts
+  document.addEventListener('keydown', (e) => {
+    if (studyOverlay && (studyOverlay.style.display === 'flex' || studyOverlay.style.display === 'block')) {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        cardViewport.click();
+      } else if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        if (!prevCardBtn.disabled) prevCardBtn.click();
+      } else if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        if (!nextCardBtn.disabled) nextCardBtn.click();
+      }
+    }
   });
 
   // --- Flashcard Study player (Flip overlays) ---
@@ -634,6 +780,12 @@ ${notes}`;
 
   manualTabBtn.addEventListener('click', () => switchTab('manual'));
   aiTabBtn.addEventListener('click', () => switchTab('ai'));
+
+  if (aiCountSlider && aiCountValDisplay) {
+    aiCountSlider.addEventListener('input', () => {
+      aiCountValDisplay.textContent = aiCountSlider.value;
+    });
+  }
 
   function escapeHTML(text) {
     if (!text) return '';

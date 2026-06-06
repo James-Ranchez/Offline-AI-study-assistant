@@ -142,6 +142,9 @@ document.addEventListener('DOMContentLoaded', () => {
         window.initializeSettings();
       }
     } else {
+      // Auto-enable mock mode if offline
+      Ollama.isMockMode = true;
+
       // Update sidebar status
       if (connectionDot) {
         connectionDot.className = 'status-dot offline';
@@ -277,3 +280,36 @@ document.addEventListener('DOMContentLoaded', () => {
   initNavigation();
   checkOllamaConnection();
 });
+
+// Global Subject Auto-Detection Helper based on keyword matching
+window.detectSubject = function(text) {
+  if (!text) return null;
+  const clean = text.toLowerCase();
+  
+  // Tagalog check first
+  const filipinoCount = (clean.match(/\b(mga|ng|ang|sa|na|para|at|ngunit|subalit|pilipinas|wika|panitikan|o|ay|si|sino|ano|ilan|dahil)\b/g) || []).length;
+  if (filipinoCount >= 3) {
+    return 'Filipino';
+  }
+
+  // Subject Keywords
+  const keywords = {
+    Math: /\b(equation|solve|geometry|calculus|algebra|algebraic|arithmetic|fraction|sum|integral|derivative|graph|variable|theorem|multiply|divide|subtract|add|triangle|matrix|vector|statistics|probability)\b/g,
+    History: /\b(war|battle|treaty|revolution|emperor|president|dynasty|century|king|queen|empire|civil|colonial|ancient|historical|world war|reign|archduke|regime|parliament|congress|constitution)\b/g,
+    Science: /\b(cell|organism|photosynthesis|chemical|physics|molecule|element|gravity|planet|space|ecosystem|water cycle|mitochondria|mitosis|meiosis|biology|dna|rna|atom|electron|proton|neutron|reaction)\b/g,
+    English: /\b(literature|grammar|verb|noun|adjective|pronoun|poetry|shakespeare|spelling|prose|metaphor|simile|clause|paragraph|sentence|comma|adverb|synonym|antonym|essay)\b/g
+  };
+
+  let maxCount = 0;
+  let detected = null;
+
+  for (const [subj, regex] of Object.entries(keywords)) {
+    const count = (clean.match(regex) || []).length;
+    if (count > maxCount) {
+      maxCount = count;
+      detected = subj;
+    }
+  }
+
+  return maxCount >= 2 ? detected : null;
+};

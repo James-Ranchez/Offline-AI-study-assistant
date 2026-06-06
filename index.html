@@ -48,9 +48,9 @@
         <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>Study Chat</span>
       </button>
-      <button class="nav-item" data-view="reviewer-view" id="nav-reviewer">
-        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span>Review Maker</span>
+      <button class="nav-item" data-view="quizmaker-view" id="nav-quizmaker">
+        <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Quiz Maker</span>
       </button>
       <button class="nav-item" data-view="explainer-view" id="nav-explainer">
         <svg viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -210,13 +210,13 @@
                 </div>
               </div>
 
-              <div class="action-btn" id="action-review">
+              <div class="action-btn" id="action-quiz">
                 <div class="action-btn-icon">
-                  <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
                 <div class="action-btn-info">
-                  <span class="action-btn-title">Generate Review</span>
-                  <span class="action-btn-desc">Create custom quizzes</span>
+                  <span class="action-btn-title">Quiz Maker</span>
+                  <span class="action-btn-desc">Create interactive quizzes</span>
                 </div>
               </div>
 
@@ -364,12 +364,14 @@
       </div>
     </section>
 
-    <!-- VIEW 3: REVIEW GENERATOR -->
-    <section class="view-container" id="reviewer-view">
+
+
+    <!-- VIEW 3.5: QUIZ MAKER -->
+    <section class="view-container" id="quizmaker-view">
       <div class="view-header">
         <div class="view-header-left">
-          <h2 class="view-title">Review Maker</h2>
-          <p class="view-description">Redesign your lesson sheets into interactive quizzes or bullet lists.</p>
+          <h2 class="view-title">Quiz Maker</h2>
+          <p class="view-description">Create customized interactive practice quizzes to test your knowledge.</p>
         </div>
       </div>
 
@@ -377,110 +379,118 @@
         <!-- Progress Steps -->
         <div class="wizard-progress-header">
           <div class="wizard-steps">
-            <div class="wizard-step-node active" id="step-node-1">
+            <div class="wizard-step-node active" id="quiz-step-node-1">
               <span class="wizard-step-num">1</span>
               <span>Input</span>
             </div>
-            <div class="wizard-line" id="step-line-1"></div>
-            <div class="wizard-step-node" id="step-node-2">
+            <div class="wizard-line" id="quiz-step-line-1"></div>
+            <div class="wizard-step-node" id="quiz-step-node-2">
               <span class="wizard-step-num">2</span>
               <span>Configure</span>
             </div>
-            <div class="wizard-line" id="step-line-2"></div>
-            <div class="wizard-step-node" id="step-node-3">
+            <div class="wizard-line" id="quiz-step-line-2"></div>
+            <div class="wizard-step-node" id="quiz-step-node-3">
               <span class="wizard-step-num">3</span>
-              <span>Results</span>
+              <span>Quiz Play</span>
             </div>
           </div>
         </div>
 
         <!-- STEP 1: INPUT NOTES -->
-        <div class="wizard-step-panel active" id="step-panel-1">
+        <div class="wizard-step-panel active" id="quiz-step-panel-1">
           <div class="input-card">
             <div class="input-header">
               <span class="notes-label">Paste Lesson Notes / Textbook Pages</span>
-              <span class="word-count" id="reviewer-word-count">0 words</span>
+              <span class="word-count" id="quizmaker-word-count">0 words</span>
             </div>
-            <textarea class="notes-textarea" id="reviewer-notes" placeholder="Paste notes here (e.g. Mitochondria are the powerhouses of the cell. They generate ATP through cellular respiration...)"></textarea>
+            <textarea class="notes-textarea" id="quizmaker-notes" placeholder="Paste notes here to generate a custom quiz..."></textarea>
             
-            <div class="config-group" style="margin-top:10px;">
+            <div class="quiz-notes-guide" style="margin-top: 10px; font-size: 11.5px; color: var(--text-secondary); background: var(--bg-tertiary); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); line-height: 1.5;">
+              <strong style="color: var(--accent); display: block; margin-bottom: 6px;">💡 Note Formatting Tip for Best Results:</strong>
+              Use a dash (<code>-</code>, <code>–</code>, or <code>—</code>) to separate key terms from their definition, with one term per line.
+              <div style="margin-top: 6px; font-style: italic; color: var(--text-muted); background: var(--bg-secondary); padding: 8px; border-radius: var(--radius-sm); border-left: 3px solid var(--accent);">
+                Example:<br>
+                CPU — The primary component of a computer that acts as its "brain".<br>
+                RAM — Temporary data storage that the computer uses for active tasks.
+              </div>
+            </div>
+            
+            <div class="config-group" style="margin-top:10px; display: none;">
               <span class="control-label">Subject Category:</span>
               <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                <span class="subject-pill active" data-subject="Science">Science</span>
-                <span class="subject-pill" data-subject="Math">Math</span>
-                <span class="subject-pill" data-subject="History">History</span>
-                <span class="subject-pill" data-subject="English">English</span>
-                <span class="subject-pill" data-subject="Filipino">Filipino</span>
-                <span class="subject-pill" data-subject="Other">Other</span>
+                <span class="subject-pill quiz-subject-pill active" data-subject="Science">Science</span>
+                <span class="subject-pill quiz-subject-pill" data-subject="Math">Math</span>
+                <span class="subject-pill quiz-subject-pill" data-subject="History">History</span>
+                <span class="subject-pill quiz-subject-pill" data-subject="English">English</span>
+                <span class="subject-pill quiz-subject-pill" data-subject="Filipino">Filipino</span>
+                <span class="subject-pill quiz-subject-pill" data-subject="Other">Other</span>
               </div>
             </div>
 
             <div class="config-group" style="margin-top:10px;">
-              <span class="control-label">Review Mode:</span>
+              <span class="control-label">Quiz Type:</span>
               <div class="config-pill-options">
-                <span class="config-pill active" data-mode="mcq">MCQ Quiz</span>
-                <span class="config-pill" data-mode="open">Open-Ended Cards</span>
-                <span class="config-pill" data-mode="summary">Summary Outlines</span>
-                <span class="config-pill" data-mode="mixed">Mixed Review (MCQ + Key Points)</span>
+                <span class="config-pill quiz-mode-pill active" data-mode="mcq">MCQ Quiz</span>
+                <span class="config-pill quiz-mode-pill" data-mode="open">Open-Ended Cards</span>
               </div>
             </div>
 
-            <button class="btn-primary" id="reviewer-step1-next" style="margin-top:12px; align-self: flex-end;">Next: Configure Options</button>
+            <button class="btn-primary" id="quizmaker-step1-next" style="margin-top:12px; align-self: flex-end;">Next: Configure Options</button>
           </div>
         </div>
 
         <!-- STEP 2: CONFIGURE -->
-        <div class="wizard-step-panel" id="step-panel-2">
+        <div class="wizard-step-panel" id="quiz-step-panel-2">
           <div class="config-card">
             <div class="config-group">
               <div class="config-label-row">
-                <label for="reviewer-count" class="control-label">Number of Items:</label>
-                <span class="config-value-display" id="reviewer-count-val">5</span>
+                <label for="quizmaker-count" class="control-label">Number of Questions:</label>
+                <span class="config-value-display" id="quizmaker-count-val">5</span>
               </div>
-              <input type="range" class="slider-input" id="reviewer-count" min="3" max="15" value="5">
+              <input type="range" class="slider-input" id="quizmaker-count" min="3" max="15" value="5">
             </div>
 
             <div class="config-group">
               <span class="control-label">Difficulty Settings:</span>
               <div class="config-pill-options">
-                <span class="config-pill" data-diff="Easy">Easy</span>
-                <span class="config-pill active" data-diff="Medium">Medium</span>
-                <span class="config-pill" data-diff="Hard">Hard</span>
+                <span class="config-pill quiz-diff-pill" data-diff="Easy">Easy</span>
+                <span class="config-pill quiz-diff-pill active" data-diff="Medium">Medium</span>
+                <span class="config-pill quiz-diff-pill" data-diff="Hard">Hard</span>
               </div>
             </div>
 
-            <div class="config-group">
+            <div class="config-group" style="display: none;">
               <span class="control-label">Language:</span>
               <div class="config-pill-options">
-                <span class="config-pill active" data-lang="English">English</span>
-                <span class="config-pill" data-lang="Filipino">Filipino</span>
-                <span class="config-pill" data-lang="Taglish">Taglish</span>
+                <span class="config-pill quiz-lang-pill active" data-lang="English">English</span>
+                <span class="config-pill quiz-lang-pill" data-lang="Filipino">Filipino</span>
+                <span class="config-pill quiz-lang-pill" data-lang="Taglish">Taglish</span>
               </div>
             </div>
 
             <div style="display:flex; justify-content:space-between; margin-top:12px;">
-              <button class="btn-secondary" id="reviewer-step2-back">Back</button>
-              <button class="btn-primary" id="reviewer-generate-btn" style="padding-left:32px; padding-right:32px;">Generate Review</button>
+              <button class="btn-secondary" id="quizmaker-step2-back">Back</button>
+              <button class="btn-primary" id="quizmaker-generate-btn" style="padding-left:32px; padding-right:32px;">Generate Quiz</button>
             </div>
           </div>
         </div>
 
-        <!-- STEP 3: RESULTS -->
-        <div class="wizard-step-panel" id="step-panel-3">
-          <div class="results-card" id="reviewer-results-card">
+        <!-- STEP 3: PLAY / RESULTS -->
+        <div class="wizard-step-panel" id="quiz-step-panel-3">
+          <div class="results-card" id="quizmaker-results-card">
             <div class="results-header-row">
-              <span class="results-title" id="results-title-text">Study Review Materials</span>
+              <span class="results-title" id="quizmaker-results-title-text">Practice Quiz</span>
               <div class="export-actions">
-                <button class="btn-secondary export-btn" id="reviewer-copy-btn">Copy</button>
-                <button class="btn-secondary export-btn" id="reviewer-save-btn">Save .txt</button>
+                <button class="btn-secondary export-btn" id="quizmaker-copy-btn">Copy Questions</button>
+                <button class="btn-secondary export-btn" id="quizmaker-save-btn">Save .txt</button>
               </div>
             </div>
             
-            <div class="results-section" id="reviewer-results-content">
-              <!-- Result elements will render here -->
+            <div class="results-section" id="quizmaker-results-content">
+              <!-- Quiz questions will render here -->
             </div>
 
-            <button class="btn-secondary" id="reviewer-restart-btn" style="align-self: flex-start; margin-top: 12px;">Create New Review</button>
+            <button class="btn-secondary" id="quizmaker-restart-btn" style="align-self: flex-start; margin-top: 12px;">Create New Quiz</button>
           </div>
         </div>
       </div>
@@ -522,7 +532,7 @@
             <input type="text" id="fc-set-name" placeholder="e.g. Chapter 3 Biology: Cell Organelles">
           </div>
 
-          <div class="config-group">
+          <div class="config-group" style="display: none;">
             <label for="fc-set-subject">Subject Type:</label>
             <select id="fc-set-subject">
               <option value="Science">Science</option>
@@ -543,11 +553,11 @@
           <!-- Manual creation template -->
           <div class="fc-form-manual" id="fc-form-manual" style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
             <div class="config-group">
-              <label for="fc-card-front">Front Side (Term / Question):</label>
+              <label for="fc-card-front">Front Side (Definition / Question):</label>
               <textarea id="fc-card-front" placeholder="e.g. What organelle is known as the powerhouse of the cell?" rows="2"></textarea>
             </div>
             <div class="config-group">
-              <label for="fc-card-back">Back Side (Definition / Answer):</label>
+              <label for="fc-card-back">Back Side (Key Term / Answer):</label>
               <textarea id="fc-card-back" placeholder="e.g. Mitochondria" rows="2"></textarea>
             </div>
             <button class="btn-secondary" id="fc-add-card-btn" style="align-self: flex-start;">Add Card</button>
@@ -560,12 +570,11 @@
               <textarea id="fc-ai-notes" placeholder="Paste notes here to generate flashcard pairs..." rows="4"></textarea>
             </div>
             <div class="config-group">
-              <label for="fc-ai-count">Cards Limit:</label>
-              <select id="fc-ai-count">
-                <option value="5">5 Cards</option>
-                <option value="8">8 Cards</option>
-                <option value="10">10 Cards</option>
-              </select>
+              <div class="config-label-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
+                <label for="fc-ai-count" class="control-label">Number of Flashcards:</label>
+                <span class="config-value-display" id="fc-ai-count-val" style="font-weight:700; color:var(--accent);">5</span>
+              </div>
+              <input type="range" class="slider-input" id="fc-ai-count" min="3" max="15" value="5">
             </div>
             <button class="btn-secondary" id="fc-ai-generate-btn" style="align-self: flex-start;">Generate Flashcards</button>
           </div>
@@ -576,7 +585,10 @@
           <div class="fc-preview-list" id="fc-preview-list">
             <!-- Added cards list -->
           </div>
-          <button class="btn-primary" id="fc-save-set-btn" style="width: 100%; margin-top: 10px;">Save Flashcard Set</button>
+          <div style="display: flex; gap: 8px; margin-top: 10px; width: 100%;">
+            <button class="btn-secondary" id="fc-preview-study-btn" style="flex: 1;" disabled>Preview / Study</button>
+            <button class="btn-primary" id="fc-save-set-btn" style="flex: 1;">Save Flashcard Set</button>
+          </div>
         </div>
       </div>
 
@@ -641,7 +653,13 @@
         <!-- Left: Index Sidebar -->
         <aside class="notes-sidebar">
           <div class="notes-sidebar-header">
-            <button class="notes-new-btn" id="notes-new-btn">+ New Note</button>
+            <div style="display: flex; gap: 8px; margin-bottom: 8px; width: 100%;">
+              <button class="notes-new-btn" id="notes-new-btn" style="flex: 1;">+ New Note</button>
+              <button class="notes-new-btn" id="notes-upload-pdf-btn" style="flex: 1; background-color: var(--accent); display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 10px; font-size: 11px;">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:2px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                PDF
+              </button>
+            </div>
             <div class="notes-search-wrapper">
               <svg class="notes-search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <input type="text" class="notes-search-input" id="notes-search-input" placeholder="Search notes...">
@@ -659,7 +677,7 @@
             <span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-right:4px;">AI Assist:</span>
             <button class="note-ai-btn" id="note-ai-summarize">Summarize</button>
             <button class="note-ai-btn" id="note-ai-explain">Explain Simply</button>
-            <button class="note-ai-btn" id="note-ai-review">Generate Review</button>
+            <button class="note-ai-btn" id="note-ai-quiz">Generate Quiz</button>
             <button class="note-ai-btn" id="note-ai-terms">Find Key Terms</button>
             <button class="note-ai-btn" id="note-ai-improve">Improve Writing</button>
           </div>
@@ -683,7 +701,7 @@
           <div class="note-editor-footer">
             <div style="display:flex; gap:12px; align-items:center;">
               <span id="notes-word-count">0 words</span>
-              <select id="notes-subject" style="padding:4px 8px; font-size:11px; font-weight:700;">
+              <select id="notes-subject" style="padding:4px 8px; font-size:11px; font-weight:700; display: none;">
                 <option value="Science">Science</option>
                 <option value="Math">Math</option>
                 <option value="History">History</option>
@@ -1159,7 +1177,7 @@
             <tbody>
               <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + 1</td><td style="padding:6px 12px;">Go to Dashboard Home</td></tr>
               <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + 2</td><td style="padding:6px 12px;">Go to Study Chat</td></tr>
-              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + 3</td><td style="padding:6px 12px;">Go to Review Maker</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + 3</td><td style="padding:6px 12px;">Go to Quiz Maker</td></tr>
               <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + 4</td><td style="padding:6px 12px;">Go to Flashcards Decks</td></tr>
               <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + 5</td><td style="padding:6px 12px;">Go to My Notes Notebook</td></tr>
               <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + 6</td><td style="padding:6px 12px;">Go to Focus Study Timer</td></tr>
@@ -1191,7 +1209,7 @@
   <script src="renderer/app.js"></script>
   <script src="renderer/dashboard.js"></script>
   <script src="renderer/chat.js"></script>
-  <script src="renderer/reviewer.js"></script>
+  <script src="renderer/quiz.js"></script>
   <script src="renderer/flashcards.js"></script>
   <script src="renderer/notes.js"></script>
   <script src="renderer/timer.js"></script>
