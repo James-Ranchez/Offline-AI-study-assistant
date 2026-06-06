@@ -464,18 +464,19 @@
 }
 
 .fc-create-inner-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
   gap: 24px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .fc-create-inner-grid {
-    grid-template-columns: 1fr;
+    flex-direction: column;
   }
 }
 
 .fc-create-form {
+  flex: 1 1 350px;
   background-color: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -483,9 +484,11 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-width: 0;
 }
 
 .fc-preview-pane {
+  flex: 1 1 350px;
   background-color: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -494,6 +497,7 @@
   flex-direction: column;
   gap: 16px;
   max-height: 480px;
+  min-width: 0;
 }
 
 .fc-preview-list {
@@ -536,6 +540,43 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* ============================================
+   Reviewer Tabs (Creation Mode)
+   ============================================ */
+.reviewer-tabs {
+  display: flex;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  gap: 4px;
+  width: 100%;
+}
+
+.reviewer-tab {
+  flex: 1;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  background: none;
+  border: none;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+
+.reviewer-tab:hover {
+  color: var(--text-primary);
+}
+
+.reviewer-tab.active {
+  background-color: var(--bg-secondary);
+  color: var(--accent);
+  box-shadow: var(--shadow-sm);
 }
 
 /* ============================================
