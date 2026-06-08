@@ -226,6 +226,15 @@
   align-items: center;
   border-bottom: 1px solid var(--border);
   padding-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.export-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .quiz-progress-wrapper {
