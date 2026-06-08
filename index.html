@@ -950,46 +950,64 @@
         </div>
       </div>
       
-      <div class="reviewer-container" style="max-width:100%; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px;">
-        <!-- Left: Input & Outputs -->
-        <div style="display:flex; flex-direction:column; gap:20px;">
-          <div class="card" style="padding:24px;">
-            <div class="config-group">
-              <label for="explainer-input" class="notes-label">What topic do you want explained?</label>
-              <input type="text" id="explainer-input" placeholder="e.g. Plate Tectonics, Quantum Computing, Inflation in Economics...">
-            </div>
+      <div class="explainer-layout">
+        <!-- Left Column: Input Controls -->
+        <div class="card explainer-sidebar-card" style="padding:24px;">
+          <div class="config-group">
+            <label for="explainer-input" class="notes-label">What topic do you want explained?</label>
+            <input type="text" id="explainer-input" placeholder="e.g. Plate Tectonics, Quantum Computing, Inflation in Economics...">
+          </div>
 
-            <!-- Second Compare Input (hidden by default) -->
-            <div class="config-group" id="explainer-compare-wrapper" style="display:none; animation:fadeIn var(--transition-fast) forwards;">
-              <label for="explainer-compare-input" class="notes-label">Compare with:</label>
-              <input type="text" id="explainer-compare-input" placeholder="e.g. Continental Drift, Classic Computing...">
-            </div>
+          <!-- Second Compare Input (hidden by default) -->
+          <div class="config-group" id="explainer-compare-wrapper" style="display:none; animation:fadeIn var(--transition-fast) forwards;">
+            <label for="explainer-compare-input" class="notes-label">Compare with:</label>
+            <input type="text" id="explainer-compare-input" placeholder="e.g. Continental Drift, Classic Computing...">
+          </div>
 
-            <div class="config-group" style="margin-top:8px;">
-              <span class="control-label">Difficulty Level:</span>
-              <div style="display: flex; gap: 8px;">
-                <button class="btn-secondary active" id="diff-simple" data-level="Simple" style="border-left: 4px solid var(--success);">🟢 Simple</button>
-                <button class="btn-secondary" id="diff-standard" data-level="Standard" style="border-left: 4px solid var(--warning);">🟡 Standard</button>
-                <button class="btn-secondary" id="diff-advanced" data-level="Advanced" style="border-left: 4px solid var(--danger);">🔴 Advanced</button>
-              </div>
+          <div class="config-group" style="margin-top:8px;">
+            <span class="control-label">Difficulty Level:</span>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn-secondary active" id="diff-simple" data-level="Simple" style="border-left: 4px solid var(--success);">🟢 Simple</button>
+              <button class="btn-secondary" id="diff-standard" data-level="Standard" style="border-left: 4px solid var(--warning);">🟡 Standard</button>
+              <button class="btn-secondary" id="diff-advanced" data-level="Advanced" style="border-left: 4px solid var(--danger);">🔴 Advanced</button>
             </div>
+          </div>
 
-            <div class="config-group" style="margin-top:8px;">
-              <label for="explainer-format" class="control-label">Output Format:</label>
-              <select id="explainer-format">
-                <option value="explain">📝 Explanation (default)</option>
-                <option value="steps">📋 Step-by-step breakdown</option>
-                <option value="compare">⚖️ Compare with another topic</option>
-                <option value="misconceptions">❓ Common misconceptions</option>
-                <option value="examples">🌍 Real-world examples</option>
-              </select>
+          <div class="config-group" style="margin-top:8px;">
+            <label for="explainer-format" class="control-label">Output Format:</label>
+            <select id="explainer-format">
+              <option value="explain">📝 Explanation (default)</option>
+              <option value="steps">📋 Step-by-step breakdown</option>
+              <option value="compare">⚖️ Compare with another topic</option>
+              <option value="misconceptions">❓ Common misconceptions</option>
+              <option value="examples">🌍 Real-world examples</option>
+            </select>
+          </div>
+
+          <button class="btn-primary" id="explainer-generate-btn" style="width: 100%; margin-top: 8px;">Explain Concept</button>
+        </div>
+
+        <!-- Right Column: Empty State, Results & Related Questions -->
+        <div class="explainer-results-container" style="display:flex; flex-direction:column; gap:20px;">
+          <!-- Empty State -->
+          <div class="explainer-empty-state" id="explainer-empty-state">
+            <div class="explainer-empty-icon">💡</div>
+            <h3 class="explainer-empty-title">Unlock Complex Topics Instantly</h3>
+            <p class="explainer-empty-desc">
+              Type in any academic concept, choose a difficulty level, and select your format. 
+              Our offline AI engine will draft structured breakdowns, comparisons, misconceptions, or real-world examples.
+            </p>
+            <div class="quick-start-suggestions">
+              <span class="suggestion-label">Try searching:</span>
+              <button class="suggestion-pill" data-topic="Quantum Computing">⚛️ Quantum Computing</button>
+              <button class="suggestion-pill" data-topic="Photosynthesis">🌱 Photosynthesis</button>
+              <button class="suggestion-pill" data-topic="Inflation in Economics">📈 Inflation</button>
+              <button class="suggestion-pill" data-topic="Plate Tectonics">🌍 Plate Tectonics</button>
             </div>
-
-            <button class="btn-primary" id="explainer-generate-btn" style="width: 100%; margin-top: 8px;">Explain Concept</button>
           </div>
 
           <!-- Explanation Results reading card -->
-          <div class="card" id="explainer-results-card" style="display: none;">
+          <div class="card" id="explainer-results-card" style="display: none; padding:24px;">
             <div class="results-header-row">
               <span class="results-title" id="explainer-results-title">Concept Explanation</span>
               <div class="export-actions">
@@ -1007,14 +1025,14 @@
               <button class="btn-secondary" id="explainer-simplify-btn" style="flex:1;">Simplify More</button>
             </div>
           </div>
-        </div>
 
-        <!-- Right: Follow-up Questions sidebar -->
-        <div class="card" id="explainer-related-questions-sidebar" style="display:none; height:fit-content; padding:24px;">
-          <span class="stats-title" style="margin-bottom:10px; display:block;">Related Questions to Explore</span>
-          <ul id="explainer-related-questions-list" style="display:flex; flex-direction:column; gap:10px; list-style:none; padding:0;">
-            <!-- related questions -->
-          </ul>
+          <!-- Follow-up Questions card -->
+          <div class="card" id="explainer-related-questions-sidebar" style="display:none; padding:24px;">
+            <span class="stats-title" style="margin-bottom:10px; display:block;">Related Questions to Explore</span>
+            <ul id="explainer-related-questions-list" style="display:flex; flex-direction:column; gap:10px; list-style:none; padding:0;">
+              <!-- related questions -->
+            </ul>
+          </div>
         </div>
       </div>
     </section>

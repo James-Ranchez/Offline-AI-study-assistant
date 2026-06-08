@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultsCard = document.getElementById('explainer-results-card');
   const resultsTitle = document.getElementById('explainer-results-title');
   const resultsContent = document.getElementById('explainer-results-content');
+  const emptyState = document.getElementById('explainer-empty-state');
 
   // Related questions sidebar
   const relatedQuestionsSidebar = document.getElementById('explainer-related-questions-sidebar');
@@ -42,6 +43,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Handle quick start suggestions click
+  const suggestionPills = document.querySelectorAll('.suggestion-pill');
+  suggestionPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      const topic = pill.getAttribute('data-topic');
+      if (topicInput) {
+        topicInput.value = topic;
+        generateExplanation(topic);
+      }
+    });
+  });
+
   // Toggle comparison second input based on format selection
   if (formatSelect) {
     formatSelect.addEventListener('change', () => {
@@ -69,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
     generateBtn.disabled = true;
 
     // Reset results views
+    if (emptyState) emptyState.style.display = 'none';
     resultsCard.style.display = 'block';
     resultsContent.innerHTML = `
       <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px; gap: 16px; width: 100%;">
@@ -157,6 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
         generateBtn.textContent = 'Explain Concept';
         generateBtn.disabled = false;
         resultsCard.style.display = 'none';
+        if (emptyState) emptyState.style.display = 'flex';
         window.showToast('Could not reach Ollama offline engine.', 'error');
       }
     );
@@ -197,17 +212,6 @@ ${explanation.substring(0, 300)}`;
             const li = document.createElement('li');
             li.className = 'related-question-item';
             li.textContent = match[1].trim();
-            li.style.cursor = 'pointer';
-            li.style.padding = '8px';
-            li.style.borderRadius = 'var(--radius-sm)';
-            li.style.fontSize = '12px';
-            li.style.border = '1px solid var(--border)';
-            li.style.backgroundColor = 'var(--bg-tertiary)';
-            li.style.transition = 'all var(--transition-fast)';
-
-            li.addEventListener('hover', () => {
-              li.style.borderColor = 'var(--accent)';
-            });
             li.addEventListener('click', () => {
               topicInput.value = li.textContent;
               generateExplanation(li.textContent);
