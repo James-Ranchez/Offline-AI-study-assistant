@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const topicCompareInput = document.getElementById('explainer-compare-input');
   const formatSelect = document.getElementById('explainer-format');
   const generateBtn = document.getElementById('explainer-generate-btn');
+  const resetBtn = document.getElementById('explainer-reset-btn');
   const copyBtn = document.getElementById('explainer-copy-btn');
   const saveNoteBtn = document.getElementById('explainer-save-note-btn');
 
@@ -250,6 +251,43 @@ ${currentExplanationText.substring(0, 800)}`;
   // --- Actions ---
 
   generateBtn.addEventListener('click', () => generateExplanation());
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      // Clear inputs
+      if (topicInput) topicInput.value = '';
+      if (topicCompareInput) topicCompareInput.value = '';
+      
+      // Reset format selector
+      if (formatSelect) {
+        formatSelect.value = 'explain';
+        if (topicCompareWrapper) topicCompareWrapper.style.display = 'none';
+      }
+
+      // Reset difficulty buttons
+      diffButtons.forEach(b => {
+        if (b) {
+          if (b.id === 'diff-simple') {
+            b.classList.add('active');
+          } else {
+            b.classList.remove('active');
+          }
+        }
+      });
+      selectedLevel = 'Simple';
+
+      // Hide results & related questions, show empty state
+      if (resultsCard) resultsCard.style.display = 'none';
+      if (relatedQuestionsSidebar) relatedQuestionsSidebar.style.display = 'none';
+      if (emptyState) emptyState.style.display = 'flex';
+
+      // Reset variables
+      currentExplanationText = '';
+      activeTopic = '';
+      
+      window.showToast('Explainer reset successfully.');
+    });
+  }
 
   // Copy to clipboard
   copyBtn.addEventListener('click', () => {
