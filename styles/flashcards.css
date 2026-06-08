@@ -1,12 +1,367 @@
 /* Flashcard Study Tool Styles */
 
+/* ============================================
+   Two-Panel Layout Container
+   ============================================ */
+.fc-layout-container {
+  display: flex;
+  height: calc(100% - 64px); /* Account for view title header */
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  position: relative;
+}
+
+/* ============================================
+   LEFT PANEL: Deck List Sidebar
+   ============================================ */
+.fc-deck-sidebar {
+  width: 270px;
+  border-right: 1px solid var(--border);
+  background-color: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.fc-deck-sidebar-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fc-deck-search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.fc-deck-search-icon {
+  position: absolute;
+  left: 10px;
+  width: 14px;
+  height: 14px;
+  stroke: var(--text-secondary);
+  stroke-width: 2.2;
+  fill: none;
+}
+
+.fc-deck-search-input {
+  width: 100%;
+  padding: 8px 12px 8px 30px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border);
+}
+
+.fc-deck-search-input:focus {
+  border-color: var(--accent);
+}
+
+.fc-deck-list {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fc-deck-list-item {
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all var(--transition-fast);
+  border: 1px solid transparent;
+}
+
+.fc-deck-list-item:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.fc-deck-list-item.active {
+  background-color: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.fc-deck-list-item-title {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fc-deck-list-item.active .fc-deck-list-item-title {
+  color: var(--accent);
+}
+
+.fc-deck-list-item-meta {
+  font-size: 10px;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fc-deck-list-item-mastery {
+  font-weight: 700;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.fc-deck-list-item.active .fc-deck-list-item-mastery {
+  background-color: var(--accent);
+  color: #ffffff;
+}
+
+.fc-deck-sidebar-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ============================================
+   RIGHT PANEL: Content Area
+   ============================================ */
+.fc-content-area {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  background-color: var(--bg-primary);
+}
+
+/* Dashboard / Main View */
 .fc-dashboard {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  padding: 24px;
+  flex-grow: 1;
 }
 
-/* Set Grid Layout */
+/* Welcome / Empty State Panel */
+.fc-welcome-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 32px;
+  flex-grow: 1;
+  gap: 16px;
+}
+
+.fc-welcome-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-lg);
+  background: var(--gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.fc-welcome-icon svg {
+  width: 32px;
+  height: 32px;
+  stroke: #ffffff;
+  stroke-width: 1.8;
+  fill: none;
+}
+
+.fc-welcome-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.fc-welcome-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  max-width: 360px;
+  line-height: 1.5;
+}
+
+/* ============================================
+   Deck Detail Panel (shown when selecting a deck)
+   ============================================ */
+.fc-deck-detail-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: fadeIn var(--transition-normal) forwards;
+}
+
+.fc-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.fc-detail-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fc-detail-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.fc-detail-meta {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.fc-detail-header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Stats Row */
+.fc-detail-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.fc-detail-stat {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  transition: all var(--transition-fast);
+}
+
+.fc-detail-stat:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.fc-detail-stat-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.fc-detail-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Cards List in Detail View */
+.fc-detail-cards-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fc-detail-cards-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.fc-detail-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fc-detail-card-item {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all var(--transition-fast);
+}
+
+.fc-detail-card-item:hover {
+  border-color: var(--accent);
+  transform: translateX(4px);
+}
+
+.fc-detail-card-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.fc-detail-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+  flex-grow: 1;
+}
+
+.fc-detail-card-front {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fc-detail-card-back {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================
+   Set Grid Layout (legacy, kept for backwards compat)
+   ============================================ */
 .fc-set-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -96,20 +451,32 @@
   fill: none;
 }
 
-/* Creation panel styles */
+/* ============================================
+   Creation Panel Styles
+   ============================================ */
 .fc-create-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.fc-create-inner-grid {
+  display: flex;
+  flex-wrap: wrap;
   gap: 24px;
 }
 
-@media (max-width: 768px) {
-  .fc-create-container {
-    grid-template-columns: 1fr;
+@media (max-width: 900px) {
+  .fc-create-inner-grid {
+    flex-direction: column;
   }
 }
 
 .fc-create-form {
+  flex: 1 1 350px;
   background-color: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -117,9 +484,11 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-width: 0;
 }
 
 .fc-preview-pane {
+  flex: 1 1 350px;
   background-color: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -128,6 +497,7 @@
   flex-direction: column;
   gap: 16px;
   max-height: 480px;
+  min-width: 0;
 }
 
 .fc-preview-list {
@@ -172,13 +542,52 @@
   text-overflow: ellipsis;
 }
 
-/* Card Study Mode Overlay overlay fullscreen */
+/* ============================================
+   Reviewer Tabs (Creation Mode)
+   ============================================ */
+.reviewer-tabs {
+  display: flex;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  gap: 4px;
+  width: 100%;
+}
+
+.reviewer-tab {
+  flex: 1;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  background: none;
+  border: none;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+
+.reviewer-tab:hover {
+  color: var(--text-primary);
+}
+
+.reviewer-tab.active {
+  background-color: var(--bg-secondary);
+  color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ============================================
+   Card Study Mode Overlay (fullscreen)
+   ============================================ */
 .fc-study-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   background-color: var(--bg-primary);
   z-index: 1000;
   display: none;
@@ -210,26 +619,27 @@
   font-weight: 600;
 }
 
-.fc-close-btn {
-  background: none;
-  border: none;
+.fc-back-to-decks-btn {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
   color: var(--text-secondary);
-  padding: 8px;
-  border-radius: 50%;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all var(--transition-fast);
 }
-.fc-close-btn:hover {
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
+.fc-back-to-decks-btn:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--accent);
+  border-color: var(--accent);
 }
-.fc-close-btn svg {
-  width: 20px;
-  height: 20px;
-  stroke: currentColor;
-  stroke-width: 2.2;
+.fc-back-to-decks-btn svg {
+  flex-shrink: 0;
 }
 
 /* 3D Perspective Flip Card Container */
@@ -331,6 +741,7 @@
   border-radius: 50%;
   background-color: var(--bg-secondary);
   color: var(--text-secondary);
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -503,103 +503,169 @@
           <h2 class="view-title">Flashcards</h2>
           <p class="view-description">Review decks or auto-generate card pairs from lesson content.</p>
         </div>
-        <button class="btn-primary" id="new-set-btn">+ Create New Set</button>
       </div>
 
-      <!-- Main Deck view -->
-      <div class="fc-dashboard" id="fc-main-view">
-        <div class="empty-state" id="fc-empty-state" style="display:none;">
-          <svg class="empty-state-icon" viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span class="empty-state-title">No Flashcards Created</span>
-          <span class="empty-state-desc">Create manual decks or let the AI extract vocab keys from notes.</span>
-        </div>
-        
-        <div class="fc-set-grid" id="fc-set-grid">
-          <!-- Populated dynamically -->
-        </div>
-      </div>
-
-      <!-- Creation View -->
-      <div class="fc-create-container" id="fc-create-view" style="display:none;">
-        <div style="grid-column: span 2; display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-          <span style="font-weight:700; font-size:16px;">Set Details</span>
-          <button class="btn-secondary" id="fc-back-to-main" style="padding: 6px 12px; font-size:12px;">Back to Decks</button>
-        </div>
-
-        <div class="fc-create-form">
-          <div class="config-group">
-            <label for="fc-set-name">Set Name / Lesson Chapter:</label>
-            <input type="text" id="fc-set-name" placeholder="e.g. Chapter 3 Biology: Cell Organelles">
-          </div>
-
-          <div class="config-group" style="display: none;">
-            <label for="fc-set-subject">Subject Type:</label>
-            <select id="fc-set-subject">
-              <option value="Science">Science</option>
-              <option value="Math">Math</option>
-              <option value="History">History</option>
-              <option value="English">English</option>
-              <option value="Filipino">Filipino</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-
-          <!-- Creation Mode Tabs -->
-          <div class="reviewer-tabs" style="margin-top: 10px;">
-            <button class="reviewer-tab active" id="fc-tab-manual">Manual Input</button>
-            <button class="reviewer-tab" id="fc-tab-ai">AI Notes Extractor</button>
-          </div>
-
-          <!-- Manual creation template -->
-          <div class="fc-form-manual" id="fc-form-manual" style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
-            <div class="config-group">
-              <label for="fc-card-front">Front Side (Definition / Question):</label>
-              <textarea id="fc-card-front" placeholder="e.g. What organelle is known as the powerhouse of the cell?" rows="2"></textarea>
+      <!-- Two-panel layout: Deck List sidebar + Content area -->
+      <div class="fc-layout-container">
+        <!-- LEFT PANEL: Deck List Sidebar -->
+        <aside class="fc-deck-sidebar" id="fc-deck-sidebar">
+          <div class="fc-deck-sidebar-header">
+            <button class="btn-primary" id="new-set-btn" style="width:100%; font-size:12px; padding:10px;">+ Create New Set</button>
+            <div class="fc-deck-search-wrapper">
+              <svg class="fc-deck-search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" class="fc-deck-search-input" id="fc-deck-search-input" placeholder="Search decks...">
             </div>
-            <div class="config-group">
-              <label for="fc-card-back">Back Side (Key Term / Answer):</label>
-              <textarea id="fc-card-back" placeholder="e.g. Mitochondria" rows="2"></textarea>
-            </div>
-            <button class="btn-secondary" id="fc-add-card-btn" style="align-self: flex-start;">Add Card</button>
           </div>
+          <div class="fc-deck-list" id="fc-deck-list">
+            <!-- Populated dynamically -->
+          </div>
+          <div class="fc-deck-sidebar-footer" id="fc-deck-sidebar-footer">
+            <span id="fc-deck-count-label">0 decks</span>
+          </div>
+        </aside>
 
-          <!-- AI extractor template -->
-          <div class="fc-form-ai" id="fc-form-ai" style="display:none; flex-direction:column; gap:12px; margin-top:8px;">
-            <div class="config-group">
-              <label for="fc-ai-notes">Paste Study Notes:</label>
-              <textarea id="fc-ai-notes" placeholder="Paste notes here to generate flashcard pairs..." rows="4"></textarea>
-            </div>
-            <div class="config-group">
-              <div class="config-label-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
-                <label for="fc-ai-count" class="control-label">Number of Flashcards:</label>
-                <span class="config-value-display" id="fc-ai-count-val" style="font-weight:700; color:var(--accent);">5</span>
+        <!-- RIGHT PANEL: Content Area -->
+        <div class="fc-content-area" id="fc-content-area">
+
+          <!-- Main Deck view (welcome / empty state + grid) -->
+          <div class="fc-dashboard" id="fc-main-view">
+            <!-- Empty state shown when no decks exist -->
+            <div class="fc-welcome-panel" id="fc-empty-state">
+              <div class="fc-welcome-icon">
+                <svg viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </div>
-              <input type="range" class="slider-input" id="fc-ai-count" min="3" max="15" value="5">
+              <h3 class="fc-welcome-title">No Flashcard Sets Yet</h3>
+              <p class="fc-welcome-desc">Create your first deck manually or let AI extract vocabulary from your study notes.</p>
+              <button class="btn-primary" id="fc-empty-create-btn" style="margin-top:8px;">+ Create Your First Set</button>
             </div>
-            <button class="btn-secondary" id="fc-ai-generate-btn" style="align-self: flex-start;">Generate Flashcards</button>
-          </div>
-        </div>
 
-        <div class="fc-preview-pane">
-          <span class="control-label">Deck Cards Preview</span>
-          <div class="fc-preview-list" id="fc-preview-list">
-            <!-- Added cards list -->
+            <!-- Deck detail panel shown when a deck is selected from the sidebar -->
+            <div class="fc-deck-detail-panel" id="fc-deck-detail-panel" style="display:none;">
+              <div class="fc-detail-header">
+                <div class="fc-detail-header-info">
+                  <h3 class="fc-detail-title" id="fc-detail-title">Deck Name</h3>
+                  <span class="fc-detail-meta" id="fc-detail-meta">0 cards | Subject: General</span>
+                </div>
+                <div class="fc-detail-header-actions">
+                  <button class="btn-primary" id="fc-detail-study-btn" style="padding:8px 20px; font-size:12px;">
+                    <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.2" fill="none" style="margin-right:4px;"><path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="10" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Study Now
+                  </button>
+                  <button class="btn-secondary" id="fc-detail-edit-btn" style="padding:8px 14px; font-size:12px;">Edit</button>
+                  <button class="btn-secondary" id="fc-detail-export-btn" style="padding:8px 14px; font-size:12px;">Export</button>
+                  <button class="btn-secondary btn-danger" id="fc-detail-delete-btn" style="padding:8px 14px; font-size:12px; background-color:transparent; border-color:var(--danger); color:var(--danger);">Delete</button>
+                </div>
+              </div>
+              <div class="fc-detail-stats-row">
+                <div class="fc-detail-stat">
+                  <span class="fc-detail-stat-value" id="fc-detail-mastery">0%</span>
+                  <span class="fc-detail-stat-label">Mastery</span>
+                </div>
+                <div class="fc-detail-stat">
+                  <span class="fc-detail-stat-value" id="fc-detail-card-count">0</span>
+                  <span class="fc-detail-stat-label">Cards</span>
+                </div>
+                <div class="fc-detail-stat">
+                  <span class="fc-detail-stat-value" id="fc-detail-last-studied">Never</span>
+                  <span class="fc-detail-stat-label">Last Studied</span>
+                </div>
+              </div>
+              <div class="fc-detail-cards-header">
+                <span class="fc-detail-cards-title">Cards in this Deck</span>
+              </div>
+              <div class="fc-detail-cards-list" id="fc-detail-cards-list">
+                <!-- Cards rendered here -->
+              </div>
+            </div>
           </div>
-          <div style="display: flex; gap: 8px; margin-top: 10px; width: 100%;">
-            <button class="btn-secondary" id="fc-preview-study-btn" style="flex: 1;" disabled>Preview / Study</button>
-            <button class="btn-primary" id="fc-save-set-btn" style="flex: 1;">Save Flashcard Set</button>
+
+          <!-- Creation View -->
+          <div class="fc-create-container" id="fc-create-view" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+              <span style="font-weight:700; font-size:16px;">Set Details</span>
+              <button class="btn-secondary" id="fc-back-to-main" style="padding: 6px 12px; font-size:12px;">Back to Decks</button>
+            </div>
+
+            <div class="fc-create-inner-grid">
+              <div class="fc-create-form">
+                <div class="config-group">
+                  <label for="fc-set-name">Set Name / Lesson Chapter:</label>
+                  <input type="text" id="fc-set-name" placeholder="e.g. Chapter 3 Biology: Cell Organelles">
+                </div>
+
+                <div class="config-group" style="display: none;">
+                  <label for="fc-set-subject">Subject Type:</label>
+                  <select id="fc-set-subject">
+                    <option value="Science">Science</option>
+                    <option value="Math">Math</option>
+                    <option value="History">History</option>
+                    <option value="English">English</option>
+                    <option value="Filipino">Filipino</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <!-- Creation Mode Tabs -->
+                <div class="reviewer-tabs" style="margin-top: 10px;">
+                  <button class="reviewer-tab active" id="fc-tab-manual">Manual Input</button>
+                  <button class="reviewer-tab" id="fc-tab-ai">AI Notes Extractor</button>
+                </div>
+
+                <!-- Manual creation template -->
+                <div class="fc-form-manual" id="fc-form-manual" style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
+                  <div class="config-group">
+                    <label for="fc-card-front">Front Side (Definition / Question):</label>
+                    <textarea id="fc-card-front" placeholder="e.g. What organelle is known as the powerhouse of the cell?" rows="2"></textarea>
+                  </div>
+                  <div class="config-group">
+                    <label for="fc-card-back">Back Side (Key Term / Answer):</label>
+                    <textarea id="fc-card-back" placeholder="e.g. Mitochondria" rows="2"></textarea>
+                  </div>
+                  <button class="btn-secondary" id="fc-add-card-btn" style="align-self: flex-start;">Add Card</button>
+                </div>
+
+                <!-- AI extractor template -->
+                <div class="fc-form-ai" id="fc-form-ai" style="display:none; flex-direction:column; gap:12px; margin-top:8px;">
+                  <div class="config-group">
+                    <label for="fc-ai-notes">Paste Study Notes:</label>
+                    <textarea id="fc-ai-notes" placeholder="Paste notes here to generate flashcard pairs..." rows="4"></textarea>
+                  </div>
+                  <div class="config-group">
+                    <div class="config-label-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
+                      <label for="fc-ai-count" class="control-label">Number of Flashcards:</label>
+                      <span class="config-value-display" id="fc-ai-count-val" style="font-weight:700; color:var(--accent);">5</span>
+                    </div>
+                    <input type="range" class="slider-input" id="fc-ai-count" min="3" max="15" value="5">
+                  </div>
+                  <button class="btn-secondary" id="fc-ai-generate-btn" style="align-self: flex-start;">Generate Flashcards</button>
+                </div>
+              </div>
+
+              <div class="fc-preview-pane">
+                <span class="control-label">Deck Cards Preview</span>
+                <div class="fc-preview-list" id="fc-preview-list">
+                  <!-- Added cards list -->
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 10px; width: 100%;">
+                  <button class="btn-secondary" id="fc-preview-study-btn" style="flex: 1;" disabled>Preview / Study</button>
+                  <button class="btn-primary" id="fc-save-set-btn" style="flex: 1;">Save Flashcard Set</button>
+                </div>
+              </div>
+            </div>
           </div>
+
         </div>
       </div>
 
       <!-- STUDY MODE VIEW OVERLAY -->
       <div class="fc-study-overlay" id="fc-study-overlay">
         <div class="fc-study-header">
+          <button class="fc-back-to-decks-btn" id="fc-close-study-btn" title="Back to Flashcard Decks">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.2" fill="none"><path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Back to Decks
+          </button>
           <span class="fc-study-title" id="fc-study-title">Studying Deck</span>
           <span class="fc-study-progress-text" id="fc-study-progress-text">Card 1 of 10</span>
-          <button class="fc-close-btn" id="fc-close-study-btn" title="Close Study Board">
-            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
         </div>
 
         <!-- 3D Card viewport -->
@@ -655,7 +721,7 @@
           <div class="notes-sidebar-header">
             <div style="display: flex; gap: 8px; margin-bottom: 8px; width: 100%;">
               <button class="notes-new-btn" id="notes-new-btn" style="flex: 1;">+ New Note</button>
-              <button class="notes-new-btn" id="notes-upload-pdf-btn" style="flex: 1; background-color: var(--accent); display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 10px; font-size: 11px;">
+              <button class="notes-new-btn" id="notes-upload-pdf-btn" style="flex: 1; background-color: var(--accent); color: #ffffff; border: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 10px; font-size: 11px;">
                 <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:2px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                 PDF
               </button>

@@ -2,13 +2,31 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   // Navigation elements on Flashcards tab
-  const setGrid = document.getElementById('fc-set-grid');
   const emptyState = document.getElementById('fc-empty-state');
   const mainView = document.getElementById('fc-main-view');
   const createView = document.getElementById('fc-create-view');
   
+  // Sidebar deck list elements
+  const deckList = document.getElementById('fc-deck-list');
+  const deckSearchInput = document.getElementById('fc-deck-search-input');
+  const deckCountLabel = document.getElementById('fc-deck-count-label');
+  
+  // Deck detail panel elements
+  const deckDetailPanel = document.getElementById('fc-deck-detail-panel');
+  const detailTitle = document.getElementById('fc-detail-title');
+  const detailMeta = document.getElementById('fc-detail-meta');
+  const detailMastery = document.getElementById('fc-detail-mastery');
+  const detailCardCount = document.getElementById('fc-detail-card-count');
+  const detailLastStudied = document.getElementById('fc-detail-last-studied');
+  const detailCardsList = document.getElementById('fc-detail-cards-list');
+  const detailStudyBtn = document.getElementById('fc-detail-study-btn');
+  const detailEditBtn = document.getElementById('fc-detail-edit-btn');
+  const detailExportBtn = document.getElementById('fc-detail-export-btn');
+  const detailDeleteBtn = document.getElementById('fc-detail-delete-btn');
+  
   // Header buttons
   const newSetBtn = document.getElementById('new-set-btn');
+  const emptyCreateBtn = document.getElementById('fc-empty-create-btn');
   const backToMainBtn = document.getElementById('fc-back-to-main');
 
   // Creation fields
@@ -59,10 +77,11 @@ document.addEventListener('DOMContentLoaded', () => {
   let studySessionRatings = {}; // tracks rating per card id
   let isAiGenerating = false;
   let shuffleMode = false;
+  let selectedDeckId = null; // Currently selected deck in sidebar
   
   // --- View controllers ---
   function showMainView() {
-    mainView.style.display = 'block';
+    mainView.style.display = 'flex';
     createView.style.display = 'none';
     loadFlashcardSets();
     if (window.refreshDashboard) window.refreshDashboard();
@@ -70,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function showCreateView(editingSetId = null) {
     mainView.style.display = 'none';
-    createView.style.display = 'block';
+    createView.style.display = 'flex';
     
     // Clear inputs
     setNameInput.value = '';
@@ -106,102 +125,180 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- Initializers & Set loaders ---
+  // --- Sidebar Deck List ---
   function loadFlashcardSets() {
-    setGrid.innerHTML = '';
     const sets = window.StudyStorage.getFlashcardSets();
-
+    const searchTerm = (deckSearchInput ? deckSearchInput.value.trim().toLowerCase() : '');
+    
+    // Filter by search
+    const filteredSets = searchTerm 
+      ? sets.filter(s => s.name.toLowerCase().includes(searchTerm))
+      : sets;
+    
+    // Populate sidebar list
+    renderDeckSidebar(filteredSets);
+    
+    // Update count label
+    if (deckCountLabel) {
+      deckCountLabel.textContent = `${sets.length} deck${sets.length !== 1 ? 's' : ''}`;
+    }
+    
+    // Show/hide empty state vs detail panel
     if (sets.length === 0) {
       emptyState.style.display = 'flex';
-      setGrid.style.display = 'none';
+      deckDetailPanel.style.display = 'none';
+      selectedDeckId = null;
+    } else {
+      emptyState.style.display = 'none';
+      
+      // If no deck is selected, or selected deck no longer exists, select the first one
+      const selectedExists = sets.find(s => s.id === selectedDeckId);
+      if (!selectedDeckId || !selectedExists) {
+        if (filteredSets.length > 0) {
+          selectDeck(filteredSets[0].id);
+        } else {
+          deckDetailPanel.style.display = 'none';
+        }
+      } else {
+        // Refresh the detail view for the currently selected deck
+        selectDeck(selectedDeckId);
+      }
+    }
+  }
+
+  function renderDeckSidebar(sets) {
+    if (!deckList) return;
+    deckList.innerHTML = '';
+    
+    if (sets.length === 0) {
+      deckList.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:12px; padding:24px 12px; line-height:1.5;">No decks found.</div>`;
       return;
     }
-
-    emptyState.style.display = 'none';
-    setGrid.style.display = 'grid';
-
+    
     sets.forEach(set => {
-      // Calculate performance percentage
+      // Calculate mastery
       let totalGotIt = 0;
       let totalMissed = 0;
       set.cards.forEach(c => {
         totalGotIt += (c.gotIt || 0);
         totalMissed += (c.missed || 0);
       });
-      
       const totalRated = totalGotIt + totalMissed;
       const perfPct = totalRated > 0 ? Math.round((totalGotIt / totalRated) * 100) : 0;
-      const lastStudiedStr = set.lastStudied 
-        ? new Date(set.lastStudied).toLocaleDateString() 
-        : 'Never';
-
-      const card = document.createElement('div');
-      card.className = 'fc-set-card';
       
-      card.innerHTML = `
-        <div class="fc-set-info">
-          <span class="fc-set-title">${escapeHTML(set.name)}</span>
-          <span class="fc-set-meta">${set.cards.length} cards | Subject: ${escapeHTML(set.subject || 'General')}</span>
-        </div>
-        <div class="fc-set-stats">
-          <span>Mastery: <strong>${perfPct}%</strong></span>
-          <span>Last Studied: <strong>${lastStudiedStr}</strong></span>
-        </div>
-        <div class="fc-set-actions">
-          <button class="btn-primary fc-set-action-btn study-btn" title="Study Now">
-            <svg viewBox="0 0 24 24"><path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="10" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Study
-          </button>
-          <button class="fc-set-action-btn edit-btn" title="Edit Set">
-            <svg viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <button class="fc-set-action-btn delete-btn delete" title="Delete Set">
-            <svg viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <button class="fc-set-action-btn export-btn" title="Export as CSV">
-            <svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
+      const item = document.createElement('div');
+      item.className = 'fc-deck-list-item' + (set.id === selectedDeckId ? ' active' : '');
+      item.dataset.deckId = set.id;
+      
+      item.innerHTML = `
+        <span class="fc-deck-list-item-title">${escapeHTML(set.name)}</span>
+        <div class="fc-deck-list-item-meta">
+          <span>${set.cards.length} card${set.cards.length !== 1 ? 's' : ''}</span>
+          <span class="fc-deck-list-item-mastery">${perfPct}%</span>
         </div>
       `;
-
-      // Study Now trigger
-      card.querySelector('.study-btn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        startStudySession(set);
+      
+      item.addEventListener('click', () => {
+        selectDeck(set.id);
       });
+      
+      deckList.appendChild(item);
+    });
+  }
 
-      // Edit trigger
-      card.querySelector('.edit-btn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        showCreateView(set.id);
-      });
+  function selectDeck(deckId) {
+    selectedDeckId = deckId;
+    
+    const sets = window.StudyStorage.getFlashcardSets();
+    const set = sets.find(s => s.id === deckId);
+    if (!set) return;
+    
+    // Update sidebar active state
+    document.querySelectorAll('.fc-deck-list-item').forEach(el => {
+      el.classList.toggle('active', el.dataset.deckId === deckId);
+    });
+    
+    // Show detail panel
+    emptyState.style.display = 'none';
+    deckDetailPanel.style.display = 'flex';
+    
+    // Calculate mastery
+    let totalGotIt = 0;
+    let totalMissed = 0;
+    set.cards.forEach(c => {
+      totalGotIt += (c.gotIt || 0);
+      totalMissed += (c.missed || 0);
+    });
+    const totalRated = totalGotIt + totalMissed;
+    const perfPct = totalRated > 0 ? Math.round((totalGotIt / totalRated) * 100) : 0;
+    const lastStudiedStr = set.lastStudied 
+      ? new Date(set.lastStudied).toLocaleDateString() 
+      : 'Never';
+    
+    // Populate detail header
+    detailTitle.textContent = set.name;
+    detailMeta.textContent = `${set.cards.length} cards | Subject: ${set.subject || 'General'}`;
+    
+    // Populate stats
+    detailMastery.textContent = `${perfPct}%`;
+    detailCardCount.textContent = set.cards.length;
+    detailLastStudied.textContent = lastStudiedStr;
+    
+    // Render cards list
+    renderDetailCards(set);
+    
+    // Wire up detail action buttons
+    detailStudyBtn.onclick = () => startStudySession(set);
+    detailEditBtn.onclick = () => showCreateView(set.id);
+    detailExportBtn.onclick = () => exportCSV(set);
+    detailDeleteBtn.onclick = () => {
+      window.showConfirmModal(
+        'Delete Flashcard Set?',
+        `Are you sure you want to permanently delete the set "${set.name}"? This action cannot be undone.`,
+        () => {
+          selectedDeckId = null;
+          window.StudyStorage.deleteFlashcardSet(set.id);
+          window.showToast('Flashcard set deleted');
+          loadFlashcardSets();
+        }
+      );
+    };
+  }
 
-      // Delete trigger
-      card.querySelector('.delete-btn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        window.showConfirmModal(
-          'Delete Flashcard Set?',
-          `Are you sure you want to permanently delete the set "${set.name}"? This action cannot be undone.`,
-          () => {
-            window.StudyStorage.deleteFlashcardSet(set.id);
-            window.showToast('Flashcard set deleted');
-            loadFlashcardSets();
-          }
-        );
-      });
+  function renderDetailCards(set) {
+    if (!detailCardsList) return;
+    detailCardsList.innerHTML = '';
+    
+    if (set.cards.length === 0) {
+      detailCardsList.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:12px; padding:24px;">No cards in this deck yet.</div>`;
+      return;
+    }
+    
+    set.cards.forEach((card, idx) => {
+      const item = document.createElement('div');
+      item.className = 'fc-detail-card-item';
+      
+      item.innerHTML = `
+        <span class="fc-detail-card-num">${idx + 1}</span>
+        <div class="fc-detail-card-text">
+          <span class="fc-detail-card-front">${escapeHTML(card.front)}</span>
+          <span class="fc-detail-card-back">${escapeHTML(card.back)}</span>
+        </div>
+      `;
+      
+      detailCardsList.appendChild(item);
+    });
+  }
 
-      // Export trigger
-      card.querySelector('.export-btn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        exportCSV(set);
-      });
-
-      // General card click studies too
-      card.addEventListener('click', () => {
-        startStudySession(set);
-      });
-
-      setGrid.appendChild(card);
+  // Sidebar search filtering
+  if (deckSearchInput) {
+    deckSearchInput.addEventListener('input', () => {
+      const sets = window.StudyStorage.getFlashcardSets();
+      const searchTerm = deckSearchInput.value.trim().toLowerCase();
+      const filteredSets = searchTerm
+        ? sets.filter(s => s.name.toLowerCase().includes(searchTerm))
+        : sets;
+      renderDeckSidebar(filteredSets);
     });
   }
 
@@ -492,6 +589,7 @@ ${notes}`;
 
     window.StudyStorage.saveFlashcardSet(newSet);
     window.showToast('✓ Flashcard set saved successfully!');
+    selectedDeckId = setId; // Select the newly saved deck
     showMainView();
   });
 
@@ -521,6 +619,10 @@ ${notes}`;
       } else if (e.code === 'ArrowRight') {
         e.preventDefault();
         if (!nextCardBtn.disabled) nextCardBtn.click();
+      } else if (e.code === 'Escape') {
+        e.preventDefault();
+        studyOverlay.style.display = 'none';
+        loadFlashcardSets();
       }
     }
   });
@@ -701,6 +803,9 @@ ${notes}`;
             Shuffle: ${shuffleMode ? 'ON' : 'OFF'}
           </button>
         </div>
+        <button class="btn-secondary" id="fc-study-back-to-decks" style="margin-top:8px; padding:8px 20px; font-size:12px;">
+          ← Back to Decks
+        </button>
       </div>
     `;
 
@@ -731,6 +836,15 @@ ${notes}`;
       shuffleBtn.textContent = `Shuffle: ${shuffleMode ? 'ON' : 'OFF'}`;
       window.showToast(`Shuffling turned ${shuffleMode ? 'ON' : 'OFF'}`);
     });
+
+    const backToDecksBtn = document.getElementById('fc-study-back-to-decks');
+    if (backToDecksBtn) {
+      backToDecksBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        studyOverlay.style.display = 'none';
+        loadFlashcardSets();
+      });
+    }
   }
 
   // Close overlay
@@ -773,6 +887,12 @@ ${notes}`;
   newSetBtn.addEventListener('click', () => {
     showCreateView();
   });
+
+  if (emptyCreateBtn) {
+    emptyCreateBtn.addEventListener('click', () => {
+      showCreateView();
+    });
+  }
   
   backToMainBtn.addEventListener('click', () => {
     showMainView();
