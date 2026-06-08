@@ -290,7 +290,21 @@
           <!-- Chat Header toolbar -->
           <div class="chat-workspace-header">
             <div class="chat-header-info">
-              <span class="chat-header-title">Active study thread</span>
+              <div class="chat-title-rename-group">
+                <span class="chat-header-title" id="chat-header-title-label">Active study thread</span>
+                <input class="chat-title-rename-input" id="chat-title-rename-input" type="text" value="Active study thread" aria-label="Rename chat session" />
+                <button class="chat-title-rename-btn" id="chat-title-rename-btn" title="Rename this chat session" aria-label="Edit chat title">
+                  <!-- Pencil icon (default) -->
+                  <svg class="rename-icon-pencil" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.2" fill="none">
+                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <!-- Check icon (shown during edit mode) -->
+                  <svg class="rename-icon-check" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none" style="display:none;">
+                    <polyline points="20 6 9 17 4 12" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
               <span class="chat-header-meta" id="chat-active-model-meta">Model: tinyllama</span>
             </div>
             <div class="chat-header-actions">
@@ -302,7 +316,7 @@
                 <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.2" fill="none" style="margin-right:4px;"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 Explain Concept
               </button>
-              <button class="btn-secondary" id="chat-save-btn" style="padding:6px 12px; font-size:12px;">Rename</button>
+
               <button class="btn-secondary" id="chat-new-btn" style="padding:6px 12px; font-size:12px;">New Chat</button>
             </div>
           </div>

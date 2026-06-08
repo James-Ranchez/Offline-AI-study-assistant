@@ -9,10 +9,16 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Header Actions
   const newChatBtn = document.getElementById('chat-new-btn');
-  const saveSessionBtn = document.getElementById('chat-save-btn');
   const drawerToggleBtn = document.getElementById('chat-history-drawer-toggle');
   const clearSessionBtn = document.getElementById('chat-clear-btn');
   const activeModelMeta = document.getElementById('chat-active-model-meta');
+
+  // Inline Rename Elements
+  const chatTitleLabel = document.getElementById('chat-header-title-label');
+  const chatTitleInput = document.getElementById('chat-title-rename-input');
+  const chatTitleRenameBtn = document.getElementById('chat-title-rename-btn');
+  const renameIconPencil = chatTitleRenameBtn ? chatTitleRenameBtn.querySelector('.rename-icon-pencil') : null;
+  const renameIconCheck = chatTitleRenameBtn ? chatTitleRenameBtn.querySelector('.rename-icon-check') : null;
   
   // Drawer Elements
   const chatDrawer = document.getElementById('chat-drawer');
@@ -137,6 +143,13 @@ document.addEventListener('DOMContentLoaded', () => {
     currentSession = session;
     welcomeState.style.display = 'none';
     
+    // Sync inline title label + input value
+    const sessionTitle = session.name || 'Study Chat';
+    if (chatTitleLabel) chatTitleLabel.textContent = sessionTitle;
+    if (chatTitleInput) chatTitleInput.value = sessionTitle;
+    // Ensure we're not stuck in edit mode
+    exitRenameEditMode(false);
+
     // Clear old bubbles
     const bubbles = chatHistory.querySelectorAll('.chat-message-row');
     bubbles.forEach(b => b.remove());
@@ -158,6 +171,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const bubbles = chatHistory.querySelectorAll('.chat-message-row');
     bubbles.forEach(b => b.remove());
     
+    // Reset title back to default and cancel any rename edit
+    if (chatTitleLabel) chatTitleLabel.textContent = 'Active study thread';
+    if (chatTitleInput) chatTitleInput.value = 'Active study thread';
+    exitRenameEditMode(false);
+
     // Reset suggestions
     initSuggestions();
     refreshSessionsList();
@@ -400,21 +418,62 @@ document.addEventListener('DOMContentLoaded', () => {
     startNewChat();
   });
 
-  saveSessionBtn.addEventListener('click', () => {
+  // --- Inline Rename Logic ---
+  function enterRenameEditMode() {
     if (!currentSession) {
-      window.showToast('No active conversation to save', 'error');
+      window.showToast('Start a conversation first before renaming.', 'info');
       return;
     }
-    
-    const newName = prompt('Enter a custom name for this study session:', currentSession.name);
-    if (newName && newName.trim()) {
-      currentSession.name = newName.trim();
-      window.StudyStorage.saveChatSession(currentSession);
-      window.showToast('Session title updated!');
-      refreshSessionsList();
-      if (window.refreshDashboard) window.refreshDashboard();
+    chatTitleInput.value = currentSession.name || 'Study Chat';
+    chatTitleLabel.style.display = 'none';
+    chatTitleInput.style.display = 'block';
+    renameIconPencil.style.display = 'none';
+    renameIconCheck.style.display = 'block';
+    chatTitleRenameBtn.classList.add('editing');
+    chatTitleInput.focus();
+    chatTitleInput.select();
+  }
+
+  function exitRenameEditMode(save) {
+    chatTitleLabel.style.display = 'block';
+    chatTitleInput.style.display = 'none';
+    renameIconPencil.style.display = 'block';
+    renameIconCheck.style.display = 'none';
+    chatTitleRenameBtn.classList.remove('editing');
+
+    if (save && currentSession) {
+      const newName = chatTitleInput.value.trim();
+      if (newName) {
+        currentSession.name = newName;
+        chatTitleLabel.textContent = newName;
+        window.StudyStorage.saveChatSession(currentSession);
+        refreshSessionsList();
+        if (window.refreshDashboard) window.refreshDashboard();
+        window.showToast('Chat renamed!', 'success');
+      }
     }
-  });
+  }
+
+  if (chatTitleRenameBtn) {
+    chatTitleRenameBtn.addEventListener('click', () => {
+      if (chatTitleRenameBtn.classList.contains('editing')) {
+        exitRenameEditMode(true);
+      } else {
+        enterRenameEditMode();
+      }
+    });
+  }
+
+  if (chatTitleInput) {
+    chatTitleInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        exitRenameEditMode(true);
+      } else if (e.key === 'Escape') {
+        exitRenameEditMode(false);
+      }
+    });
+  }
 
   // Drawer Controls
   drawerToggleBtn.addEventListener('click', () => {
