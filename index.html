@@ -52,10 +52,7 @@
         <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>Quiz Maker</span>
       </button>
-      <button class="nav-item" data-view="explainer-view" id="nav-explainer">
-        <svg viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span>Topic Explainer</span>
-      </button>
+
       <button class="nav-item" data-view="flashcards-view" id="nav-flashcards">
         <svg viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>Flashcards</span>
@@ -293,7 +290,21 @@
           <!-- Chat Header toolbar -->
           <div class="chat-workspace-header">
             <div class="chat-header-info">
-              <span class="chat-header-title">Active study thread</span>
+              <div class="chat-title-rename-group">
+                <span class="chat-header-title" id="chat-header-title-label">Active study thread</span>
+                <input class="chat-title-rename-input" id="chat-title-rename-input" type="text" value="Active study thread" aria-label="Rename chat session" />
+                <button class="chat-title-rename-btn" id="chat-title-rename-btn" title="Rename this chat session" aria-label="Edit chat title">
+                  <!-- Pencil icon (default) -->
+                  <svg class="rename-icon-pencil" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.2" fill="none">
+                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <!-- Check icon (shown during edit mode) -->
+                  <svg class="rename-icon-check" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none" style="display:none;">
+                    <polyline points="20 6 9 17 4 12" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
               <span class="chat-header-meta" id="chat-active-model-meta">Model: tinyllama</span>
             </div>
             <div class="chat-header-actions">
@@ -301,7 +312,11 @@
                 <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.2" fill="none" style="margin-right:4px;"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 History
               </button>
-              <button class="btn-secondary" id="chat-save-btn" style="padding:6px 12px; font-size:12px;">Save</button>
+              <button class="btn-primary" id="chat-explainer-drawer-toggle" style="padding:6px 12px; font-size:12px; display: flex; align-items: center; gap: 4px;" title="Open Concept Explainer">
+                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.2" fill="none" style="margin-right:4px;"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Explain Concept
+              </button>
+
               <button class="btn-secondary" id="chat-new-btn" style="padding:6px 12px; font-size:12px;">New Chat</button>
             </div>
           </div>
@@ -361,6 +376,53 @@
             </div>
           </div>
         </div>
+
+        <!-- Explainer Panel Drawer (Right Side) -->
+        <aside class="chat-explainer-drawer" id="chat-explainer-drawer">
+          <div class="chat-drawer-header">
+            <span class="chat-drawer-title">Concept Explainer</span>
+            <button class="chat-drawer-close" id="chat-explainer-drawer-close" title="Close Drawer">
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.2" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          
+          <div class="explainer-drawer-content">
+            <div class="config-group">
+              <label for="chat-explainer-input" class="control-label" style="font-weight: 600; font-size: 12px; margin-bottom: 4px; display: block;">What topic do you want explained?</label>
+              <input type="text" id="chat-explainer-input" placeholder="e.g. Plate Tectonics, Quantum Computing..." style="width: 100%; padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); background-color: var(--bg-primary); color: var(--text-primary); font-size: 13px;">
+            </div>
+
+            <!-- Compare input (hidden by default) -->
+            <div class="config-group" id="chat-explainer-compare-wrapper" style="display: none; flex-direction: column; gap: 4px;">
+              <label for="chat-explainer-compare-input" class="control-label" style="font-weight: 600; font-size: 12px; display: block;">Compare with:</label>
+              <input type="text" id="chat-explainer-compare-input" placeholder="e.g. Continental Drift..." style="width: 100%; padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); background-color: var(--bg-primary); color: var(--text-primary); font-size: 13px;">
+            </div>
+
+            <div class="config-group">
+              <label class="control-label" style="font-weight: 600; font-size: 12px; margin-bottom: 6px; display: block;">Difficulty Level:</label>
+              <div style="display: flex; gap: 6px; flex-direction: column;">
+                <button class="btn-secondary active" id="chat-diff-simple" data-level="Simple" style="border-left: 4px solid var(--success); justify-content: flex-start; text-align: left; padding: 8px 12px; font-size: 12px; width: 100%;">🟢 Simple</button>
+                <button class="btn-secondary" id="chat-diff-standard" data-level="Standard" style="border-left: 4px solid var(--warning); justify-content: flex-start; text-align: left; padding: 8px 12px; font-size: 12px; width: 100%;">🟡 Standard</button>
+                <button class="btn-secondary" id="chat-diff-advanced" data-level="Advanced" style="border-left: 4px solid var(--danger); justify-content: flex-start; text-align: left; padding: 8px 12px; font-size: 12px; width: 100%;">🔴 Advanced</button>
+              </div>
+            </div>
+
+            <div class="config-group">
+              <label for="chat-explainer-format" class="control-label" style="font-weight: 600; font-size: 12px; margin-bottom: 4px; display: block;">Output Format:</label>
+              <select id="chat-explainer-format" style="width: 100%; padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); background-color: var(--bg-primary); color: var(--text-primary); font-size: 13px;">
+                <option value="explain">📝 Explanation (default)</option>
+                <option value="steps">📋 Step-by-step breakdown</option>
+                <option value="compare">⚖️ Compare with another topic</option>
+                <option value="misconceptions">❓ Common misconceptions</option>
+                <option value="examples">🌍 Real-world examples</option>
+              </select>
+            </div>
+
+            <button class="btn-primary" id="chat-explainer-generate-btn" style="width: 100%; padding: 10px; font-size: 13px; font-weight: 600; margin-top: 10px;">
+              Explain Concept
+            </button>
+          </div>
+        </aside>
       </div>
     </section>
 
@@ -941,83 +1003,7 @@
       </div>
     </section>
 
-    <!-- VIEW 8: TOPIC EXPLAINER -->
-    <section class="view-container" id="explainer-view">
-      <div class="view-header">
-        <div class="view-header-left">
-          <h2 class="view-title">Topic Explainer</h2>
-          <p class="view-description">Type in any complex academic topic, choose your target difficulty level, and get tailored private definitions.</p>
-        </div>
-      </div>
-      
-      <div class="reviewer-container" style="max-width:100%; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px;">
-        <!-- Left: Input & Outputs -->
-        <div style="display:flex; flex-direction:column; gap:20px;">
-          <div class="card" style="padding:24px;">
-            <div class="config-group">
-              <label for="explainer-input" class="notes-label">What topic do you want explained?</label>
-              <input type="text" id="explainer-input" placeholder="e.g. Plate Tectonics, Quantum Computing, Inflation in Economics...">
-            </div>
 
-            <!-- Second Compare Input (hidden by default) -->
-            <div class="config-group" id="explainer-compare-wrapper" style="display:none; animation:fadeIn var(--transition-fast) forwards;">
-              <label for="explainer-compare-input" class="notes-label">Compare with:</label>
-              <input type="text" id="explainer-compare-input" placeholder="e.g. Continental Drift, Classic Computing...">
-            </div>
-
-            <div class="config-group" style="margin-top:8px;">
-              <span class="control-label">Difficulty Level:</span>
-              <div style="display: flex; gap: 8px;">
-                <button class="btn-secondary active" id="diff-simple" data-level="Simple" style="border-left: 4px solid var(--success);">🟢 Simple</button>
-                <button class="btn-secondary" id="diff-standard" data-level="Standard" style="border-left: 4px solid var(--warning);">🟡 Standard</button>
-                <button class="btn-secondary" id="diff-advanced" data-level="Advanced" style="border-left: 4px solid var(--danger);">🔴 Advanced</button>
-              </div>
-            </div>
-
-            <div class="config-group" style="margin-top:8px;">
-              <label for="explainer-format" class="control-label">Output Format:</label>
-              <select id="explainer-format">
-                <option value="explain">📝 Explanation (default)</option>
-                <option value="steps">📋 Step-by-step breakdown</option>
-                <option value="compare">⚖️ Compare with another topic</option>
-                <option value="misconceptions">❓ Common misconceptions</option>
-                <option value="examples">🌍 Real-world examples</option>
-              </select>
-            </div>
-
-            <button class="btn-primary" id="explainer-generate-btn" style="width: 100%; margin-top: 8px;">Explain Concept</button>
-          </div>
-
-          <!-- Explanation Results reading card -->
-          <div class="card" id="explainer-results-card" style="display: none;">
-            <div class="results-header-row">
-              <span class="results-title" id="explainer-results-title">Concept Explanation</span>
-              <div class="export-actions">
-                <button class="btn-secondary export-btn" id="explainer-copy-btn">Copy</button>
-                <button class="btn-secondary export-btn" id="explainer-save-note-btn">Save to Notes</button>
-              </div>
-            </div>
-            
-            <div class="results-section" id="explainer-results-content" style="color: var(--text-primary); line-height: 1.65; font-size: 13.5px; white-space: pre-wrap;">
-              <!-- Output dynamically streams here -->
-            </div>
-
-            <div style="display:flex; gap:10px; margin-top:12px; border-top:1px solid var(--border); padding-top:16px;">
-              <button class="btn-secondary" id="explainer-go-deeper-btn" style="flex:1;">Go Deeper</button>
-              <button class="btn-secondary" id="explainer-simplify-btn" style="flex:1;">Simplify More</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right: Follow-up Questions sidebar -->
-        <div class="card" id="explainer-related-questions-sidebar" style="display:none; height:fit-content; padding:24px;">
-          <span class="stats-title" style="margin-bottom:10px; display:block;">Related Questions to Explore</span>
-          <ul id="explainer-related-questions-list" style="display:flex; flex-direction:column; gap:10px; list-style:none; padding:0;">
-            <!-- related questions -->
-          </ul>
-        </div>
-      </div>
-    </section>
 
     <!-- VIEW 9: SETTINGS -->
     <section class="view-container" id="settings-view">
@@ -1248,7 +1234,7 @@
               <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + 5</td><td style="padding:6px 12px;">Go to My Notes Notebook</td></tr>
               <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + 6</td><td style="padding:6px 12px;">Go to Focus Study Timer</td></tr>
               <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + N</td><td style="padding:6px 12px;">Create New Item (Context-aware note/chat/set)</td></tr>
-              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + S</td><td style="padding:6px 12px;">Save Current Session/Note</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + S</td><td style="padding:6px 12px;">Rename Session / Save Note</td></tr>
               <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + ,</td><td style="padding:6px 12px;">Open Settings Dialog</td></tr>
               <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Ctrl + K</td><td style="padding:6px 12px;">Focus Search bar modal</td></tr>
               <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 12px 6px 0; font-family:var(--font-mono); font-weight:700;">Escape</td><td style="padding:6px 12px;">Close modal popup / active drawer sheets</td></tr>
@@ -1280,7 +1266,7 @@
   <script src="renderer/notes.js"></script>
   <script src="renderer/timer.js"></script>
   <script src="renderer/progress.js"></script>
-  <script src="renderer/explainer.js"></script>
+
   <script src="renderer/settings.js"></script>
   <script src="renderer/search.js"></script>
   <script src="renderer/shortcuts.js"></script>
