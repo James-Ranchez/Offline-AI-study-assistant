@@ -398,7 +398,51 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   });
 
+  async function importPdfNote() {
+    if (!window.api || !window.api.readPdfFile) {
+      window.showToast('PDF parsing API is not available.', 'error');
+      return;
+    }
+
+    try {
+      const result = await window.api.readPdfFile();
+      if (!result.success) {
+        if (result.message !== 'No file selected') {
+          window.showToast(`PDF Import failed: ${result.message}`, 'error');
+        }
+        return;
+      }
+
+      // Auto-save the current note before importing
+      saveCurrentNoteImmediately();
+
+      const newNote = {
+        id: 'note-' + Date.now(),
+        title: result.fileName || 'Imported PDF Note',
+        content: result.text || '',
+        subject: 'Science', // default subject
+        tags: ['pdf-import'],
+        wordCount: result.text ? result.text.split(/\s+/).filter(Boolean).length : 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      window.StudyStorage.saveNote(newNote);
+      loadNote(newNote);
+      loadNotesList();
+      window.showToast('✓ PDF study notes imported!', 'success');
+    } catch (err) {
+      console.error('Error importing PDF:', err);
+      window.showToast('Error importing PDF file.', 'error');
+    }
+  }
+
   notesNewBtn.addEventListener('click', createBlankNote);
+
+  const notesUploadPdfBtn = document.getElementById('notes-upload-pdf-btn');
+  if (notesUploadPdfBtn) {
+    notesUploadPdfBtn.addEventListener('click', importPdfNote);
+  }
 
   // Formatting helpers
   function escapeHTML(text) {
