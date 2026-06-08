@@ -36,7 +36,7 @@ document.addEventListener('keydown', (e) => {
       if (!activeView) return;
 
       if (activeView.id === 'chat-view') {
-        const newChatBtn = document.getElementById('new-chat-btn');
+        const newChatBtn = document.getElementById('chat-new-btn');
         if (newChatBtn) newChatBtn.click();
       } else if (activeView.id === 'notes-view') {
         const newNoteBtn = document.getElementById('new-note-btn');
@@ -56,7 +56,7 @@ document.addEventListener('keydown', (e) => {
 
       if (activeView.id === 'chat-view') {
         // Save chat session
-        const saveChatBtn = document.getElementById('save-chat-btn');
+        const saveChatBtn = document.getElementById('chat-save-btn');
         if (saveChatBtn) saveChatBtn.click();
       } else if (activeView.id === 'notes-view') {
         // Manual save note trigger

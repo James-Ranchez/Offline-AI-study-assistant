@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Render session messages
     session.messages.forEach(msg => {
-      appendMessageBubble(msg.role, msg.content, msg.timestamp);
+      appendMessageBubble(msg.role, msg.content, msg.timestamp, msg);
     });
 
     scrollToBottom();
@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chatHistory.scrollTop = chatHistory.scrollHeight;
   }
 
-  function appendMessageBubble(role, text, timestamp = null) {
+  function appendMessageBubble(role, text, timestamp = null, msgObj = null) {
     const row = document.createElement('div');
     row.className = `chat-message-row ${role}-row`;
 
@@ -201,6 +201,17 @@ document.addEventListener('DOMContentLoaded', () => {
     row.appendChild(bubble);
     
     chatHistory.appendChild(row);
+
+    // Render chips if assistant message
+    if (role === 'assistant') {
+      // Create a minimal messageObj if not present to allow Copy / Save to Notes
+      const finalMsgObj = msgObj || { role: 'assistant', content: text, timestamp: timestamp || new Date().toISOString() };
+      renderMessageActionChips(bubble, finalMsgObj, currentSession);
+      if (finalMsgObj.relatedQuestions && finalMsgObj.relatedQuestions.length > 0) {
+        renderBubbleRelatedQuestionChips(bubble, finalMsgObj.relatedQuestions, finalMsgObj.explanationTopic || (currentSession ? currentSession.name : 'Concept'));
+      }
+    }
+
     return bubble;
   }
 
@@ -340,7 +351,8 @@ document.addEventListener('DOMContentLoaded', () => {
         isGenerating = false;
 
         const aiTime = new Date().toISOString();
-        currentSession.messages.push({ role: 'assistant', content: responseText, timestamp: aiTime });
+        const assistantMessage = { role: 'assistant', content: responseText, timestamp: aiTime };
+        currentSession.messages.push(assistantMessage);
         
         // Save
         window.StudyStorage.saveChatSession(currentSession);
@@ -352,6 +364,9 @@ document.addEventListener('DOMContentLoaded', () => {
           duration: 120, // Estimate 2 minutes spent per chat turn
           score: null
         });
+
+        // Add action chips under the bubble
+        renderMessageActionChips(bubble, assistantMessage, currentSession);
 
         refreshSessionsList();
       },
@@ -497,6 +512,498 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     return escaped;
+  }
+
+  // --- Concept Explainer Drawer Event Listeners & Integrations ---
+  const explainerDrawer = document.getElementById('chat-explainer-drawer');
+  const explainerToggleBtn = document.getElementById('chat-explainer-drawer-toggle');
+  const explainerCloseBtn = document.getElementById('chat-explainer-drawer-close');
+  const explainerGenerateBtn = document.getElementById('chat-explainer-generate-btn');
+  const explainerInput = document.getElementById('chat-explainer-input');
+  const explainerCompareWrapper = document.getElementById('chat-explainer-compare-wrapper');
+  const explainerCompareInput = document.getElementById('chat-explainer-compare-input');
+  const explainerFormatSelect = document.getElementById('chat-explainer-format');
+
+  // Difficulty Level Buttons inside Explainer Drawer
+  const chatBtnSimple = document.getElementById('chat-diff-simple');
+  const chatBtnStandard = document.getElementById('chat-diff-standard');
+  const chatBtnAdvanced = document.getElementById('chat-diff-advanced');
+
+  let selectedExplainerLevel = 'Simple';
+  const chatDiffButtons = [chatBtnSimple, chatBtnStandard, chatBtnAdvanced];
+
+  chatDiffButtons.forEach(btn => {
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      chatDiffButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedExplainerLevel = btn.getAttribute('data-level');
+    });
+  });
+
+  if (explainerToggleBtn && explainerDrawer) {
+    explainerToggleBtn.addEventListener('click', () => {
+      explainerDrawer.classList.toggle('active');
+      if (explainerDrawer.classList.contains('active') && explainerInput) {
+        explainerInput.focus();
+      }
+    });
+  }
+
+  if (explainerCloseBtn && explainerDrawer) {
+    explainerCloseBtn.addEventListener('click', () => {
+      explainerDrawer.classList.remove('active');
+    });
+  }
+
+  if (explainerFormatSelect && explainerCompareWrapper) {
+    explainerFormatSelect.addEventListener('change', () => {
+      if (explainerFormatSelect.value === 'compare') {
+        explainerCompareWrapper.style.display = 'flex';
+      } else {
+        explainerCompareWrapper.style.display = 'none';
+      }
+    });
+  }
+
+  if (explainerGenerateBtn) {
+    explainerGenerateBtn.addEventListener('click', () => {
+      const topic = (explainerInput ? explainerInput.value : '').trim();
+      if (!topic) {
+        window.showToast('Please type a topic first', 'warning');
+        return;
+      }
+
+      const compareTopic = (explainerCompareInput ? explainerCompareInput.value : '').trim();
+      const format = explainerFormatSelect ? explainerFormatSelect.value : 'explain';
+
+      if (explainerDrawer) {
+        explainerDrawer.classList.remove('active');
+      }
+
+      // Reset inputs
+      if (explainerInput) explainerInput.value = '';
+      if (explainerCompareInput) explainerCompareInput.value = '';
+      if (explainerFormatSelect) {
+        explainerFormatSelect.value = 'explain';
+        explainerCompareWrapper.style.display = 'none';
+      }
+
+      submitTopicExplainerExplanation(topic, compareTopic, selectedExplainerLevel, format);
+    });
+  }
+
+  // Submit structured topic explanation
+  async function submitTopicExplainerExplanation(topic, compareTopic, level, format) {
+    if (isGenerating) return;
+
+    isGenerating = true;
+    chatInput.value = '';
+    chatInput.style.height = '38px';
+    charCounter.style.display = 'none';
+    welcomeState.style.display = 'none';
+
+    const timestamp = new Date().toISOString();
+    
+    // Create custom user message display text
+    let userMsgText = `Explain the concept of **${topic}**`;
+    if (format === 'compare') {
+      userMsgText = `Compare and contrast **${topic}** with **${compareTopic}**`;
+    } else if (format === 'steps') {
+      userMsgText = `Provide a step-by-step breakdown of **${topic}**`;
+    } else if (format === 'misconceptions') {
+      userMsgText = `Explain common misconceptions about **${topic}**`;
+    } else if (format === 'examples') {
+      userMsgText = `Provide real-world examples for **${topic}**`;
+    }
+    userMsgText += ` (Difficulty: ${level})`;
+
+    appendMessageBubble('user', userMsgText, timestamp);
+    scrollToBottom();
+
+    // Determine subject tag if fresh chat
+    let subject = window.detectSubject(topic) || 'Science';
+
+    if (!currentSession) {
+      currentSession = {
+        id: 'chat-' + Date.now(),
+        name: topic.length > 25 ? topic.substring(0, 25) + '...' : topic,
+        subject: subject,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+        messages: []
+      };
+    }
+
+    currentSession.messages.push({ role: 'user', content: userMsgText, timestamp });
+
+    // Show thinking bubble
+    thinkingBubble.classList.add('active');
+    scrollToBottom();
+
+    // Core instructions based on difficulty
+    let diffInstruction = '';
+    if (level === 'Simple') {
+      diffInstruction = 'Explain this concept at a basic level appropriate for a 10-year-old child. Use very simple language, relatable everyday analogies, and clear examples.';
+    } else if (level === 'Standard') {
+      diffInstruction = 'Explain this concept at a high school student level. Use clear accessible language, structured details, and practical real-world applications.';
+    } else {
+      diffInstruction = 'Provide an advanced, technically detailed, and academic explanation appropriate for college level. Use precise terminology and explore underlying mechanisms.';
+    }
+
+    // Formatting prompt construction
+    let prompt = '';
+    if (format === 'explain') {
+      prompt = `Explain the concept of "${topic}". ${diffInstruction} Do not write any extra introduction or conclusion.`;
+    } else if (format === 'steps') {
+      prompt = `Provide a step-by-step breakdown explaining "${topic}". ${diffInstruction} Break it down into logical sequential steps. Do not write any extra introduction or conclusion.`;
+    } else if (format === 'compare') {
+      prompt = `Compare and contrast the concept of "${topic}" with "${compareTopic}". ${diffInstruction} Highlight key similarities and differences clearly. Do not write any extra introduction or conclusion.`;
+    } else if (format === 'misconceptions') {
+      prompt = `Explain common misconceptions and errors students make about the topic "${topic}", and explain the correct physics or facts. ${diffInstruction} Do not write any extra introduction or conclusion.`;
+    } else if (format === 'examples') {
+      prompt = `Explain "${topic}" by providing concrete, practical, real-world examples. ${diffInstruction} Focus on clear cases that make it easy to understand. Do not write any extra introduction or conclusion.`;
+    }
+
+    // Gather context (last 10 turns) - in this case it might just be the new prompt
+    const recentMessages = currentSession.messages.slice(0, -1).map(msg => ({
+      role: msg.role,
+      content: msg.content
+    }));
+
+    const messages = [
+      {
+        role: 'system',
+        content: 'You are StudyMind, a supportive, knowledgeable, and friendly offline AI study assistant. Speak like an actual human study partner who is mentoring the student. Answer questions clearly, simply, and accurately. Use examples and analogies when helpful. Keep your answers conversational, encouraging, and focused on helping the student learn. Do not repeat prompt tags or prefix your responses with role names.'
+      },
+      ...recentMessages,
+      { role: 'user', content: prompt }
+    ];
+
+    // Create assistant bubble placeholder with streaming cursor
+    const bubble = appendMessageBubble('assistant', '', new Date().toISOString());
+    const paragraph = bubble.querySelector('p');
+    
+    // Add blinking cursor
+    const cursor = document.createElement('span');
+    cursor.className = 'streaming-cursor';
+    bubble.appendChild(cursor);
+
+    let responseText = '';
+
+    // Invoke stream chat
+    Ollama.chat(
+      messages,
+      // Chunk listener
+      (chunk) => {
+        thinkingBubble.classList.remove('active');
+        responseText += chunk;
+        paragraph.innerHTML = formatAIResponseText(responseText);
+        scrollToBottom();
+      },
+      // Completion listener
+      () => {
+        thinkingBubble.classList.remove('active');
+        cursor.remove();
+        isGenerating = false;
+
+        const aiTime = new Date().toISOString();
+        const assistantMessage = {
+          role: 'assistant',
+          content: responseText,
+          timestamp: aiTime,
+          isExplanation: true,
+          explanationTopic: topic,
+          explanationLevel: level
+        };
+        currentSession.messages.push(assistantMessage);
+        
+        // Save
+        window.StudyStorage.saveChatSession(currentSession);
+        
+        // Log in progress tracker
+        window.StudyStorage.logStudySession({
+          date: new Date().toISOString().split('T')[0],
+          type: 'chat',
+          duration: 180, // Estimate 3 minutes spent reading/generating topic explanations
+          score: null
+        });
+
+        // Add action chips under the bubble
+        renderMessageActionChips(bubble, assistantMessage, currentSession);
+
+        // Generate related questions in background
+        generateBubbleRelatedQuestions(topic, responseText, bubble, assistantMessage, currentSession);
+
+        refreshSessionsList();
+      },
+      // Error listener
+      (err) => {
+        thinkingBubble.classList.remove('active');
+        cursor.remove();
+        isGenerating = false;
+
+        const errMsg = Ollama.isMockMode 
+          ? 'Error compiling mock response.'
+          : "Could not reach the AI. Ensure Ollama service is running. Consult settings diagnostics.";
+
+        paragraph.innerHTML = `<span style="color: var(--danger); font-weight:700;">Connection Error: ${errMsg}</span>`;
+        window.showToast('AI response stream encountered an error.', 'error');
+      }
+    );
+  }
+
+  // Submit follow-up explanation (Go Deeper or Simplify)
+  async function submitFollowUpExplanation(topic, previousContent, type) {
+    if (isGenerating) return;
+
+    let userPromptText = '';
+    let prompt = '';
+    let level = 'Standard';
+
+    if (type === 'deeper') {
+      userPromptText = `Go deeper on this concept.`;
+      prompt = `Based on this explanation, explain the topic "${topic}" in more detail, providing advanced details, mechanics, and technical insights:\n${previousContent.substring(0, 800)}`;
+      level = 'Advanced';
+    } else {
+      userPromptText = `Simplify this explanation more.`;
+      prompt = `Based on this explanation, explain the topic "${topic}" even more simply, using extremely simple analogies and basic vocabulary appropriate for a young child:\n${previousContent.substring(0, 800)}`;
+      level = 'Simple';
+    }
+
+    isGenerating = true;
+    welcomeState.style.display = 'none';
+
+    const timestamp = new Date().toISOString();
+    appendMessageBubble('user', userPromptText, timestamp);
+    scrollToBottom();
+
+    if (!currentSession) {
+      currentSession = {
+        id: 'chat-' + Date.now(),
+        name: topic.length > 25 ? topic.substring(0, 25) + '...' : topic,
+        subject: window.detectSubject(topic) || 'Science',
+        createdAt: timestamp,
+        updatedAt: timestamp,
+        messages: []
+      };
+    }
+
+    currentSession.messages.push({ role: 'user', content: userPromptText, timestamp });
+
+    // Show thinking bubble
+    thinkingBubble.classList.add('active');
+    scrollToBottom();
+
+    const recentMessages = currentSession.messages.slice(0, -1).map(msg => ({
+      role: msg.role,
+      content: msg.content
+    }));
+
+    const messages = [
+      {
+        role: 'system',
+        content: 'You are StudyMind, a supportive, knowledgeable, and friendly offline AI study assistant. Speak like an actual human study partner who is mentoring the student. Answer questions clearly, simply, and accurately. Use examples and analogies when helpful. Keep your answers conversational, encouraging, and focused on helping the student learn. Do not repeat prompt tags or prefix your responses with role names.'
+      },
+      ...recentMessages,
+      { role: 'user', content: prompt }
+    ];
+
+    const bubble = appendMessageBubble('assistant', '', new Date().toISOString());
+    const paragraph = bubble.querySelector('p');
+    
+    const cursor = document.createElement('span');
+    cursor.className = 'streaming-cursor';
+    bubble.appendChild(cursor);
+
+    let responseText = '';
+
+    Ollama.chat(
+      messages,
+      (chunk) => {
+        thinkingBubble.classList.remove('active');
+        responseText += chunk;
+        paragraph.innerHTML = formatAIResponseText(responseText);
+        scrollToBottom();
+      },
+      () => {
+        thinkingBubble.classList.remove('active');
+        cursor.remove();
+        isGenerating = false;
+
+        const aiTime = new Date().toISOString();
+        const assistantMessage = {
+          role: 'assistant',
+          content: responseText,
+          timestamp: aiTime,
+          isExplanation: true,
+          explanationTopic: topic,
+          explanationLevel: level
+        };
+        currentSession.messages.push(assistantMessage);
+        
+        window.StudyStorage.saveChatSession(currentSession);
+        
+        window.StudyStorage.logStudySession({
+          date: new Date().toISOString().split('T')[0],
+          type: 'chat',
+          duration: 120,
+          score: null
+        });
+
+        renderMessageActionChips(bubble, assistantMessage, currentSession);
+        generateBubbleRelatedQuestions(topic, responseText, bubble, assistantMessage, currentSession);
+        refreshSessionsList();
+      },
+      (err) => {
+        thinkingBubble.classList.remove('active');
+        cursor.remove();
+        isGenerating = false;
+        paragraph.innerHTML = `<span style="color: var(--danger); font-weight:700;">Connection Error: Could not reach the AI.</span>`;
+      }
+    );
+  }
+
+  // Render quick actions on assistant bubble
+  function renderMessageActionChips(bubbleElement, messageObj, sessionObj) {
+    const existing = bubbleElement.querySelector('.message-action-chips');
+    if (existing) existing.remove();
+
+    const chipsContainer = document.createElement('div');
+    chipsContainer.className = 'message-action-chips';
+
+    // 1. Copy Button
+    const copyChip = document.createElement('button');
+    copyChip.className = 'chat-action-chip';
+    copyChip.innerHTML = '📋 Copy';
+    copyChip.addEventListener('click', () => {
+      navigator.clipboard.writeText(messageObj.content).then(() => {
+        window.showToast('Copied to clipboard!');
+      });
+    });
+    chipsContainer.appendChild(copyChip);
+
+    // 2. Save Note Button
+    const saveNoteChip = document.createElement('button');
+    saveNoteChip.className = 'chat-action-chip';
+    saveNoteChip.innerHTML = '📝 Save to Notes';
+    saveNoteChip.addEventListener('click', () => {
+      const activeTopic = messageObj.explanationTopic || (sessionObj ? sessionObj.name : 'Study Chat Explanation');
+      const selectedLevel = messageObj.explanationLevel || 'Standard';
+      const newNote = {
+        id: 'note-' + Date.now(),
+        title: `Explanation: ${activeTopic}`,
+        content: messageObj.content,
+        subject: selectedLevel === 'Advanced' ? 'Science' : 'Other',
+        tags: ['topic-explainer'],
+        wordCount: messageObj.content.split(/\s+/).filter(Boolean).length,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      window.StudyStorage.saveNote(newNote);
+      window.showToast('✓ Saved directly to My Notes!');
+    });
+    chipsContainer.appendChild(saveNoteChip);
+
+    // 3. Go Deeper / Simplify (if isExplanation is true)
+    if (messageObj.isExplanation) {
+      const goDeeperChip = document.createElement('button');
+      goDeeperChip.className = 'chat-action-chip';
+      goDeeperChip.innerHTML = '🔍 Go Deeper';
+      goDeeperChip.addEventListener('click', () => {
+        submitFollowUpExplanation(messageObj.explanationTopic, messageObj.content, 'deeper');
+      });
+      chipsContainer.appendChild(goDeeperChip);
+
+      const simplifyChip = document.createElement('button');
+      simplifyChip.className = 'chat-action-chip';
+      simplifyChip.innerHTML = '👶 Simplify';
+      simplifyChip.addEventListener('click', () => {
+        submitFollowUpExplanation(messageObj.explanationTopic, messageObj.content, 'simplify');
+      });
+      chipsContainer.appendChild(simplifyChip);
+    }
+
+    bubbleElement.appendChild(chipsContainer);
+  }
+
+  // Generate 3 related questions using Ollama
+  function generateBubbleRelatedQuestions(topic, explanation, bubbleElement, messageObj, sessionObj) {
+    if (messageObj.relatedQuestions && messageObj.relatedQuestions.length > 0) {
+      renderBubbleRelatedQuestionChips(bubbleElement, messageObj.relatedQuestions, topic);
+      return;
+    }
+
+    const prompt = `Based on this explanation of "${topic}", generate exactly 3 simple follow-up questions a student might ask to understand it deeper. Return only the questions, each on a new line starting with 'Q:'. Do not write introduction text.
+Explanation:
+${explanation.substring(0, 300)}`;
+
+    let responseText = '';
+
+    Ollama.generate(
+      prompt,
+      (chunk) => {
+        responseText += chunk;
+      },
+      () => {
+        const lines = responseText.split('\n');
+        const questions = [];
+        let questionsCount = 0;
+
+        lines.forEach(line => {
+          const trimmed = line.trim();
+          if (!trimmed) return;
+
+          const match = trimmed.match(/^Q\s*[\:\-]\s*(.*)/i);
+          if (match && questionsCount < 3) {
+            questionsCount++;
+            questions.push(match[1].trim());
+          }
+        });
+
+        if (questions.length > 0) {
+          messageObj.relatedQuestions = questions;
+          window.StudyStorage.saveChatSession(sessionObj);
+          renderBubbleRelatedQuestionChips(bubbleElement, questions, topic);
+        }
+      },
+      () => {
+        // Silent error
+      }
+    );
+  }
+
+  function renderBubbleRelatedQuestionChips(bubbleElement, questions, topic) {
+    const existing = bubbleElement.querySelector('.message-related-questions');
+    if (existing) existing.remove();
+
+    const relatedContainer = document.createElement('div');
+    relatedContainer.className = 'message-related-questions';
+
+    const title = document.createElement('div');
+    title.className = 'message-related-title';
+    title.textContent = 'Explore Related Questions:';
+    relatedContainer.appendChild(title);
+
+    const listContainer = document.createElement('div');
+    listContainer.className = 'message-related-list';
+    listContainer.style.display = 'flex';
+    listContainer.style.flexDirection = 'column';
+    listContainer.style.gap = '6px';
+    listContainer.style.marginTop = '6px';
+
+    questions.forEach(q => {
+      const qBtn = document.createElement('button');
+      qBtn.className = 'message-question-chip';
+      qBtn.textContent = q;
+      qBtn.addEventListener('click', () => {
+        submitUserMessage(q, window.detectSubject(topic));
+      });
+      listContainer.appendChild(qBtn);
+    });
+
+    relatedContainer.appendChild(listContainer);
+    bubbleElement.appendChild(relatedContainer);
   }
 
   // Initial Startup

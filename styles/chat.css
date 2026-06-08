@@ -619,3 +619,153 @@
   stroke-width: 2.5;
   fill: none;
 }
+
+/* ==========================================================================
+   Concept Explainer Drawer Styles
+   ========================================================================== */
+
+.chat-explainer-drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 280px;
+  height: 100%;
+  background-color: var(--bg-secondary);
+  border-left: 1px solid var(--border);
+  z-index: 20;
+  transform: translateX(100%);
+  transition: transform var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-explainer-drawer.active {
+  transform: translateX(0);
+}
+
+.explainer-drawer-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  height: calc(100% - 53px);
+}
+
+/* Style for active difficulty states inside the chat explainer */
+#chat-diff-simple:not(.active),
+#chat-diff-standard:not(.active),
+#chat-diff-advanced:not(.active) {
+  opacity: 0.6;
+}
+
+#chat-diff-simple:not(.active):hover,
+#chat-diff-standard:not(.active):hover,
+#chat-diff-advanced:not(.active):hover {
+  opacity: 0.95;
+  border-color: var(--border-color-hover);
+}
+
+#chat-diff-simple.active {
+  background-color: rgba(74, 222, 128, 0.08);
+  border-color: var(--success);
+  color: var(--success);
+  opacity: 1;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(74, 222, 128, 0.15);
+}
+
+#chat-diff-standard.active {
+  background-color: rgba(250, 204, 21, 0.08);
+  border-color: var(--warning);
+  color: var(--warning);
+  opacity: 1;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(250, 204, 21, 0.15);
+}
+
+#chat-diff-advanced.active {
+  background-color: rgba(248, 113, 113, 0.08);
+  border-color: var(--danger);
+  color: var(--danger);
+  opacity: 1;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(248, 113, 113, 0.15);
+}
+
+/* Inline Action Chips & Follow-Up Questions in Chat bubbles */
+.message-action-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+
+.chat-action-chip {
+  padding: 6px 10px;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all var(--transition-fast);
+}
+
+.chat-action-chip:hover {
+  background-color: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.message-related-questions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+
+.message-related-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.message-question-chip {
+  padding: 8px 12px;
+  background-color: var(--bg-secondary);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.message-question-chip::before {
+  content: "💡";
+}
+
+.message-question-chip:hover {
+  border-color: var(--accent);
+  background-color: var(--accent-soft);
+  color: var(--accent);
+  transform: translateX(4px);
+}
+

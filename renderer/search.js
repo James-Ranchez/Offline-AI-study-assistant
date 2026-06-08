@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Perform searches
     const matchedChats = chatSessions.filter(c => 
-      (c.title && c.title.toLowerCase().includes(lowerQuery)) ||
+      (c.name && c.name.toLowerCase().includes(lowerQuery)) ||
       (c.subject && c.subject.toLowerCase().includes(lowerQuery)) ||
       c.messages.some(m => m.content.toLowerCase().includes(lowerQuery))
     );
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
         item.innerHTML = `
           <svg class="search-result-icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <div class="search-result-info">
-            <div class="search-result-title">${escapeHTML(chat.title || 'Study Chat')}</div>
+            <div class="search-result-title">${escapeHTML(chat.name || 'Study Chat')}</div>
             <div class="search-result-snippet">${escapeHTML(snippet.substring(0, 70))}...</div>
           </div>
         `;

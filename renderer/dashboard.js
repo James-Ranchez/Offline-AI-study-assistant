@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     "Review your notes within 24 hours of writing them to reinforce memory.",
     "Reward yourself after completing a study goal to build positive habits.",
     "Stay hydrated. Dehydration can reduce concentration and cognitive function.",
-    "Use the Topic Explainer to simplify advanced textbooks into simple analogies.",
+    "Use the Concept Explainer tool in Study Chat to simplify advanced textbooks into simple analogies.",
     "Track your progress weekly to stay motivated and see your improvements.",
     "Identify your weakest areas and prioritize studying them first."
   ];
@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chatSessions.forEach(c => {
       allSessions.push({
         id: c.id,
-        title: c.title || 'Study Chat',
+        title: c.name || 'Study Chat',
         type: 'chat',
         date: new Date(c.updatedAt || c.createdAt),
         meta: `${c.messages.length} messages | ${c.subject || 'General'}`
