@@ -110,6 +110,55 @@
   scroll-behavior: smooth;
 }
 
+/* Chat Welcome Screen */
+.chat-welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 20px;
+  height: 100%;
+  margin: auto 0;
+  padding: 40px 20px;
+  animation: fadeIn var(--transition-normal) forwards;
+}
+
+.chat-welcome-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-lg);
+  background: var(--gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-glow);
+  margin-bottom: 8px;
+}
+
+.chat-welcome-icon svg {
+  width: 32px;
+  height: 32px;
+  stroke: #ffffff;
+  stroke-width: 1.8;
+  fill: none;
+}
+
+.chat-welcome h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.chat-welcome p {
+  font-size: var(--font-size-body);
+  color: var(--text-secondary);
+  max-width: 380px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
 /* Prompt Suggestions Chips (Scrolling horizontally) */
 .chat-suggestions-container {
   display: flex;
