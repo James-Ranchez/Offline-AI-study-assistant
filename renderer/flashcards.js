@@ -78,6 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let isAiGenerating = false;
   let shuffleMode = false;
   let selectedDeckId = null; // Currently selected deck in sidebar
+  let isSessionEnded = false;
   
   // --- View controllers ---
   function showMainView() {
@@ -610,9 +611,33 @@ ${notes}`;
   // Study session keyboard navigation shortcuts
   document.addEventListener('keydown', (e) => {
     if (studyOverlay && (studyOverlay.style.display === 'flex' || studyOverlay.style.display === 'block')) {
+      if (isSessionEnded) {
+        if (e.code === 'Escape') {
+          e.preventDefault();
+          studyOverlay.style.display = 'none';
+          loadFlashcardSets();
+        }
+        return;
+      }
+
       if (e.code === 'Space') {
         e.preventDefault();
         cardViewport.click();
+      } else if (e.key === '1') {
+        if (ratingRow.classList.contains('active')) {
+          e.preventDefault();
+          rateMissed.click();
+        }
+      } else if (e.key === '2') {
+        if (ratingRow.classList.contains('active')) {
+          e.preventDefault();
+          rateAlmost.click();
+        }
+      } else if (e.key === '3') {
+        if (ratingRow.classList.contains('active')) {
+          e.preventDefault();
+          rateGotIt.click();
+        }
       } else if (e.code === 'ArrowLeft') {
         e.preventDefault();
         if (!prevCardBtn.disabled) prevCardBtn.click();
@@ -631,6 +656,8 @@ ${notes}`;
 
   function startStudySession(set, missedOnly = false) {
     studySetReference = set;
+    isSessionEnded = false;
+    if (cardViewport) cardViewport.classList.remove('completed-state');
     
     // Pick cards to study
     let cardsToStudy = [...set.cards];
@@ -686,6 +713,7 @@ ${notes}`;
 
   // Click card viewport flips it
   cardViewport.addEventListener('click', () => {
+    if (isSessionEnded) return;
     cardViewport.classList.toggle('flipped');
     
     // Reveal rating buttons if flipped to back
@@ -759,6 +787,9 @@ ${notes}`;
   }
 
   function renderStudyEndScreen() {
+    isSessionEnded = true;
+    if (cardViewport) cardViewport.classList.add('completed-state');
+
     // Compile stats
     let gotItCount = 0;
     let missedCount = 0;
@@ -787,25 +818,25 @@ ${notes}`;
 
     cardViewport.classList.remove('flipped');
     cardFrontText.innerHTML = `
-      <div style="display:flex; flex-direction:column; gap:16px; align-items:center;">
-        <span style="font-size:36px;">🎉</span>
-        <span style="font-size:18px; font-weight:800;">Deck Completed!</span>
-        <span style="font-size:14px; font-weight:500; color:var(--text-secondary);">Mastery: ${pct}%</span>
-        <div style="display:flex; gap:16px; font-size:11px; margin-top:8px;">
-          <span style="color:var(--success);">Got It: ${gotItCount}</span>
-          <span style="color:var(--warning);">Almost: ${almostCount}</span>
-          <span style="color:var(--danger);">Missed: ${missedCount}</span>
+      <div class="fc-completion-layout">
+        <span class="fc-completion-emoji">🎉</span>
+        <h3 class="fc-completion-title">Deck Completed!</h3>
+        <div class="fc-completion-mastery">
+          <span class="fc-mastery-val">${pct}%</span>
+          <span class="fc-mastery-lbl">Mastery Rate</span>
         </div>
-        <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; justify-content:center;">
-          <button class="btn-primary" id="fc-study-restart" style="padding:6px 12px; font-size:12px;">Restart Deck</button>
-          ${missedCount > 0 ? `<button class="btn-secondary" id="fc-study-missed" style="padding:6px 12px; font-size:12px; border-color:var(--danger); color:var(--danger);">Review Missed (${missedCount})</button>` : ''}
-          <button class="btn-secondary" id="fc-study-shuffle-toggle" style="padding:6px 12px; font-size:12px;">
+        <div class="fc-completion-stats">
+          <span class="stat-pill got-it">Got It: <strong>${gotItCount}</strong></span>
+          <span class="stat-pill almost">Almost: <strong>${almostCount}</strong></span>
+          <span class="stat-pill missed">Missed: <strong>${missedCount}</strong></span>
+        </div>
+        <div class="fc-completion-actions">
+          <button class="btn-primary" id="fc-study-restart">Restart Deck</button>
+          ${missedCount > 0 ? `<button class="btn-secondary btn-review-missed" id="fc-study-missed">Review Missed (${missedCount})</button>` : ''}
+          <button class="btn-secondary" id="fc-study-shuffle-toggle">
             Shuffle: ${shuffleMode ? 'ON' : 'OFF'}
           </button>
         </div>
-        <button class="btn-secondary" id="fc-study-back-to-decks" style="margin-top:8px; padding:8px 20px; font-size:12px;">
-          ← Back to Decks
-        </button>
       </div>
     `;
 
@@ -836,15 +867,6 @@ ${notes}`;
       shuffleBtn.textContent = `Shuffle: ${shuffleMode ? 'ON' : 'OFF'}`;
       window.showToast(`Shuffling turned ${shuffleMode ? 'ON' : 'OFF'}`);
     });
-
-    const backToDecksBtn = document.getElementById('fc-study-back-to-decks');
-    if (backToDecksBtn) {
-      backToDecksBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        studyOverlay.style.display = 'none';
-        loadFlashcardSets();
-      });
-    }
   }
 
   // Close overlay
