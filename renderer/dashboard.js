@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const greetingText = document.getElementById('dashboard-greeting');
   const activeModelDot = document.getElementById('dashboard-model-dot');
   const activeModelText = document.getElementById('dashboard-model-text');
-  
   // Stat counters
   const sessionsCountVal = document.getElementById('stat-sessions-value');
   const streakCountVal = document.getElementById('stat-streak-value');
@@ -69,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Ollama status reflection
   function updateOllamaStatus() {
     if (!activeModelDot || !activeModelText) return;
-    
+
     // Check if Ollama connected
     const isOnline = !Ollama.isMockMode;
     if (Ollama.isMockMode) {
@@ -86,10 +85,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Calculate today's stats from progress storage
   function updateStudyStats() {
     if (!sessionsCountVal || !streakCountVal || !studyTimeVal) return;
-    
+
     const progress = window.StudyStorage.getProgress();
     const today = new Date().toISOString().split('T')[0];
-    
+
     // 1. Streak count
     streakCountVal.textContent = `🔥 ${progress.streak.count || 0}`;
 
@@ -104,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
-    
+
     if (hours > 0) {
       studyTimeVal.textContent = `${hours}h ${minutes}m`;
     } else if (minutes > 0) {
@@ -170,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
     recents.forEach(session => {
       const item = document.createElement('div');
       item.className = 'recent-item';
-      
+
       let icon = '';
       if (session.type === 'chat') {
         icon = `<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
