@@ -341,15 +341,9 @@ document.addEventListener('DOMContentLoaded', () => {
       ...recentMessages
     ];
 
-    // Create assistant bubble placeholder with streaming cursor
-    const bubble = appendMessageBubble('assistant', '', new Date().toISOString());
-    const paragraph = bubble.querySelector('p');
-    
-    // Add blinking cursor
-    const cursor = document.createElement('span');
-    cursor.className = 'streaming-cursor';
-    bubble.appendChild(cursor);
-
+    let bubble = null;
+    let paragraph = null;
+    let cursor = null;
     let responseText = '';
 
     // Invoke stream chat
@@ -357,7 +351,15 @@ document.addEventListener('DOMContentLoaded', () => {
       messages,
       // Chunk listener
       (chunk) => {
-        thinkingBubble.classList.remove('active');
+        if (!bubble) {
+          thinkingBubble.classList.remove('active');
+          bubble = appendMessageBubble('assistant', '', new Date().toISOString());
+          paragraph = bubble.querySelector('p');
+          
+          cursor = document.createElement('span');
+          cursor.className = 'streaming-cursor';
+          bubble.appendChild(cursor);
+        }
         responseText += chunk;
         paragraph.innerHTML = formatAIResponseText(responseText);
         scrollToBottom();
@@ -365,7 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Completion listener
       () => {
         thinkingBubble.classList.remove('active');
-        cursor.remove();
+        if (cursor) cursor.remove();
         isGenerating = false;
 
         const aiTime = new Date().toISOString();
@@ -384,15 +386,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Add action chips under the bubble
-        renderMessageActionChips(bubble, assistantMessage, currentSession);
+        if (bubble) {
+          renderMessageActionChips(bubble, assistantMessage, currentSession);
+        }
 
         refreshSessionsList();
       },
       // Error listener
       (err) => {
         thinkingBubble.classList.remove('active');
-        cursor.remove();
+        if (cursor) cursor.remove();
         isGenerating = false;
+
+        if (!bubble) {
+          bubble = appendMessageBubble('assistant', '', new Date().toISOString());
+          paragraph = bubble.querySelector('p');
+        }
 
         const errMsg = Ollama.isMockMode 
           ? 'Error compiling mock response.'
@@ -739,15 +748,9 @@ document.addEventListener('DOMContentLoaded', () => {
       { role: 'user', content: prompt }
     ];
 
-    // Create assistant bubble placeholder with streaming cursor
-    const bubble = appendMessageBubble('assistant', '', new Date().toISOString());
-    const paragraph = bubble.querySelector('p');
-    
-    // Add blinking cursor
-    const cursor = document.createElement('span');
-    cursor.className = 'streaming-cursor';
-    bubble.appendChild(cursor);
-
+    let bubble = null;
+    let paragraph = null;
+    let cursor = null;
     let responseText = '';
 
     // Invoke stream chat
@@ -755,7 +758,15 @@ document.addEventListener('DOMContentLoaded', () => {
       messages,
       // Chunk listener
       (chunk) => {
-        thinkingBubble.classList.remove('active');
+        if (!bubble) {
+          thinkingBubble.classList.remove('active');
+          bubble = appendMessageBubble('assistant', '', new Date().toISOString());
+          paragraph = bubble.querySelector('p');
+          
+          cursor = document.createElement('span');
+          cursor.className = 'streaming-cursor';
+          bubble.appendChild(cursor);
+        }
         responseText += chunk;
         paragraph.innerHTML = formatAIResponseText(responseText);
         scrollToBottom();
@@ -763,7 +774,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Completion listener
       () => {
         thinkingBubble.classList.remove('active');
-        cursor.remove();
+        if (cursor) cursor.remove();
         isGenerating = false;
 
         const aiTime = new Date().toISOString();
@@ -789,18 +800,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Add action chips under the bubble
-        renderMessageActionChips(bubble, assistantMessage, currentSession);
-
-        // Generate related questions in background
-        generateBubbleRelatedQuestions(topic, responseText, bubble, assistantMessage, currentSession);
+        if (bubble) {
+          renderMessageActionChips(bubble, assistantMessage, currentSession);
+          // Generate related questions in background
+          generateBubbleRelatedQuestions(topic, responseText, bubble, assistantMessage, currentSession);
+        }
 
         refreshSessionsList();
       },
       // Error listener
       (err) => {
         thinkingBubble.classList.remove('active');
-        cursor.remove();
+        if (cursor) cursor.remove();
         isGenerating = false;
+
+        if (!bubble) {
+          bubble = appendMessageBubble('assistant', '', new Date().toISOString());
+          paragraph = bubble.querySelector('p');
+        }
 
         const errMsg = Ollama.isMockMode 
           ? 'Error compiling mock response.'
@@ -868,26 +885,30 @@ document.addEventListener('DOMContentLoaded', () => {
       { role: 'user', content: prompt }
     ];
 
-    const bubble = appendMessageBubble('assistant', '', new Date().toISOString());
-    const paragraph = bubble.querySelector('p');
-    
-    const cursor = document.createElement('span');
-    cursor.className = 'streaming-cursor';
-    bubble.appendChild(cursor);
-
+    let bubble = null;
+    let paragraph = null;
+    let cursor = null;
     let responseText = '';
 
     Ollama.chat(
       messages,
       (chunk) => {
-        thinkingBubble.classList.remove('active');
+        if (!bubble) {
+          thinkingBubble.classList.remove('active');
+          bubble = appendMessageBubble('assistant', '', new Date().toISOString());
+          paragraph = bubble.querySelector('p');
+          
+          cursor = document.createElement('span');
+          cursor.className = 'streaming-cursor';
+          bubble.appendChild(cursor);
+        }
         responseText += chunk;
         paragraph.innerHTML = formatAIResponseText(responseText);
         scrollToBottom();
       },
       () => {
         thinkingBubble.classList.remove('active');
-        cursor.remove();
+        if (cursor) cursor.remove();
         isGenerating = false;
 
         const aiTime = new Date().toISOString();
@@ -910,14 +931,21 @@ document.addEventListener('DOMContentLoaded', () => {
           score: null
         });
 
-        renderMessageActionChips(bubble, assistantMessage, currentSession);
-        generateBubbleRelatedQuestions(topic, responseText, bubble, assistantMessage, currentSession);
+        if (bubble) {
+          renderMessageActionChips(bubble, assistantMessage, currentSession);
+          generateBubbleRelatedQuestions(topic, responseText, bubble, assistantMessage, currentSession);
+        }
         refreshSessionsList();
       },
       (err) => {
         thinkingBubble.classList.remove('active');
-        cursor.remove();
+        if (cursor) cursor.remove();
         isGenerating = false;
+        
+        if (!bubble) {
+          bubble = appendMessageBubble('assistant', '', new Date().toISOString());
+          paragraph = bubble.querySelector('p');
+        }
         paragraph.innerHTML = `<span style="color: var(--danger); font-weight:700;">Connection Error: Could not reach the AI.</span>`;
       }
     );

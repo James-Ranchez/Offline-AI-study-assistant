@@ -614,8 +614,7 @@ ${notes}`;
       if (isSessionEnded) {
         if (e.code === 'Escape') {
           e.preventDefault();
-          studyOverlay.style.display = 'none';
-          loadFlashcardSets();
+          closeStudySession();
         }
         return;
       }
@@ -646,8 +645,7 @@ ${notes}`;
         if (!nextCardBtn.disabled) nextCardBtn.click();
       } else if (e.code === 'Escape') {
         e.preventDefault();
-        studyOverlay.style.display = 'none';
-        loadFlashcardSets();
+        closeStudySession();
       }
     }
   });
@@ -869,10 +867,18 @@ ${notes}`;
     });
   }
 
+  function closeStudySession() {
+    studyOverlay.style.display = 'none';
+    if (createView.style.display === 'flex' || (studySetReference && studySetReference.id === 'fc-preview-temp')) {
+      showMainView();
+    } else {
+      loadFlashcardSets();
+    }
+  }
+
   // Close overlay
   closeStudyBtn.addEventListener('click', () => {
-    studyOverlay.style.display = 'none';
-    loadFlashcardSets();
+    closeStudySession();
   });
 
   // --- CSV Exporter ---
