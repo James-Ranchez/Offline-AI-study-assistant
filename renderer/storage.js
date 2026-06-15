@@ -203,6 +203,13 @@ const StudyStorage = {
     // Log session
     progress.sessions.push(sessionInfo);
     
+    // Cap sessions to prevent unbounded localStorage growth
+    // (active_time alone adds ~8,640 entries/day at 10s intervals)
+    const MAX_SESSIONS = 5000;
+    if (progress.sessions.length > MAX_SESSIONS) {
+      progress.sessions = progress.sessions.slice(-MAX_SESSIONS);
+    }
+    
     // Check and update streak
     this._updateStreak(progress);
     

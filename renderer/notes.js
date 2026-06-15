@@ -441,12 +441,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const notesUploadPdfBtn = document.getElementById('notes-upload-pdf-btn');
   if (notesUploadPdfBtn) {
-    notesUploadPdfBtn.addEventListener('click', importPdfNote);
+        notesUploadPdfBtn.addEventListener('click', importPdfNote);
   }
 
   // Formatting helpers
   function escapeHTML(text) {
-    if (!text) return '';
+    if (text === null || text === undefined) return '';
+    text = String(text);
     return text
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')

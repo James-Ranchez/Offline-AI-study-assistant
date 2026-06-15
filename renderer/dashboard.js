@@ -232,6 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function escapeHTML(text) {
+    if (!text) return '';
     return text
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')

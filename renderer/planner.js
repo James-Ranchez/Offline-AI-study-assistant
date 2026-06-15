@@ -378,6 +378,11 @@ ${notes}`;
       
       osc1.start();
       osc1.stop(audioCtx.currentTime + 0.6);
+      
+      // Clean up audio resources after playback completes
+      osc1.onended = () => {
+        audioCtx.close().catch(() => {});
+      };
     } catch (err) {
       console.warn('Web Audio API synth chime failed:', err);
     }
@@ -385,6 +390,7 @@ ${notes}`;
 
   // Helper: Escapes raw HTML
   function escapeHTML(text) {
+    if (!text) return '';
     return text
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
