@@ -135,16 +135,51 @@ document.addEventListener('DOMContentLoaded', () => {
       overlayNode.remove();
       overlayNode = null;
     }
+
+    // Mark tour completed in localStorage for immediate UI behavior
     window.StudyStorage.setTourCompleted();
+
+    // Also persist tour completion in the app sessions DB (main process)
+    // so the tour does not repeat across app launches or devices that
+    // share the same user data directory.
+    (async () => {
+      try {
+        if (window.api && window.api.saveSession) {
+          await window.api.saveSession({
+            id: 'app_onboarding',
+            type: 'meta',
+            tourCompleted: true,
+            updatedAt: new Date().toISOString()
+          });
+        }
+      } catch (e) {
+        console.error('Failed to persist tour completion to sessions:', e);
+      }
+    })();
+
     window.showToast('Tour completed! Enjoy studying with StudyMind.', 'info');
   }
 
-  // Trigger tour check on startup
-  setTimeout(() => {
+  // Trigger tour check on startup. This consults both localStorage and
+  // the main sessions DB (via `window.api.getSessions`) so the tour
+  // won't repeat when the app is opened multiple times.
+  setTimeout(async () => {
     const isFirstTime = window.StudyStorage.isFirstLaunch();
-    const isTourDone = window.StudyStorage.isTourCompleted();
-    
-    if (isFirstTime || !isTourDone) {
+    const isTourDoneLocal = window.StudyStorage.isTourCompleted();
+
+    let isTourDoneSession = false;
+    try {
+      if (window.api && window.api.getSessions) {
+        const sessions = await window.api.getSessions();
+        const appSession = (sessions || []).find(s => s && s.id === 'app_onboarding');
+        if (appSession && appSession.tourCompleted) isTourDoneSession = true;
+      }
+    } catch (e) {
+      console.error('Error checking sessions for tour state:', e);
+    }
+
+    // Start tour if first launch OR neither local nor session state says it's completed
+    if (isFirstTime || !(isTourDoneLocal || isTourDoneSession)) {
       window.startOnboardingTour();
     }
   }, 2500); // Wait for app variables and connections to settle
