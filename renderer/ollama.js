@@ -373,36 +373,84 @@ In the meantime, feel free to ask me about one of my preset topics, such as **Ph
       const pairs = [];
       if (!text) return pairs;
       
-      const lines = text.split(/\n/);
-      for (let line of lines) {
-        line = line.trim();
+      // Standardize newlines
+      let processedText = text.replace(/\r\n/g, '\n');
+      
+      // Preprocess: split smashed lines (e.g. "computer.RAM (Random Access Memory) - ")
+      processedText = processedText.replace(/([a-z0-9])\.([A-Z][a-zA-Z0-9\s()'"-]{1,100}?\s*(?:[\u2012\u2013\u2014\-:=]|\b(?:is|are)\b))/g, '$1.\n$2');
+      
+      const lines = processedText.split('\n');
+      let currentQ = '';
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
         if (!line) continue;
         
-        // Match common definition patterns (term - definition, term: definition, term = definition) supporting en-dash, em-dash, and standard hyphen
-        const match = line.match(/^[-*•\d\.\s]*([A-Za-z0-9\s(),/'-]+?)\s*(?:[\u2012\u2013\u2014\-:=]|\b(?:is|are)\b)\s*(.+)$/i);
-        if (match) {
-          const term = match[1].trim();
-          const def = match[2].trim();
-          if (term.length > 1 && term.length < 60 && def.length > 5) {
-            pairs.push({ term, def });
-            continue;
+        const qMatch = line.match(/^(?:Q|Question|Tanong)\s*\d*[:.-]\s*(.+)$/i);
+        const aMatch = line.match(/^(?:A|Answer|Sagot|Ans)\s*\d*[:.-]\s*(.+)$/i);
+        
+        if (qMatch) {
+          currentQ = qMatch[1].trim();
+        } else if (aMatch && currentQ) {
+          pairs.push({ term: aMatch[1].trim(), def: currentQ });
+          currentQ = ''; // Reset
+          continue;
+        }
+        
+        // Alternative: If a line ends with '?' and the next non-empty line starts with A/Answer/Ans or is just a short line
+        if (line.endsWith('?') && !qMatch) {
+          let nextLine = '';
+          let nextIdx = i + 1;
+          while (nextIdx < lines.length && !nextLine) {
+            nextLine = lines[nextIdx].trim();
+            nextIdx++;
+          }
+          if (nextLine) {
+            const nextAMatch = nextLine.match(/^(?:A|Answer|Sagot|Ans)?\s*[:.-]?\s*(.+)$/i);
+            if (nextAMatch) {
+              const ansText = nextAMatch[1].trim();
+              // Make sure it doesn't look like another question
+              if (!ansText.endsWith('?')) {
+                pairs.push({ term: ansText, def: line });
+                i = nextIdx - 1; // Advance loop past the answer line
+                continue;
+              }
+            }
           }
         }
       }
       
-      // If we couldn't find structured pairs, check sentences
-      if (pairs.length < 3) {
-        const sentences = text.split(/(?<=[.!?])\s+/);
-        for (let sent of sentences) {
-          sent = sent.trim();
-          if (sent.length < 20 || sent.length > 300) continue;
+      // 2. If we didn't find Q&A structures, parse line-by-line using dashes/colons/equals
+      if (pairs.length === 0) {
+        for (let line of lines) {
+          line = line.trim();
+          if (!line || line.startsWith('#')) continue;
           
-          const copulaMatch = sent.match(/^([-*•\d\.\s]*[A-Za-z0-9\s(),/'-]+?)\s+(?:is\s+defined\s+as|is\s+known\s+as|refers\s+to|is\s+the|is\s+a)\s+(.+)$/i);
-          if (copulaMatch) {
-            const term = copulaMatch[1].trim().replace(/^[-*•\d\.\s]+/, '');
-            const def = copulaMatch[2].trim();
-            if (term.length > 1 && term.length < 60 && def.length > 5) {
-              pairs.push({ term, def });
+          // Match separator: dash, colon, or equals
+          const parts = line.split(/\s*(?:[\u2012\u2013\u2014\-:=]|\b(?:is|are)\b)\s*/i);
+          if (parts.length >= 2) {
+            const left = parts[0].replace(/^[-*•\d\.\s]+/, '').trim();
+            const right = parts.slice(1).join(' ').trim();
+            
+            if (left.length > 1 && right.length > 1) {
+              // Heuristic to decide term vs definition
+              const leftIsQuestion = /\?$/i.test(left) || /\b(what|how|why|who|where|when|which|define|explain|identify|describe)\b/i.test(left);
+              const rightIsQuestion = /\?$/i.test(right) || /\b(what|how|why|who|where|when|which|define|explain|identify|describe)\b/i.test(right);
+              
+              if (leftIsQuestion && !rightIsQuestion) {
+                pairs.push({ term: right, def: left });
+              } else if (rightIsQuestion && !leftIsQuestion) {
+                pairs.push({ term: left, def: right });
+              } else {
+                // If neither is a question, compare lengths
+                const leftWords = left.split(/\s+/).length;
+                const rightWords = right.split(/\s+/).length;
+                if (leftWords > rightWords) {
+                  pairs.push({ term: right, def: left }); // Left is longer description
+                } else {
+                  pairs.push({ term: left, def: right }); // Right is longer description
+                }
+              }
             }
           }
         }
@@ -412,7 +460,7 @@ In the meantime, feel free to ask me about one of my preset topics, such as **Ph
       const seen = new Set();
       const uniquePairs = [];
       for (const p of pairs) {
-        const key = p.term.toLowerCase();
+        const key = p.term.toLowerCase() + '|||' + p.def.toLowerCase();
         if (!seen.has(key)) {
           seen.add(key);
           uniquePairs.push(p);
@@ -574,9 +622,9 @@ In the meantime, feel free to ask me about one of my preset topics, such as **Ph
       }
     }
 
-    // Parse pasted notes. If insufficient terms are found, default to our fallback database.
+    // Parse pasted notes. If no terms are found, only then default to fallback database.
     let pairs = parseTermsAndDefinitions(pastedNotes);
-    if (pairs.length < 3) {
+    if (pairs.length === 0) {
       pairs = fallbackPairs;
     }
 
@@ -838,5 +886,122 @@ Please start Ollama in your background or run \`ollama run tinyllama\` to activa
       onChunk(chunk);
       index++;
     }, 15); // ~66 words per second (very responsive speed)
+  }
+};
+
+// Global Auto JSON Notes parsing and saving utility
+window.AutoJsonNotes = {
+  parse(text) {
+    const pairs = [];
+    if (!text) return pairs;
+    
+    // Standardize newlines
+    let processedText = text.replace(/\r\n/g, '\n');
+    
+    // Preprocess smashed lines
+    processedText = processedText.replace(/([a-z0-9])\.([A-Z][a-zA-Z0-9\s()'"-]{1,100}?\s*(?:[\u2012\u2013\u2014\-:=]|\b(?:is|are)\b))/g, '$1.\n$2');
+    
+    const lines = processedText.split('\n');
+    let currentQ = '';
+    
+    // 1. Try matching Q: / A: or Question: / Answer: pattern across lines
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      
+      const qMatch = line.match(/^(?:Q|Question|Tanong)\s*\d*[:.-]\s*(.+)$/i);
+      const aMatch = line.match(/^(?:A|Answer|Sagot|Ans)\s*\d*[:.-]\s*(.+)$/i);
+      
+      if (qMatch) {
+        currentQ = qMatch[1].trim();
+      } else if (aMatch && currentQ) {
+        pairs.push({ term: aMatch[1].trim(), def: currentQ });
+        currentQ = ''; // Reset
+        continue;
+      }
+      
+      // Alternative: If a line ends with '?' and the next non-empty line starts with A/Answer/Ans or is just a short line
+      if (line.endsWith('?') && !qMatch) {
+        let nextLine = '';
+        let nextIdx = i + 1;
+        while (nextIdx < lines.length && !nextLine) {
+          nextLine = lines[nextIdx].trim();
+          nextIdx++;
+        }
+        if (nextLine) {
+          const nextAMatch = nextLine.match(/^(?:A|Answer|Sagot|Ans)?\s*[:.-]?\s*(.+)$/i);
+          if (nextAMatch) {
+            const ansText = nextAMatch[1].trim();
+            // Make sure it doesn't look like another question
+            if (!ansText.endsWith('?')) {
+              pairs.push({ term: ansText, def: line });
+              i = nextIdx - 1; // Advance loop past the answer line
+              continue;
+            }
+          }
+        }
+      }
+    }
+    
+    // 2. If we didn't find Q&A structures, parse line-by-line using dashes/colons/equals
+    if (pairs.length === 0) {
+      for (let line of lines) {
+        line = line.trim();
+        if (!line || line.startsWith('#') || line.length < 5) continue;
+        
+        // Match separator: dash, colon, or equals or copula
+        const parts = line.split(/\s*(?:[\u2012\u2013\u2014\-:=]|\b(?:is|are)\b)\s*/i);
+        if (parts.length >= 2) {
+          const left = parts[0].replace(/^[-*•\d\.\s]+/, '').trim();
+          const right = parts.slice(1).join(' ').trim();
+          
+          if (left.length > 1 && right.length > 1) {
+            // Heuristic to decide term vs definition
+            const leftIsQuestion = /\?$/i.test(left) || /\b(what|how|why|who|where|when|which|define|explain|identify|describe)\b/i.test(left);
+            const rightIsQuestion = /\?$/i.test(right) || /\b(what|how|why|who|where|when|which|define|explain|identify|describe)\b/i.test(right);
+            
+            if (leftIsQuestion && !rightIsQuestion) {
+              pairs.push({ term: right, def: left });
+            } else if (rightIsQuestion && !leftIsQuestion) {
+              pairs.push({ term: left, def: right });
+            } else {
+              // If neither is a question, compare lengths
+              const leftWords = left.split(/\s+/).length;
+              const rightWords = right.split(/\s+/).length;
+              if (leftWords > rightWords) {
+                pairs.push({ term: right, def: left }); // Left is longer description
+              } else {
+                pairs.push({ term: left, def: right }); // Right is longer description
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    // Deduplicate
+    const seen = new Set();
+    const uniquePairs = [];
+    for (const p of pairs) {
+      const key = p.term.toLowerCase() + '|||' + p.def.toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniquePairs.push(p);
+      }
+    }
+    return uniquePairs;
+  },
+
+  async parseAndSave(text) {
+    const pairs = this.parse(text);
+    const jsonStr = JSON.stringify(pairs, null, 2);
+    if (window.api && window.api.saveJsonNotes) {
+      try {
+        await window.api.saveJsonNotes(jsonStr);
+      } catch (err) {
+        console.error('AutoJsonNotes: Failed to write notes.json:', err);
+      }
+    }
+    return pairs;
   }
 };

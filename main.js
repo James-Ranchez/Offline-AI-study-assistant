@@ -1,7 +1,6 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const pdfParse = require('pdf-parse');
 
 let mainWindow;
 
@@ -152,33 +151,14 @@ ipcMain.handle('save-to-file', async (event, { defaultName, content }) => {
   }
 });
 
-// IPC Handler for Reading PDF files
-/**
- * IPC handler: show open dialog for PDF selection and return parsed
- * text and filename using `pdf-parse`.
- */
-ipcMain.handle('read-pdf-file', async () => {
-  const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
-    title: 'Select PDF Study Notes',
-    filters: [{ name: 'PDF Files', extensions: ['pdf'] }],
-    properties: ['openFile']
-  });
-
-  if (canceled || filePaths.length === 0) {
-    return { success: false, message: 'No file selected' };
-  }
-
-  const filePath = filePaths[0];
+// IPC Handler to save notes to formatted JSON file automatically
+ipcMain.handle('save-json-notes', async (event, content) => {
   try {
-    const dataBuffer = fs.readFileSync(filePath);
-    const data = await pdfParse(dataBuffer);
-    return {
-      success: true,
-      text: data.text,
-      fileName: path.basename(filePath, '.pdf')
-    };
+    const filePath = path.join(app.getAppPath(), 'notes.json');
+    fs.writeFileSync(filePath, content, 'utf8');
+    return { success: true, filePath };
   } catch (err) {
-    console.error('Failed to parse PDF:', err);
+    console.error('Failed to save auto JSON notes:', err);
     return { success: false, message: err.message };
   }
 });

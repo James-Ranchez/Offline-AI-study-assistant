@@ -191,11 +191,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (selectedDifficulty === 'Medium') diffPrompt = 'Include some application and reasoning questions.';
     if (selectedDifficulty === 'Hard') diffPrompt = 'Prioritize analysis, comparison, and critical thinking questions.';
 
-    let prompt = '';
-    
-    if (selectedMode === 'mcq') {
-      prompt = `Create exactly ${numQ} multiple choice questions (MCQ) in English based on the notes below.
-If the notes are long or contain many concepts, select only the most relevant ${numQ} terms/definitions to write questions for. Do not try to include every single word or concept; prioritize the main ideas.
+    // Automatically convert notes to JSON and save it
+    window.AutoJsonNotes.parseAndSave(notes).then((pairs) => {
+      const jsonNotes = pairs.length > 0 ? JSON.stringify(pairs, null, 2) : notes;
+
+      let prompt = '';
+      
+      if (selectedMode === 'mcq') {
+        prompt = `Create exactly ${numQ} multiple choice questions (MCQ) in English based on the notes below in JSON format.
+If the notes are long or contain many concepts, select only the most relevant ${numQ} terms/definitions to write questions for. Prioritize the main ideas.
 ${diffPrompt}
 
 CRITICAL RULES FOR ACCURACY AND DISTRACTORS:
@@ -214,11 +218,11 @@ Answer: [Correct Letter]
 
 Do not write any extra introduction, explanation, or conclusion text. Only output the questions in the exact structure above.
 
-Notes:
-${notes}`;
-    } else {
-      prompt = `Create exactly ${numQ} open-ended review questions with concise answers in English based on the notes below.
-If the notes are long or contain many concepts, select only the most relevant ${numQ} terms/definitions to write questions for. Do not try to include every single word or concept; prioritize the main ideas.
+Notes (JSON format):
+${jsonNotes}`;
+      } else {
+        prompt = `Create exactly ${numQ} open-ended review questions with concise answers in English based on the notes below in JSON format.
+If the notes are long or contain many concepts, select only the most relevant ${numQ} terms/definitions to write questions for. Prioritize the main ideas.
 ${diffPrompt}
 
 CRITICAL RULES FOR ACCURACY:
@@ -231,71 +235,50 @@ A: [Model answer text]
 
 Do not write any extra introduction, explanation, or conclusion text. Only output the questions and answers in the exact structure above.
 
-Notes:
-${notes}`;
-    }
-
-    rawGeneratedText = '';
-
-    Ollama.generate(
-      prompt,
-      (chunk) => {
-        rawGeneratedText += chunk;
-      },
-      () => {
-        isGenerating = false;
-        generateBtn.textContent = 'Generate Quiz';
-        generateBtn.disabled = false;
-        
-        renderResults();
-        window.showToast('✓ Quiz generated!');
-      },
-      (err) => {
-        isGenerating = false;
-        generateBtn.textContent = 'Generate Quiz';
-        generateBtn.disabled = false;
-        goToStep(2);
-        
-        const errMsg = Ollama.isMockMode
-          ? 'Demo Mock quiz generation failed.'
-          : 'Could not communicate with Ollama. Make sure the service is active.';
-        window.showToast(errMsg, 'error');
+Notes (JSON format):
+${jsonNotes}`;
       }
-    );
+
+      rawGeneratedText = '';
+
+      Ollama.generate(
+        prompt,
+        (chunk) => {
+          rawGeneratedText += chunk;
+        },
+        () => {
+          isGenerating = false;
+          generateBtn.textContent = 'Generate Quiz';
+          generateBtn.disabled = false;
+          
+          renderResults();
+          window.showToast('✓ Quiz generated!');
+        },
+        (err) => {
+          isGenerating = false;
+          generateBtn.textContent = 'Generate Quiz';
+          generateBtn.disabled = false;
+          goToStep(2);
+          
+          const errMsg = Ollama.isMockMode
+            ? 'Demo Mock quiz generation failed.'
+            : 'Could not communicate with Ollama. Make sure the service is active.';
+          window.showToast(errMsg, 'error');
+        }
+      );
+    }).catch(err => {
+      console.error(err);
+      isGenerating = false;
+      generateBtn.textContent = 'Generate Quiz';
+      generateBtn.disabled = false;
+      goToStep(2);
+      window.showToast('Failed to parse notes to JSON.', 'error');
+    });
   });
 
-  // Helper to parse notes directly into term-definition pairs using en-dash, em-dash, or standard hyphen
+  // Helper to parse notes directly into term-definition pairs
   function parseNotesToPairs(notesText) {
-    const pairs = [];
-    if (!notesText) return pairs;
-
-    const lines = notesText.split('\n');
-    lines.forEach(line => {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith('#') || trimmed.length < 5) return;
-
-      let left = '';
-      let right = '';
-
-      // Match en-dash, em-dash, or hyphen with spaces first to prevent splitting on inner-word hyphens (e.g. "on-device")
-      const primaryMatch = trimmed.match(/^(.*?)\s*(?:[\u2012\u2013\u2014—–]|\s+-\s+)\s*(.*)$/);
-      if (primaryMatch) {
-        left = primaryMatch[1].replace(/^[-*•\d\.\s]+/, '').trim();
-        right = primaryMatch[2].trim();
-      } else {
-        // Fallback: search for first standard hyphen
-        const dashIndex = trimmed.indexOf('-');
-        if (dashIndex > 0 && dashIndex < trimmed.length - 1) {
-          left = trimmed.substring(0, dashIndex).replace(/^[-*•\d\.\s]+/, '').trim();
-          right = trimmed.substring(dashIndex + 1).trim();
-        }
-      }
-
-      if (left.length > 0 && right.length > 0) {
-        pairs.push({ term: left, def: right });
-      }
-    });
-    return pairs;
+    return window.AutoJsonNotes.parse(notesText);
   }
 
   // Locally generate MCQ quiz if AI fails or is offline

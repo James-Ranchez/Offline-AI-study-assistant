@@ -363,53 +363,69 @@ document.addEventListener('DOMContentLoaded', () => {
     aiGenerateBtn.textContent = 'Generating cards...';
     aiGenerateBtn.disabled = true;
 
-    const prompt = `Based on the following notes, identify the key academic terms and their definitions. Generate exactly ${num} flashcards. Differentiate the term and its definition clearly.
-Format each flashcard exactly like this, with the definition/question on the FRONT and the corresponding key term/answer on the BACK:
-FRONT: [definition]
-BACK: [term/answer]
+    // Convert notes to JSON automatically and save it to the workspace
+    window.AutoJsonNotes.parseAndSave(notes).then((pairs) => {
+      const jsonNotes = pairs.length > 0 ? JSON.stringify(pairs, null, 2) : notes;
 
-Do not write any extra introduction or conclusion text. Only return the cards in this format.
+      const prompt = `Analyze the provided notes in JSON format and generate exactly ${num} flashcards. 
+For each flashcard, you must identify a key academic concept/question and its answer/definition.
+Differentiate them clearly using FRONT and BACK tags.
 
-Notes:
-${notes}`;
+Strict Formatting Rules:
+1. The FRONT side must contain a clear, complete study question or definition (e.g. "What organelle is the powerhouse of the cell?" or "The process by which plants make food").
+2. The BACK side must contain the corresponding brief answer or key term (e.g. "Mitochondria" or "Photosynthesis").
+3. Do NOT put disconnected words or single terms on the FRONT side. Put the detailed definition or question on the FRONT and the concept/term on the BACK.
+4. Output each flashcard strictly in the following format:
+FRONT: [question or definition]
+BACK: [answer or key term]
 
-    let responseText = '';
+Notes (JSON format):
+${jsonNotes}`;
 
-    Ollama.generate(
-      prompt,
-      // Chunk listener
-      (chunk) => {
-        responseText += chunk;
-      },
-      // Completion listener
-      () => {
-        isAiGenerating = false;
-        aiGenerateBtn.textContent = 'Generate Cards';
-        aiGenerateBtn.disabled = false;
+      let responseText = '';
 
-        parseAiFlashcards(responseText);
-        aiNotesInput.value = '';
-        window.showToast('✓ AI Flashcards generated and added to preview!');
-      },
-      // Error listener
-      () => {
-        isAiGenerating = false;
-        aiGenerateBtn.textContent = 'Generate Cards';
-        aiGenerateBtn.disabled = false;
-        
-        // Fallback: parse direct notes using the dash rule
-        const text = aiNotesInput.value.trim();
-        const prevLength = tempCards.length;
-        parseAiFlashcards(text);
-        
-        if (tempCards.length > prevLength) {
+      Ollama.generate(
+        prompt,
+        // Chunk listener
+        (chunk) => {
+          responseText += chunk;
+        },
+        // Completion listener
+        () => {
+          isAiGenerating = false;
+          aiGenerateBtn.textContent = 'Generate Cards';
+          aiGenerateBtn.disabled = false;
+
+          parseAiFlashcards(responseText);
           aiNotesInput.value = '';
-          window.showToast('✓ Extracted cards directly from notes using dashes!', 'success');
-        } else {
-          window.showToast('Could not reach Ollama connection.', 'error');
+          window.showToast('✓ AI Flashcards generated and added to preview!');
+        },
+        // Error listener
+        () => {
+          isAiGenerating = false;
+          aiGenerateBtn.textContent = 'Generate Cards';
+          aiGenerateBtn.disabled = false;
+          
+          // Fallback: parse direct notes using the dash rule
+          const text = aiNotesInput.value.trim();
+          const prevLength = tempCards.length;
+          parseAiFlashcards(text);
+          
+          if (tempCards.length > prevLength) {
+            aiNotesInput.value = '';
+            window.showToast('✓ Extracted cards directly from notes using structured JSON!', 'success');
+          } else {
+            window.showToast('Could not reach Ollama connection.', 'error');
+          }
         }
-      }
-    );
+      );
+    }).catch(err => {
+      console.error(err);
+      isAiGenerating = false;
+      aiGenerateBtn.textContent = 'Generate Cards';
+      aiGenerateBtn.disabled = false;
+      window.showToast('Failed to parse notes to JSON.', 'error');
+    });
   });
 
   // Helper to clean brackets, quotes, and whitespace from parsed strings
@@ -425,7 +441,15 @@ ${notes}`;
 
   // Parse lines matching FRONT: [term] | BACK: [def] (inline) or multi-line FRONT: [term] and BACK: [def]
   function parseAiFlashcards(text) {
-    const lines = text.split('\n');
+    if (!text) return;
+    
+    // Standardize newlines
+    let processedText = text.replace(/\r\n/g, '\n');
+    
+    // Preprocess: split smashed lines (e.g. "computer.RAM (Random Access Memory) - ")
+    processedText = processedText.replace(/([a-z0-9])\.([A-Z][a-zA-Z0-9\s()'"-]{1,100}?\s*(?:[\u2012\u2013\u2014\-:=]|\b(?:is|are)\b))/g, '$1.\n$2');
+    
+    const lines = processedText.split('\n');
     let currentFront = '';
     const initialLength = tempCards.length;
 
@@ -464,42 +488,17 @@ ${notes}`;
       }
     });
 
-    // Fallback: If FRONT/BACK formatting wasn't matched, parse lines containing a dash
-    // where the left side is the answer (BACK) and the right side is the question (FRONT).
+    // Fallback: If FRONT/BACK formatting wasn't matched, parse using structured utility
     if (tempCards.length === initialLength) {
-      lines.forEach(line => {
-        const trimmed = line.trim();
-        if (!trimmed) return;
-
-        // Skip heading lines or lines too short to contain a valid definition pair
-        if (trimmed.startsWith('#') || trimmed.length < 5) return;
-
-        let left = '';
-        let right = '';
-
-        // Match en-dash, em-dash, or hyphen with spaces first to prevent splitting on inner-word hyphens (e.g. "on-device")
-        const primaryMatch = trimmed.match(/^(.*?)\s*(?:[\u2012\u2013\u2014—–]|\s+-\s+)\s*(.*)$/);
-        if (primaryMatch) {
-          left = primaryMatch[1].replace(/^[-*•\d\.\s]+/, '').trim();
-          right = primaryMatch[2].trim();
-        } else {
-          // Fallback: split on the first standard hyphen if no spaced dash exists
-          const dashIndex = trimmed.indexOf('-');
-          if (dashIndex > 0 && dashIndex < trimmed.length - 1) {
-            left = trimmed.substring(0, dashIndex).replace(/^[-*•\d\.\s]+/, '').trim();
-            right = trimmed.substring(dashIndex + 1).trim();
-          }
-        }
-
-        if (left.length > 0 && right.length > 0) {
-          tempCards.push({
-            id: 'card-' + Date.now() + '-' + Math.floor(Math.random() * 10000),
-            front: cleanValue(right), // Right side is the question/FRONT
-            back: cleanValue(left),   // Left side is the answer/BACK
-            gotIt: 0,
-            missed: 0
-          });
-        }
+      const fallbackPairs = window.AutoJsonNotes.parse(text);
+      fallbackPairs.forEach(p => {
+        tempCards.push({
+          id: 'card-' + Date.now() + '-' + Math.floor(Math.random() * 10000),
+          front: cleanValue(p.def),
+          back: cleanValue(p.term),
+          gotIt: 0,
+          missed: 0
+        });
       });
     }
 

@@ -43,11 +43,11 @@ contextBridge.exposeInMainWorld('api', {
    */
   saveToFile: (defaultName, content) => ipcRenderer.invoke('save-to-file', { defaultName, content }),
   
-  // Read PDF File
+  // Save Auto JSON Notes
   /**
-   * Ask the main process to open a PDF file and return parsed data.
-   * Uses `pdf-parse` in the main process.
-   * @returns {Promise<Object>} Promise that resolves to parsed PDF metadata and text.
+   * Automatically save structured JSON notes to the workspace.
+   * @param {string} content - JSON string of parsed notes.
+   * @returns {Promise<Object>} Promise resolving to success status and file path.
    */
-  readPdfFile: () => ipcRenderer.invoke('read-pdf-file')
+  saveJsonNotes: (content) => ipcRenderer.invoke('save-json-notes', content)
 });

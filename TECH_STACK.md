@@ -4,7 +4,6 @@
 - **Node.js**: Runtime for the main process and packaging scripts. `package.json` defines scripts `start` and `dist`.
 - **JavaScript (ES6)**: App code is plain JS across the project: `main.js`, `preload.js`, and files in `renderer/` implement UI logic.
 - **HTML & CSS**: UI is built with `index.html` and styles in the `styles/` folder.
-- **pdf-parse**: Library used (in `dependencies`) to parse PDF files from the filesystem via the main process.
 - **electron-builder**: Packaging and distribution tool (devDependency) used to produce installers for Windows, macOS, and Linux.
 - **IPC / contextBridge**: Secure renderer ↔ main communication implemented via `ipcRenderer.invoke` and `contextBridge.exposeInMainWorld` (see `preload.js`).
 - **Local AI tooling (Ollama)**: The repo includes `renderer/ollama.js` which suggests integration with a local LLM (Ollama) or similar local inference tooling — separate system/service required to run locally.

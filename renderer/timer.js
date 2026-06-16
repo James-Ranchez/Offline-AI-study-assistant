@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Timer modes tabs
   const tabPomodoro = document.getElementById('timer-tab-pomodoro');
   const tabCustom = document.getElementById('timer-tab-custom');
-  const tabCountdown = document.getElementById('timer-tab-countdown');
 
   // Input groups
   const customInputs = document.getElementById('timer-custom-inputs');
@@ -44,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Tab event listeners
     tabPomodoro.addEventListener('click', () => switchMode('pomodoro'));
     tabCustom.addEventListener('click', () => switchMode('custom'));
-    tabCountdown.addEventListener('click', () => switchMode('countdown'));
+    
   }
 
   function loadSettings() {
@@ -73,13 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const focusVal = parseInt(customFocusMin.value, 10) || 25;
       durationSeconds = focusVal * 60;
       timerStateLabel.textContent = 'Focus Session';
-    } else { // countdown
-      customInputs.classList.remove('active');
-      // Single custom countdown input prompt or use focus setting as default
-      const focusVal = parseInt(customFocusMin.value, 10) || 25;
-      durationSeconds = focusVal * 60;
-      timerStateLabel.textContent = 'Countdown';
-    }
+    } 
 
     if (!isRunning) {
       secondsLeft = durationSeconds;
@@ -95,16 +88,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     tabPomodoro.classList.remove('active');
     tabCustom.classList.remove('active');
-    tabCountdown.classList.remove('active');
 
     if (mode === 'pomodoro') {
       tabPomodoro.classList.add('active');
       pomodoroState = 'focus';
     } else if (mode === 'custom') {
       tabCustom.classList.add('active');
-    } else {
-      tabCountdown.classList.add('active');
-    }
+    } 
 
     loadSettings();
     updateTimerUI();
@@ -156,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Custom inputs listeners
   customFocusMin.addEventListener('input', () => {
-    if (timerMode === 'custom' || timerMode === 'countdown') {
+    if (timerMode === 'custom') {
       if (!isRunning) {
         loadSettings();
         updateTimerUI();
