@@ -32,7 +32,10 @@
     if (type === 'warning') prefix = '⚠ ';
     if (type === 'info') prefix = 'ℹ ';
 
-    toast.innerHTML = `${iconSVG}<span>${prefix}${message}</span>`;
+    const messageSpan = document.createElement('span');
+    messageSpan.textContent = `${prefix}${message}`;
+    toast.innerHTML = iconSVG;
+    toast.appendChild(messageSpan);
     container.appendChild(toast);
 
     // Dismiss animation trigger after 3s

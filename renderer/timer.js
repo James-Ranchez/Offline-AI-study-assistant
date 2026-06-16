@@ -329,6 +329,11 @@ document.addEventListener('DOMContentLoaded', () => {
       
       osc1.stop(audioCtx.currentTime + 0.8);
       osc2.stop(audioCtx.currentTime + 0.8);
+      
+      // Clean up audio resources after playback completes
+      osc2.onended = () => {
+        audioCtx.close().catch(() => {});
+      };
     } catch (e) {
       console.warn('Audio chime failure:', e);
     }

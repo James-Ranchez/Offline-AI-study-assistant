@@ -63,6 +63,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     responseLengthSelect.addEventListener('change', saveUIAccordance);
 
+    // Model select (registered once here, not in initializeModelList which refreshes)
+    modelSelect.addEventListener('change', () => {
+      saveUIAccordance();
+      window.showToast(`Selected model updated: ${modelSelect.value}`);
+    });
+
     // Accent picker
     accentColorOptions.forEach(opt => {
       opt.addEventListener('click', () => {
@@ -184,7 +190,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.documentElement.setAttribute('data-theme', themeToApply);
 
     // 2. Font Size
-    document.body.className = ''; // reset classes
+    document.body.classList.forEach(c => {
+      if (c.startsWith('font-')) document.body.classList.remove(c);
+    });
     document.body.classList.add(`font-${settings.fontSize}`);
 
     // 3. Accent Preset
@@ -208,29 +216,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Global nav routing
-  window.navigateToView = function(viewId) {
-    const navItems = document.querySelectorAll('.nav-item');
-    const views = document.querySelectorAll('.view-container');
-
-    const item = Array.from(navItems).find(n => n.getAttribute('data-view') === viewId);
-    if (item) {
-      navItems.forEach(n => n.classList.remove('active'));
-      item.classList.add('active');
-    }
-
-    views.forEach(view => {
-      if (view.id === viewId) {
-        view.classList.add('active');
-      } else {
-        view.classList.remove('active');
-      }
-    });
-
-    // Specific updater checks
-    if (viewId === 'dashboard-view' && window.refreshDashboard) window.refreshDashboard();
-    if (viewId === 'progress-view' && window.refreshProgressTracker) window.refreshProgressTracker();
-  };
+  // Note: window.navigateToView is defined in app.js and handles all view routing
+  // Including specific view callback refreshers for dashboard and progress views
 
   // Populate models list
   async function initializeModelList() {
@@ -259,11 +246,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       modelSelect.appendChild(opt);
-    });
-
-    modelSelect.addEventListener('change', () => {
-      saveUIAccordance();
-      window.showToast(`Selected model updated: ${modelSelect.value}`);
     });
   }
 
@@ -317,17 +299,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const file = e.target.files[0];
     if (!file) return;
 
+    // Prevent importing excessively large files (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      window.showToast('Backup file is too large (max 10MB).', 'error');
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
         const data = JSON.parse(event.target.result);
         
-        if (data.settings) window.StudyStorage.saveSettings(data.settings);
-        if (data.chatSessions) localStorage.setItem(window.StudyStorage.KEYS.CHAT_SESSIONS, JSON.stringify(data.chatSessions));
-        if (data.reviewSessions) localStorage.setItem(window.StudyStorage.KEYS.REVIEW_SESSIONS, JSON.stringify(data.reviewSessions));
-        if (data.flashcardSets) localStorage.setItem(window.StudyStorage.KEYS.FLASHCARD_SETS, JSON.stringify(data.flashcardSets));
-        if (data.notes) localStorage.setItem(window.StudyStorage.KEYS.NOTES, JSON.stringify(data.notes));
-        if (data.progress) window.StudyStorage.saveProgress(data.progress);
+        // Validate structure before importing
+        if (typeof data !== 'object' || data === null) {
+          throw new Error('Invalid backup structure');
+        }
+        
+        if (data.settings && typeof data.settings === 'object') window.StudyStorage.saveSettings(data.settings);
+        if (data.chatSessions && Array.isArray(data.chatSessions)) localStorage.setItem(window.StudyStorage.KEYS.CHAT_SESSIONS, JSON.stringify(data.chatSessions));
+        if (data.reviewSessions && Array.isArray(data.reviewSessions)) localStorage.setItem(window.StudyStorage.KEYS.REVIEW_SESSIONS, JSON.stringify(data.reviewSessions));
+        if (data.flashcardSets && Array.isArray(data.flashcardSets)) localStorage.setItem(window.StudyStorage.KEYS.FLASHCARD_SETS, JSON.stringify(data.flashcardSets));
+        if (data.notes && Array.isArray(data.notes)) localStorage.setItem(window.StudyStorage.KEYS.NOTES, JSON.stringify(data.notes));
+        if (data.progress && typeof data.progress === 'object') window.StudyStorage.saveProgress(data.progress);
 
         window.showToast('✓ JSON backup data imported successfully!', 'success');
         loadSettingsIntoUI();
@@ -393,6 +386,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (window.refreshProgressTracker) window.refreshProgressTracker();
     });
   }
+
+  // Expose globally for connection status changes (called from app.js)
+  window.initializeSettings = function() {
+    loadSettingsIntoUI();
+    initializeModelList();
+  };
 
   initSettingsPanel();
   applyVisualAppearance(); // Call once on start to load theme
