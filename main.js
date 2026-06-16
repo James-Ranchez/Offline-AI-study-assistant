@@ -20,8 +20,7 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: false, // needed to access app path and preloads fully in some Electron environments
-      webSecurity: false
+      sandbox: false // needed to access app path and preloads fully in some Electron environments
     },
     show: false,
     autoHideMenuBar: true, // Keep it clean and focused

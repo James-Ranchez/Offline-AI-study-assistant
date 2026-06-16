@@ -164,8 +164,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function escapeHTML(text) {
-    if (!text) return '';
-    return text
+    if (text === null || text === undefined) return '';
+    return String(text)
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')

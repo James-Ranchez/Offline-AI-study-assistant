@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // If NOT bypassed, show onboarding overlay
       const wasBypassed = sessionStorage.getItem('mock-bypass') === 'true';
-      if (!wasBypassed && !Ollama.isMockMode) {
+      if (!wasBypassed) {
         if (onboardingView) onboardingView.classList.add('active');
       }
     }

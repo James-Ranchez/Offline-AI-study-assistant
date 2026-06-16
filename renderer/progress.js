@@ -306,7 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function escapeHTML(text) {
     if (!text) return '';
-    return text
+    return String(text)
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
