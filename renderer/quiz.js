@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let selectedMode = 'mcq'; // mcq | open
   let selectedDifficulty = 'Medium'; // Easy | Medium | Hard
   let selectedLanguage = 'English'; // English | Filipino | Taglish
-  
+
   let rawGeneratedText = '';
   let parsedQuestions = [];
   let currentQuizIndex = 0;
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Step Navigation ---
   function goToStep(step) {
     currentStep = step;
-    
+
     // Update step nodes
     stepNodes.forEach((node, idx) => {
       node.className = 'wizard-step-node';
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isGenerating) return;
 
     const notes = notesTextarea.value.trim();
-    
+
     // Auto subject detection fallback immediately before generation
     if (window.detectSubject) {
       const detected = window.detectSubject(notes);
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const jsonNotes = pairs.length > 0 ? JSON.stringify(pairs, null, 2) : notes;
 
       let prompt = '';
-      
+
       if (selectedMode === 'mcq') {
         prompt = `Create exactly ${numQ} multiple choice questions (MCQ) in English based on the notes below in JSON format.
 If the notes are long or contain many concepts, select only the most relevant ${numQ} terms/definitions to write questions for. Prioritize the main ideas.
@@ -207,6 +207,11 @@ CRITICAL RULES FOR ACCURACY AND DISTRACTORS:
 - Do NOT swap closely related abbreviations (e.g. do not swap CPU, GPU, and NPU) if it makes the correct answer incorrect or confusing.
 - DO NOT generate options by changing just a single letter of the correct term to make a distractor (for example, do not change "CPU" to "NPU", "GPU", "MPU", "BPU" or similar to create incorrect choices).
 - Do not invent fake terms. Use actual distinct concepts as distractors.
+- Where appropriate, incorporate concrete real-world examples, applications, or scenarios inside the questions or choice options to test conceptual understanding.
+- Do not use the same term in the question and the options.
+- Even if the notes is not formatted, try to format it in the most reasonable way.
+- Know how to differentiate a header or title of the notes and exclude it in the questions. Don't make the questions about the title or header. Instead of that, try to make questions about the content of the notes. Try to find and analyze the content of the notes.
+- Do not include the term's number for a better understanding.
 
 Format each question exactly as:
 Question [Number]: [Question text]
@@ -228,6 +233,13 @@ ${diffPrompt}
 CRITICAL RULES FOR ACCURACY:
 - Ensure all questions and answers are 100% accurate to the uploaded notes.
 - Do not swap closely related abbreviations or terms.
+- Do not invent fake terms. Use actual distinct concepts as distractors.
+- Do not use the same term in the question and the answers.
+- Even if the notes is not formatted, try to format it in the most reasonable way.
+- Know how to differentiate a header or title of the notes and exclude it in the questions. Don't make the questions about the title or header. Instead of that, try to make questions about the content of the notes. Try to find and analyze the content of the notes.
+- Always provide clear, well-structured answers that directly address the question and demonstrate understanding of the material.
+- Add a cards where the definition is in the back while the term is in the front.
+- Do not include the term's number for a better understanding.
 
 Format each question exactly as:
 Q: [Question text]
@@ -250,7 +262,7 @@ ${jsonNotes}`;
           isGenerating = false;
           generateBtn.textContent = 'Generate Quiz';
           generateBtn.disabled = false;
-          
+
           renderResults();
           window.showToast('✓ Quiz generated!');
         },
@@ -259,7 +271,7 @@ ${jsonNotes}`;
           generateBtn.textContent = 'Generate Quiz';
           generateBtn.disabled = false;
           goToStep(2);
-          
+
           const errMsg = Ollama.isMockMode
             ? 'Demo Mock quiz generation failed.'
             : 'Could not communicate with Ollama. Make sure the service is active.';
@@ -361,7 +373,7 @@ ${jsonNotes}`;
     if (selectedMode === 'mcq') {
       resultsTitleText.textContent = `Multiple Choice Quiz: ${selectedSubject}`;
       parsedQuestions = parseMCQText(rawGeneratedText);
-      
+
       // Fallback: if AI output failed to parse, try parsing notes directly
       if (parsedQuestions.length === 0) {
         const notes = notesTextarea.value.trim();
@@ -379,7 +391,7 @@ ${jsonNotes}`;
     } else {
       resultsTitleText.textContent = `Open-Ended Quiz: ${selectedSubject}`;
       parsedQuestions = parseOpenQuestionsText(rawGeneratedText);
-      
+
       // Fallback: if AI output failed to parse, try parsing notes directly
       if (parsedQuestions.length === 0) {
         const notes = notesTextarea.value.trim();
@@ -456,10 +468,10 @@ ${jsonNotes}`;
       if (qMatch) {
         if (currentPair) qaPairs.push(currentPair);
         currentPair = { question: qMatch[1].trim(), answer: '' };
-      } 
+      }
       else if (aMatch && currentPair) {
         currentPair.answer = aMatch[1].trim();
-      } 
+      }
       else if (currentPair && line.trim() && !line.match(/^\s*(?:[-*•\d\.\(\)\[\]#]+\s*)?(?:Q|Question)\b/i)) {
         currentPair.answer += ' ' + line.trim();
       }
@@ -510,7 +522,7 @@ ${jsonNotes}`;
 
         const letter = card.getAttribute('data-letter');
         const isCorrect = letter === mcq.correctAnswer;
-        
+
         choiceCards.forEach(c => {
           c.classList.add('locked');
           if (c.getAttribute('data-letter') === mcq.correctAnswer) {
@@ -543,10 +555,10 @@ ${jsonNotes}`;
   function renderQuizResultsScreen() {
     const totalQ = parsedQuestions.length;
     const pct = Math.round((userScore / totalQ) * 100);
-    
+
     let gradeMsg = 'Very Good!';
     let badge = '🧠';
-    
+
     if (pct === 100) {
       gradeMsg = 'Perfect Score!';
       badge = '🏆';
@@ -729,7 +741,7 @@ ${jsonNotes}`;
   // Export Scorecard
   function exportScoreCard() {
     if (!rawGeneratedText || !window.api) return;
-    
+
     const time = new Date().toLocaleString();
     const scoreCard = `StudyMind Practice Quiz Scorecard
 Subject: ${selectedSubject}
@@ -776,7 +788,7 @@ ${i + 1}. Question: ${w.question}
     if (!rawGeneratedText || !window.api) return;
     const defaultName = `StudyMind-Quiz-${Date.now()}.txt`;
     const result = await window.api.saveToFile(defaultName, rawGeneratedText);
-    
+
     if (result.success) {
       window.showToast('Quiz saved successfully!');
     } else if (result.message !== 'Save cancelled') {
@@ -803,11 +815,11 @@ ${i + 1}. Question: ${w.question}
   }
 
   // Prefill notes trigger for Quiz Maker
-  window.prefillQuizNotes = function(notes, subjectName) {
+  window.prefillQuizNotes = function (notes, subjectName) {
     notesTextarea.value = notes;
     const words = notes ? notes.split(/\s+/).length : 0;
     wordCountDisplay.textContent = `${words} words`;
-    
+
     subjectPills.forEach(p => {
       if (p.getAttribute('data-subject') === subjectName) {
         p.click();

@@ -1,42 +1,30 @@
 [
   {
-    "term": "Voice AssistantsDefinition",
-    "def": "Software that uses natural language processing to understand spoken commands and assist with hands free requests."
+    "term": "AI",
+    "def": "A broad field of creating intelligent machines, including ML, NLP, and Deep Learning."
   },
   {
-    "term": "Example",
-    "def": "Amazon Alexa, Apple Siri, and Google Assistant."
+    "term": "NLP",
+    "def": "Computer vision a subset of AI that enables machines to understand and interpret visual data, such as facia recognition or self driving cars."
   },
   {
-    "term": "Personalized Recommendation EnginesDefinition",
-    "def": "Algorithms that analyze past user behavior and preferences to suggest relevant content or products."
+    "term": "output pairs.",
+    "def": "AI capabilities include weak AI (Narrator AI), which can handle specific tasks such as speech recognition or streaming recommendations; strong AI (Superintelligence), which surpasses human cognitive abilities and may exist in the future; and supervised learning, which involves training models on labelled input"
   },
   {
-    "term": "Example",
-    "def": "Netflix suggesting movies or Spotify curating music playlists."
+    "term": "Supervised Learning",
+    "def": "Training a model on labelled input output pairs to predict labels for unsese data. Unsupervised Learning Letting an algorithm analyze unlabelled data to discover hidden patterns or grouping automatically."
   },
   {
-    "term": "Autonomous SystemsDefinition",
-    "def": "Machines or vehicles that interpret their surroundings and react to them in real time without continuous human steering."
+    "term": "Reinforcement Learning",
+    "def": "Training models through a system of trial, error, rewards, and penalties to optimize decision making."
   },
   {
-    "term": "Example",
-    "def": "Self driving cars (like those from Tesla) navigating traffic."
+    "term": "Real",
+    "def": "World Application"
   },
   {
-    "term": "Chatbots and Virtual AgentsDefinition",
-    "def": "AI driven interfaces designed to converse with users, resolve support issues, and answer routine questions 24/7."
-  },
-  {
-    "term": "Example",
-    "def": "Website customer service bots and text based platforms like ChatGPT.Smart Home AutomationDefinition Devices that adjust settings automatically by learning from daily household behaviors."
-  },
-  {
-    "term": "Example",
-    "def": "Smart thermostats and robotic vacuums."
-  },
-  {
-    "term": "Smart Email FiltersDefinition",
-    "def": "Machine learning models that automatically organize inboxes, detect spam, and suggest replies."
+    "term": "Everyday Life",
+    "def": "Virtual assistants (Siri, Alexa), spam filters, and navigation applications. Healthcare Early disease detection, robotic surgery, and accelerated drug discovery. Transportation & Industry Autoonomous vehicles, fraud detection in banking, and automatmed manufacturing."
   }
 ]

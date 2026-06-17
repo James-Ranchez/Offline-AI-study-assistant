@@ -278,11 +278,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   aiSummarizeBtn.addEventListener('click', () => {
-    runNoteAiAction('Summary', 'Summarize this note into 5 concise bullet points:');
+    runNoteAiAction('Summary', 'Summarize this note into concise bullet points depending on the content and number of terms : and differentiate the  term and its definition. and format it the readable way');
   });
 
   aiExplainBtn.addEventListener('click', () => {
-    runNoteAiAction('Concept Explanation', 'Explain this note simply for a student using analogies:');
+    runNoteAiAction('Concept Explanation', 'Explain this note simply for a student using analogies and provide examples about the content:');
   });
 
   aiTermsBtn.addEventListener('click', () => {
