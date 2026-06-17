@@ -32,21 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Creation fields
   const setNameInput = document.getElementById('fc-set-name');
   const setSubjectSelect = document.getElementById('fc-set-subject');
-  const manualTabBtn = document.getElementById('fc-tab-manual');
-  const aiTabBtn = document.getElementById('fc-tab-ai');
   const manualForm = document.getElementById('fc-form-manual');
-  const aiForm = document.getElementById('fc-form-ai');
 
   // Manual Inputs
   const cardFrontInput = document.getElementById('fc-card-front');
   const cardBackInput = document.getElementById('fc-card-back');
   const addCardBtn = document.getElementById('fc-add-card-btn');
-
-  // AI Inputs
-  const aiNotesInput = document.getElementById('fc-ai-notes');
-  const aiCountSlider = document.getElementById('fc-ai-count');
-  const aiCountValDisplay = document.getElementById('fc-ai-count-val');
-  const aiGenerateBtn = document.getElementById('fc-ai-generate-btn');
 
   // Preview List
   const previewList = document.getElementById('fc-preview-list');
@@ -75,7 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentStudyIndex = 0;
   let studySetReference = null;
   let studySessionRatings = {}; // tracks rating per card id
-  let isAiGenerating = false;
   let shuffleMode = false;
   let selectedDeckId = null; // Currently selected deck in sidebar
   let isSessionEnded = false;
@@ -109,21 +99,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     renderPreviewList();
-    switchTab('manual');
-  }
-
-  function switchTab(tab) {
-    if (tab === 'manual') {
-      manualTabBtn.classList.add('active');
-      aiTabBtn.classList.remove('active');
-      manualForm.style.display = 'flex';
-      aiForm.style.display = 'none';
-    } else {
-      manualTabBtn.classList.remove('active');
-      aiTabBtn.classList.add('active');
-      manualForm.style.display = 'none';
-      aiForm.style.display = 'flex';
-    }
   }
 
   // --- Sidebar Deck List ---
@@ -329,181 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.showToast('Card added to set preview!');
   });
 
-  // --- AI Flashcards Generator ---
-  aiNotesInput.addEventListener('input', () => {
-    const text = aiNotesInput.value.trim();
-    if (window.detectSubject) {
-      const detected = window.detectSubject(text);
-      if (detected) {
-        setSubjectSelect.value = detected;
-      }
-    }
-  });
-
-  aiGenerateBtn.addEventListener('click', () => {
-    if (isAiGenerating) return;
-
-    const notes = aiNotesInput.value.trim();
-    const num = aiCountSlider.value;
-
-    if (!notes) {
-      window.showToast('Please paste some study notes for the AI first.', 'warning');
-      return;
-    }
-
-    // Auto subject detection fallback immediately before generation
-    if (window.detectSubject) {
-      const detected = window.detectSubject(notes);
-      if (detected) {
-        setSubjectSelect.value = detected;
-      }
-    }
-
-    isAiGenerating = true;
-    aiGenerateBtn.textContent = 'Generating cards...';
-    aiGenerateBtn.disabled = true;
-
-    // Convert notes to JSON automatically and save it to the workspace
-    window.AutoJsonNotes.parseAndSave(notes).then((pairs) => {
-      const jsonNotes = pairs.length > 0 ? JSON.stringify(pairs, null, 2) : notes;
-
-      const prompt = `Analyze the provided notes in JSON format and generate exactly ${num} flashcards. 
-For each flashcard, you must identify a key academic concept/question and its answer/definition.
-Differentiate them clearly using FRONT and BACK tags.
-
-Strict Formatting Rules:
-1. The FRONT side must contain a clear, complete study question or definition (e.g. "What organelle is the powerhouse of the cell?" or "The process by which plants make food").
-2. The BACK side must contain the corresponding brief answer or key term (e.g. "Mitochondria" or "Photosynthesis").
-3. Do NOT put disconnected words or single terms on the FRONT side. Put the detailed definition or question on the FRONT and the concept/term on the BACK.
-4. Output each flashcard strictly in the following format:
-FRONT: [question or definition]
-BACK: [answer or key term]
-
-Notes (JSON format):
-${jsonNotes}`;
-
-      let responseText = '';
-
-      Ollama.generate(
-        prompt,
-        // Chunk listener
-        (chunk) => {
-          responseText += chunk;
-        },
-        // Completion listener
-        () => {
-          isAiGenerating = false;
-          aiGenerateBtn.textContent = 'Generate Cards';
-          aiGenerateBtn.disabled = false;
-
-          parseAiFlashcards(responseText);
-          aiNotesInput.value = '';
-          window.showToast('✓ AI Flashcards generated and added to preview!');
-        },
-        // Error listener
-        () => {
-          isAiGenerating = false;
-          aiGenerateBtn.textContent = 'Generate Cards';
-          aiGenerateBtn.disabled = false;
-          
-          // Fallback: parse direct notes using the dash rule
-          const text = aiNotesInput.value.trim();
-          const prevLength = tempCards.length;
-          parseAiFlashcards(text);
-          
-          if (tempCards.length > prevLength) {
-            aiNotesInput.value = '';
-            window.showToast('✓ Extracted cards directly from notes using structured JSON!', 'success');
-          } else {
-            window.showToast('Could not reach Ollama connection.', 'error');
-          }
-        }
-      );
-    }).catch(err => {
-      console.error(err);
-      isAiGenerating = false;
-      aiGenerateBtn.textContent = 'Generate Cards';
-      aiGenerateBtn.disabled = false;
-      window.showToast('Failed to parse notes to JSON.', 'error');
-    });
-  });
-
-  // Helper to clean brackets, quotes, and whitespace from parsed strings
-  function cleanValue(val) {
-    if (!val) return '';
-    let cleaned = val.trim();
-    // Strip leading/trailing brackets [ ]
-    cleaned = cleaned.replace(/^\[|\]$/g, '').trim();
-    // Strip leading/trailing quotes
-    cleaned = cleaned.replace(/^['"]|['"]$/g, '').trim();
-    return cleaned;
-  }
-
-  // Parse lines matching FRONT: [term] | BACK: [def] (inline) or multi-line FRONT: [term] and BACK: [def]
-  function parseAiFlashcards(text) {
-    if (!text) return;
-    
-    // Standardize newlines
-    let processedText = text.replace(/\r\n/g, '\n');
-    
-    // Preprocess: split smashed lines (e.g. "computer.RAM (Random Access Memory) - ")
-    processedText = processedText.replace(/([a-z0-9])\.([A-Z][a-zA-Z0-9\s()'"-]{1,100}?\s*(?:[\u2012\u2013\u2014\-:=]|\b(?:is|are)\b))/g, '$1.\n$2');
-    
-    const lines = processedText.split('\n');
-    let currentFront = '';
-    const initialLength = tempCards.length;
-
-    lines.forEach(line => {
-      const trimmed = line.trim();
-      if (!trimmed) return;
-
-      // Try matching FRONT: ... | BACK: ... inline first, with relaxed prefix matching (ignoring list bullets/numbers)
-      const inlineMatch = trimmed.match(/(?:^|[^a-zA-Z])FRONT\b[^:|]*[:|]\s*(.*?)\s*\|\s*BACK\b[^:]*:\s*(.*)/i);
-      if (inlineMatch) {
-        tempCards.push({
-          id: 'card-' + Date.now() + '-' + Math.floor(Math.random() * 10000),
-          front: cleanValue(inlineMatch[1]),
-          back: cleanValue(inlineMatch[2]),
-          gotIt: 0,
-          missed: 0
-        });
-        return;
-      }
-
-      // Try matching separate line FRONT: ... and BACK: ...
-      const frontMatch = trimmed.match(/(?:^|[^a-zA-Z])FRONT\b[^:]*:\s*(.*)/i);
-      const backMatch = trimmed.match(/(?:^|[^a-zA-Z])BACK\b[^:]*:\s*(.*)/i);
-
-      if (frontMatch) {
-        currentFront = frontMatch[1].trim();
-      } else if (backMatch && currentFront) {
-        tempCards.push({
-          id: 'card-' + Date.now() + '-' + Math.floor(Math.random() * 10000),
-          front: cleanValue(currentFront),
-          back: cleanValue(backMatch[1]),
-          gotIt: 0,
-          missed: 0
-        });
-        currentFront = ''; // Reset
-      }
-    });
-
-    // Fallback: If FRONT/BACK formatting wasn't matched, parse using structured utility
-    if (tempCards.length === initialLength) {
-      const fallbackPairs = window.AutoJsonNotes.parse(text);
-      fallbackPairs.forEach(p => {
-        tempCards.push({
-          id: 'card-' + Date.now() + '-' + Math.floor(Math.random() * 10000),
-          front: cleanValue(p.def),
-          back: cleanValue(p.term),
-          gotIt: 0,
-          missed: 0
-        });
-      });
-    }
-
-    renderPreviewList();
-  }
+  // AI Flashcards Generator removed
 
   // --- Preview List Renderer ---
   function renderPreviewList() {
@@ -536,8 +337,9 @@ ${jsonNotes}`;
 
       // Edit Card inline
       item.querySelector('.edit-card').addEventListener('click', () => {
-        const newFront = prompt('Edit Front Side:', card.front);
-        const newBack = prompt('Edit Back Side:', card.back);
+        const newFront = prompt('Edit Front Side (Key Term / Answer):', card.front);
+        const newBack = prompt('Edit Back Side (Definition / Explanation):', card.back);
+        
         if (newFront !== null && newBack !== null) {
           card.front = newFront.trim() || card.front;
           card.back = newBack.trim() || card.back;
@@ -925,14 +727,7 @@ ${jsonNotes}`;
     showMainView();
   });
 
-  manualTabBtn.addEventListener('click', () => switchTab('manual'));
-  aiTabBtn.addEventListener('click', () => switchTab('ai'));
-
-  if (aiCountSlider && aiCountValDisplay) {
-    aiCountSlider.addEventListener('input', () => {
-      aiCountValDisplay.textContent = aiCountSlider.value;
-    });
-  }
+  // Tab and slider listeners removed
 
   function escapeHTML(text) {
     if (text === null || text === undefined) return '';

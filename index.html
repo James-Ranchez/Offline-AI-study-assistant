@@ -667,39 +667,17 @@
                   </select>
                 </div>
 
-                <!-- Creation Mode Tabs -->
-                <div class="reviewer-tabs" style="margin-top: 10px;">
-                  <button class="reviewer-tab active" id="fc-tab-manual">Manual Input</button>
-                  <button class="reviewer-tab" id="fc-tab-ai">AI Notes Extractor</button>
-                </div>
-
                 <!-- Manual creation template -->
                 <div class="fc-form-manual" id="fc-form-manual" style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
                   <div class="config-group">
-                    <label for="fc-card-front">Front Side (Definition / Question):</label>
-                    <textarea id="fc-card-front" placeholder="e.g. What organelle is known as the powerhouse of the cell?" rows="2"></textarea>
+                    <label for="fc-card-front">Front Side (Key Term / Answer):</label>
+                    <textarea id="fc-card-front" placeholder="e.g. Mitochondria" rows="2"></textarea>
                   </div>
                   <div class="config-group">
-                    <label for="fc-card-back">Back Side (Key Term / Answer):</label>
-                    <textarea id="fc-card-back" placeholder="e.g. Mitochondria" rows="2"></textarea>
+                    <label for="fc-card-back">Back Side (Definition / Explanation):</label>
+                    <textarea id="fc-card-back" placeholder="e.g. The powerhouse of the cell" rows="2"></textarea>
                   </div>
                   <button class="btn-secondary" id="fc-add-card-btn" style="align-self: flex-start;">Add Card</button>
-                </div>
-
-                <!-- AI extractor template -->
-                <div class="fc-form-ai" id="fc-form-ai" style="display:none; flex-direction:column; gap:12px; margin-top:8px;">
-                  <div class="config-group">
-                    <label for="fc-ai-notes">Paste Study Notes:</label>
-                    <textarea id="fc-ai-notes" placeholder="Paste notes here to generate flashcard pairs..." rows="4"></textarea>
-                  </div>
-                  <div class="config-group">
-                    <div class="config-label-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
-                      <label for="fc-ai-count" class="control-label">Number of Flashcards:</label>
-                      <span class="config-value-display" id="fc-ai-count-val" style="font-weight:700; color:var(--accent);">5</span>
-                    </div>
-                    <input type="range" class="slider-input" id="fc-ai-count" min="3" max="15" value="5">
-                  </div>
-                  <button class="btn-secondary" id="fc-ai-generate-btn" style="align-self: flex-start;">Generate Flashcards</button>
                 </div>
               </div>
 
@@ -735,14 +713,14 @@
           <div class="fc-card-flipper">
             <!-- Front face -->
             <div class="fc-card-face front">
-              <span class="fc-card-hint-label">Question / Term</span>
+              <span class="fc-card-hint-label">Key Term / Answer</span>
               <div class="fc-card-text" id="fc-card-front-text">Front Card content</div>
               <span class="fc-card-click-tip">Click or Space to flip</span>
             </div>
             
             <!-- Back face -->
             <div class="fc-card-face back">
-              <span class="fc-card-hint-label">Answer / Definition</span>
+              <span class="fc-card-hint-label">Definition / Explanation</span>
               <div class="fc-card-text" id="fc-card-back-text">Back Card content</div>
               <span class="fc-card-click-tip">Click or Space to flip back</span>
             </div>

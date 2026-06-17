@@ -753,14 +753,14 @@ In the meantime, feel free to ask me about one of my preset topics, such as **Ph
         let f = '';
         let b = '';
         if (language === 'filipino') {
-          f = `Kahulugan: ${current.def}`;
-          b = `Termino: ${current.term}`;
+          f = `Termino: ${current.term}`;
+          b = `Kahulugan: ${current.def}`;
         } else if (language === 'taglish') {
-          f = `Definition: ${current.def}`;
-          b = `Term: ${current.term}`;
+          f = `Term: ${current.term}`;
+          b = `Definition: ${current.def}`;
         } else {
-          f = `${current.def}`;
-          b = `${current.term}`;
+          f = `${current.term}`;
+          b = `${current.def}`;
         }
         cards.push({ front: f, back: b });
       }

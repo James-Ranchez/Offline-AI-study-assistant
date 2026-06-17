@@ -450,8 +450,8 @@ ${jsonNotes}`;
     let currentPair = null;
 
     lines.forEach(line => {
-      const qMatch = line.match(/^\s*Q\s*[\:\-]\s*(.*)/i);
-      const aMatch = line.match(/^\s*A\s*[\:\-]\s*(.*)/i);
+      const qMatch = line.match(/^\s*(?:[-*•\d\.\(\)\[\]#]+\s*)?(?:Q|Question)\s*\d*\s*[:\-]\s*(.*)/i);
+      const aMatch = line.match(/^\s*(?:[-*•\d\.\(\)\[\]#]+\s*)?(?:A|Answer)\s*\d*\s*[:\-]\s*(.*)/i);
 
       if (qMatch) {
         if (currentPair) qaPairs.push(currentPair);
@@ -460,13 +460,13 @@ ${jsonNotes}`;
       else if (aMatch && currentPair) {
         currentPair.answer = aMatch[1].trim();
       } 
-      else if (currentPair && line.trim() && !line.includes('Question')) {
+      else if (currentPair && line.trim() && !line.match(/^\s*(?:[-*•\d\.\(\)\[\]#]+\s*)?(?:Q|Question)\b/i)) {
         currentPair.answer += ' ' + line.trim();
       }
     });
 
     if (currentPair) qaPairs.push(currentPair);
-    return qaPairs;
+    return qaPairs.filter(p => p.question.trim() !== '' && p.answer.trim() !== '');
   }
 
   // Render Single MCQ
