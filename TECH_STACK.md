@@ -11,14 +11,10 @@
 Notes
 - Packaging configuration is in `package.json` under `build` (targets: nsis, dmg, AppImage).
 - The app uses the filesystem and native dialogs via the main process — be mindful of sandboxing and safe IPC patterns when adding features.
-- Electron v42 is relatively old; consider upgrading Electron and dependencies for security and stability.
 
-Where to look
+
 - Main process: [main.js](main.js#L1)
 - Renderer entry: [index.html](index.html#L1) and [renderer/app.js](renderer/app.js#L1)
 - Preload and secure API: [preload.js](preload.js#L1)
 - Packaging config: [package.json](package.json#L1)
 
-If you want, I can:
-- Add JSDoc comments across all `renderer/*.js` and `main.js`.
-- Upgrade dependencies and test the build.

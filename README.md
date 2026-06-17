@@ -17,8 +17,8 @@
 5. **📝 My Notes**: Split layout with index searching, subject tags, and a markdown notepad. Includes 30-second background auto-saving and an AI Assist toolbar (Summarize, Explain, Find Key Terms, Improve Writing) streaming results into a right-hand drawers sheet.
 6. **⏱️ Pomodoro Focus Timer**: Concentrated focus clocks utilizing Pomodoro presets, Custom work/break timings, or simple Countdowns. Draws SVG circular progress ring offsets and triggers desktop alarms and notification alerts on completion.
 7. **📊 Progress Tracker**: Inspect streak histories, 30-day activity calendars, SVG-based MCQ score line graphs, flashcard deck mastery bars, and unlock milestone badges for study accomplishments.
-8. **💡 Topic Explainer**: Explain topics at simple, standard, or advanced levels. Supports explanations, step-by-step lists, comparisons, misconceptions, and real-world examples, alongside a related questions explorer sidebar.
-9. **⚙️ Settings Panel**: Model tags selectors, response detail sliders, theme toggles (dark, light, system system), font scaling (small, medium, large), sidebar collapsed overrides, default subjects, 6 preset accent colors, JSON data backup exports/imports, and clearing logs.
+
+8. **⚙️ Settings Panel**: Model tags selectors, response detail sliders, theme toggles (dark, light, system system), font scaling (small, medium, large), sidebar collapsed overrides, default subjects, 6 preset accent colors, JSON data backup exports/imports, and clearing logs.
 
 ---
 

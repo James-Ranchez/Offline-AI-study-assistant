@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const chatHistory = document.getElementById('chat-history');
   const welcomeState = document.getElementById('chat-welcome-state');
   const thinkingBubble = document.getElementById('chat-thinking');
-  
+
   // Header Actions
   const newChatBtn = document.getElementById('chat-new-btn');
   const drawerToggleBtn = document.getElementById('chat-history-drawer-toggle');
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const chatTitleRenameBtn = document.getElementById('chat-title-rename-btn');
   const renameIconPencil = chatTitleRenameBtn ? chatTitleRenameBtn.querySelector('.rename-icon-pencil') : null;
   const renameIconCheck = chatTitleRenameBtn ? chatTitleRenameBtn.querySelector('.rename-icon-check') : null;
-  
+
   // Drawer Elements
   const chatDrawer = document.getElementById('chat-drawer');
   const drawerCloseBtn = document.getElementById('chat-drawer-close');
@@ -74,12 +74,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- Sidebar Session Loading & Database Sync ---
-  
+
   // Reload sessions listing in the chat drawer
   function refreshSessionsList() {
     sessionsList.innerHTML = '';
     const sessions = window.StudyStorage.getChatSessions();
-    
+
     if (sessions.length === 0) {
       sessionsList.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 12px; padding: 20px 10px;">No saved study chats</div>`;
       return;
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sessions.forEach(session => {
       const item = document.createElement('div');
       item.className = `session-item ${currentSession && currentSession.id === session.id ? 'active' : ''}`;
-      
+
       // Choose subject icon
       let icon = '💬';
       if (session.subject === 'Science') icon = '🌧️';
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <svg viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       `;
-      
+
       item.addEventListener('click', (e) => {
         if (e.target.closest('.session-delete-btn')) return;
         loadSession(session);
@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
       delBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         const sessionId = delBtn.getAttribute('data-id');
-        
+
         window.showConfirmModal(
           'Delete Saved Chat?',
           'Are you sure you want to delete this study conversation session? This will remove it from your storage.',
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function loadSession(session) {
     currentSession = session;
     welcomeState.style.display = 'none';
-    
+
     // Sync inline title label + input value
     const sessionTitle = session.name || 'Study Chat';
     if (chatTitleLabel) chatTitleLabel.textContent = sessionTitle;
@@ -167,10 +167,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function startNewChat() {
     currentSession = null;
     welcomeState.style.display = 'flex';
-    
+
     const bubbles = chatHistory.querySelectorAll('.chat-message-row');
     bubbles.forEach(b => b.remove());
-    
+
     // Reset title back to default and cancel any rename edit
     if (chatTitleLabel) chatTitleLabel.textContent = 'Active study thread';
     if (chatTitleInput) chatTitleInput.value = 'Active study thread';
@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Expose global load hooks for Search
-  window.loadChatById = function(id) {
+  window.loadChatById = function (id) {
     const sessions = window.StudyStorage.getChatSessions();
     const match = sessions.find(s => s.id === id);
     if (match) loadSession(match);
@@ -197,19 +197,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const row = document.createElement('div');
     row.className = `chat-message-row ${role}-row`;
 
-    const timeStr = timestamp 
-      ? new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+    const timeStr = timestamp
+      ? new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     const bubble = document.createElement('div');
     bubble.className = `message-bubble ${role}`;
-    
+
     const formatted = formatAIResponseText(text);
     bubble.innerHTML = `
       <p>${formatted}</p>
       <span class="message-timestamp">${timeStr}</span>
     `;
-    
+
     if (role === 'assistant') {
       const avatarDiv = document.createElement('div');
       avatarDiv.className = 'chat-avatar';
@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
       row.appendChild(avatarDiv);
     }
     row.appendChild(bubble);
-    
+
     chatHistory.appendChild(row);
 
     // Render chips if assistant message
@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
   chatInput.addEventListener('input', () => {
     chatInput.style.height = 'auto';
     chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
-    
+
     const length = chatInput.value.length;
     if (length > 500) {
       charCounter.textContent = `${length} characters`;
@@ -257,14 +257,14 @@ document.addEventListener('DOMContentLoaded', () => {
     subPromptsContainer.innerHTML = '';
     const activeChip = subjectsRow.querySelector('.subject-chip.active');
     if (activeChip) activeChip.classList.remove('active');
-    
+
     // Reset subjects selection row
     const chips = subjectsRow.querySelectorAll('.subject-chip');
     chips.forEach(chip => {
       chip.addEventListener('click', () => {
         chips.forEach(c => c.classList.remove('active'));
         chip.classList.add('active');
-        
+
         const sub = chip.getAttribute('data-subject');
         renderSubPrompts(sub);
       });
@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderSubPrompts(subject) {
     subPromptsContainer.innerHTML = '';
     const promptsList = subPrompts[subject] || [];
-    
+
     promptsList.forEach(text => {
       const btn = document.createElement('button');
       btn.className = 'sub-prompt-btn';
@@ -336,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const messages = [
       {
         role: 'system',
-        content: 'You are StudyMind, a supportive, knowledgeable, and friendly offline AI study assistant. Speak like an actual human study partner who is mentoring the student. Answer questions clearly, simply, and accurately. Use examples and analogies when helpful. Keep your answers conversational, encouraging, and focused on helping the student learn. Do not repeat prompt tags or prefix your responses with role names.'
+        content: 'You are StudyMind, a supportive, knowledgeable, and friendly offline AI study assistant. Speak like an actual human study partner who is mentoring the student. Answer questions clearly, simply, and accurately. Use examples and analogies when helpful. Keep your answers conversational, encouraging, and focused on helping the student learn. Do not repeat prompt tags or prefix your responses with role names. The student may ask questions in Tagalog or Filipino. If they do, understand their question and answer about the topic they are asking about. You can respond in English. And know how to introduce your self if a user asked your name, your name is StudyMind, rememmber this.'
       },
       ...recentMessages
     ];
@@ -355,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
           thinkingBubble.classList.remove('active');
           bubble = appendMessageBubble('assistant', '', new Date().toISOString());
           paragraph = bubble.querySelector('p');
-          
+
           cursor = document.createElement('span');
           cursor.className = 'streaming-cursor';
           bubble.appendChild(cursor);
@@ -373,10 +373,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const aiTime = new Date().toISOString();
         const assistantMessage = { role: 'assistant', content: responseText, timestamp: aiTime };
         currentSession.messages.push(assistantMessage);
-        
+
         // Save
         window.StudyStorage.saveChatSession(currentSession);
-        
+
         // Log in progress tracker
         window.StudyStorage.logStudySession({
           date: new Date().toISOString().split('T')[0],
@@ -403,7 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
           paragraph = bubble.querySelector('p');
         }
 
-        const errMsg = Ollama.isMockMode 
+        const errMsg = Ollama.isMockMode
           ? 'Error compiling mock response.'
           : "Could not reach the AI. Ensure Ollama service is running. Consult settings diagnostics.";
 
@@ -415,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Actions Listeners ---
   sendBtn.addEventListener('click', () => submitUserMessage());
-  
+
   chatInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -527,7 +527,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function formatAIResponseText(text) {
     if (!text) return '';
     let escaped = escapeHTML(text);
-    
+
     // 1. Extract code blocks to prevent formatting inside code
     const codeBlocks = [];
     escaped = escaped.replace(/```([\s\S]*?)```/g, (match, code) => {
@@ -672,7 +672,7 @@ document.addEventListener('DOMContentLoaded', () => {
     welcomeState.style.display = 'none';
 
     const timestamp = new Date().toISOString();
-    
+
     // Create custom user message display text
     let userMsgText = `Explain the concept of **${topic}**`;
     if (format === 'compare') {
@@ -742,7 +742,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const messages = [
       {
         role: 'system',
-        content: 'You are StudyMind, a supportive, knowledgeable, and friendly offline AI study assistant. Speak like an actual human study partner who is mentoring the student. Answer questions clearly, simply, and accurately. Use examples and analogies when helpful. Keep your answers conversational, encouraging, and focused on helping the student learn. Do not repeat prompt tags or prefix your responses with role names.'
+        content: 'You are StudyMind, a supportive, knowledgeable, and friendly offline AI study assistant. Speak like an actual human study partner who is mentoring the student. Answer questions clearly, simply, and accurately. Use examples and analogies when helpful. Keep your answers conversational, encouraging, and focused on helping the student learn. Do not repeat prompt tags or prefix your responses with role names. The student may ask questions in Tagalog or Filipino. If they do, understand their question and answer about the topic they are asking about. You can respond in English.'
       },
       ...recentMessages,
       { role: 'user', content: prompt }
@@ -762,7 +762,7 @@ document.addEventListener('DOMContentLoaded', () => {
           thinkingBubble.classList.remove('active');
           bubble = appendMessageBubble('assistant', '', new Date().toISOString());
           paragraph = bubble.querySelector('p');
-          
+
           cursor = document.createElement('span');
           cursor.className = 'streaming-cursor';
           bubble.appendChild(cursor);
@@ -787,10 +787,10 @@ document.addEventListener('DOMContentLoaded', () => {
           explanationLevel: level
         };
         currentSession.messages.push(assistantMessage);
-        
+
         // Save
         window.StudyStorage.saveChatSession(currentSession);
-        
+
         // Log in progress tracker
         window.StudyStorage.logStudySession({
           date: new Date().toISOString().split('T')[0],
@@ -819,7 +819,7 @@ document.addEventListener('DOMContentLoaded', () => {
           paragraph = bubble.querySelector('p');
         }
 
-        const errMsg = Ollama.isMockMode 
+        const errMsg = Ollama.isMockMode
           ? 'Error compiling mock response.'
           : "Could not reach the AI. Ensure Ollama service is running. Consult settings diagnostics.";
 
@@ -879,7 +879,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const messages = [
       {
         role: 'system',
-        content: 'You are StudyMind, a supportive, knowledgeable, and friendly offline AI study assistant. Speak like an actual human study partner who is mentoring the student. Answer questions clearly, simply, and accurately. Use examples and analogies when helpful. Keep your answers conversational, encouraging, and focused on helping the student learn. Do not repeat prompt tags or prefix your responses with role names.'
+        content: 'You are StudyMind, a supportive, knowledgeable, and friendly offline AI study assistant. Speak like an actual human study partner who is mentoring the student. Answer questions clearly, simply, and accurately. Use examples and analogies when helpful. Keep your answers conversational, encouraging, and focused on helping the student learn. Do not repeat prompt tags or prefix your responses with role names. The student may ask questions in Tagalog or Filipino. If they do, understand their question and answer about the topic they are asking about. You can respond in English.'
       },
       ...recentMessages,
       { role: 'user', content: prompt }
@@ -897,7 +897,7 @@ document.addEventListener('DOMContentLoaded', () => {
           thinkingBubble.classList.remove('active');
           bubble = appendMessageBubble('assistant', '', new Date().toISOString());
           paragraph = bubble.querySelector('p');
-          
+
           cursor = document.createElement('span');
           cursor.className = 'streaming-cursor';
           bubble.appendChild(cursor);
@@ -921,9 +921,9 @@ document.addEventListener('DOMContentLoaded', () => {
           explanationLevel: level
         };
         currentSession.messages.push(assistantMessage);
-        
+
         window.StudyStorage.saveChatSession(currentSession);
-        
+
         window.StudyStorage.logStudySession({
           date: new Date().toISOString().split('T')[0],
           type: 'chat',
@@ -941,7 +941,7 @@ document.addEventListener('DOMContentLoaded', () => {
         thinkingBubble.classList.remove('active');
         if (cursor) cursor.remove();
         isGenerating = false;
-        
+
         if (!bubble) {
           bubble = appendMessageBubble('assistant', '', new Date().toISOString());
           paragraph = bubble.querySelector('p');

@@ -287,8 +287,8 @@ window.detectSubject = function(text) {
   const clean = text.toLowerCase();
   
   // Tagalog check first
-  const filipinoCount = (clean.match(/\b(mga|ng|ang|sa|na|para|at|ngunit|subalit|pilipinas|wika|panitikan|o|ay|si|sino|ano|ilan|dahil)\b/g) || []).length;
-  if (filipinoCount >= 3) {
+  const filipinoCount = (clean.match(/\b(mga|ng|ang|sa|na|para|at|ngunit|subalit|pilipinas|wika|panitikan|o|ay|si|sino|ano|ilan|dahil|ako|ano)\b/g) || []).length;
+  if (filipinoCount >= 1) {
     return 'Filipino';
   }
 
